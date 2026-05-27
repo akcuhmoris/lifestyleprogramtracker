@@ -1,0 +1,28 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+*.log
+.env*
+.DS_Store
+
+# Local DB file (your personal challenge data)
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# User-uploaded progress photos (private)
+/public/progress-photos/
+
+# Editor
+.vscode/
+.idea/
+
+# Personal Claude Code / AI agent tooling (not part of the app)
+/.agents/
+/.claude/
+/skills-lock.json

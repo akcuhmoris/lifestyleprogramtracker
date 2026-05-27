@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #0a0a0b;
+  color: #f4f4f5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ambient electric-blue glow behind the whole page. */
+body {
+  background-image:
+    radial-gradient(
+      1100px 600px at 78% -10%,
+      rgba(14, 165, 255, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 12% 105%,
+      rgba(14, 165, 255, 0.09),
+      transparent 65%
+    ),
+    radial-gradient(
+      600px 360px at 50% 120%,
+      rgba(61, 189, 255, 0.06),
+      transparent 70%
+    );
+  background-attachment: fixed;
+}
+
+.text-gradient-accent {
+  background: linear-gradient(110deg, #ffffff 0%, #b9e2ff 45%, #3dbdff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-blue {
+  background: linear-gradient(120deg, #3dbdff 0%, #0ea5ff 60%, #0284c7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+::selection {
+  background: rgba(14, 165, 255, 0.35);
+  color: #ffffff;
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #26262c;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a42;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
