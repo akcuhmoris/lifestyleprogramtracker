@@ -6,8 +6,10 @@ import { Check, ChevronDown, Scale, X, Camera, ImagePlus, Trash2, Loader2, Eye }
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { TASKS, JOURNAL_TASK_ID } from "@/lib/tasks";
+import { findPhotoTaskId, type Task } from "@/lib/tasks";
+import { getIcon } from "@/lib/icons";
 import { dayNumber, formatPretty } from "@/lib/date";
+import { DayProgressBar } from "./day-progress-bar";
 import {
   loadDayAction,
   saveJournalAction,
@@ -19,12 +21,13 @@ import {
   deleteProgressPhotoAction,
 } from "@/app/actions";
 
-const PHOTO_TASK_ID = 8;
 
 type Props = {
   open: boolean;
   date: string | null;
   startDate: string;
+  tasks: Task[];
+  totalDays: number;
   onOpenChange: (open: boolean) => void;
 };
 
@@ -39,7 +42,14 @@ type Loaded = {
   photo: { filename: string; mime: string | null } | null;
 };
 
-export function DayDetailModal({ open, date, startDate, onOpenChange }: Props) {
+export function DayDetailModal({
+  open,
+  date,
+  startDate,
+  tasks,
+  totalDays,
+  onOpenChange,
+}: Props) {
   const [data, setData] = useState<Loaded | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -68,7 +78,7 @@ export function DayDetailModal({ open, date, startDate, onOpenChange }: Props) {
   }
 
   const completedCount = data?.completedTaskIds.length ?? 0;
-  const allDone = completedCount === TASKS.length;
+  const allDone = tasks.length > 0 && completedCount === tasks.length;
   const tone: "complete" | "partial" | "miss" =
     allDone ? "complete" : completedCount === 0 ? "miss" : "partial";
 
@@ -106,8 +116,10 @@ export function DayDetailModal({ open, date, startDate, onOpenChange }: Props) {
                   <Header
                     date={date}
                     startDate={startDate}
+                    totalDays={totalDays}
                     tone={tone}
                     completedCount={completedCount}
+                    taskCount={tasks.length}
                     onClose={handleClose}
                   />
                 )}
@@ -117,7 +129,7 @@ export function DayDetailModal({ open, date, startDate, onOpenChange }: Props) {
                       Loading…
                     </div>
                   ) : (
-                    <Body data={data} onChange={setData} />
+                    <Body data={data} tasks={tasks} onChange={setData} />
                   )}
                 </div>
               </motion.div>
@@ -132,14 +144,18 @@ export function DayDetailModal({ open, date, startDate, onOpenChange }: Props) {
 function Header({
   date,
   startDate,
+  totalDays,
   tone,
   completedCount,
+  taskCount,
   onClose,
 }: {
   date: string;
   startDate: string;
+  totalDays: number;
   tone: "complete" | "partial" | "miss";
   completedCount: number;
+  taskCount: number;
   onClose: () => void;
 }) {
   const dayN = dayNumber(date, startDate);
@@ -154,7 +170,7 @@ function Header({
     <header className="flex items-start justify-between gap-4 px-6 py-5 border-b border-border-subtle">
       <div>
         <Dialog.Title className="text-xs uppercase tracking-[0.22em] text-text-dim">
-          Day {dayN} of 100
+          Day {dayN} of {totalDays}
         </Dialog.Title>
         <Dialog.Description className="mt-1 text-lg font-semibold tracking-tight text-text">
           {formatPretty(date)}
@@ -169,8 +185,15 @@ function Header({
             {badge.label}
           </span>
           <span className="text-xs text-text-muted tabular-nums">
-            {completedCount}/{TASKS.length} tasks
+            {completedCount}/{taskCount} tasks
           </span>
+        </div>
+        <div className="mt-3 max-w-xs">
+          <DayProgressBar
+            completed={completedCount}
+            total={taskCount}
+            variant="compact"
+          />
         </div>
       </div>
       <button
@@ -186,30 +209,34 @@ function Header({
 
 function Body({
   data,
+  tasks,
   onChange,
 }: {
   data: Loaded;
+  tasks: Task[];
   onChange: (d: Loaded) => void;
 }) {
+  const photoId = findPhotoTaskId(tasks);
+
+  const [expandedDetailId, setExpandedDetailId] = useState<number | null>(null);
+  const [detailNudge, setDetailNudge] = useState(0);
+
   async function toggle(taskId: number, next: boolean) {
-    const def = TASKS.find((t) => t.id === taskId);
+    const def = tasks.find((t) => t.id === taskId);
     if (next && def?.requiresDetail) {
       const existing = (data.taskDetails[taskId] ?? "").trim();
       if (existing.length === 0) {
-        // Don't toggle without text — open the drawer for this task and bail.
         setExpandedDetailId(taskId);
         setDetailNudge((n) => n + 1);
         return;
       }
     }
-    // optimistic
     const nextSet = new Set(data.completedTaskIds);
     if (next) nextSet.add(taskId);
     else nextSet.delete(taskId);
     onChange({ ...data, completedTaskIds: [...nextSet].sort((a, b) => a - b) });
     const res = await toggleTaskAction(data.date, taskId, next);
     if (!res.ok) {
-      // revert
       const revertSet = new Set(data.completedTaskIds);
       if (next) revertSet.delete(taskId);
       else revertSet.add(taskId);
@@ -217,11 +244,8 @@ function Body({
     }
   }
 
-  const [expandedDetailId, setExpandedDetailId] = useState<number | null>(null);
-  const [detailNudge, setDetailNudge] = useState(0);
-
   function handleDetailContentChange(taskId: number, content: string) {
-    const def = TASKS.find((t) => t.id === taskId);
+    const def = tasks.find((t) => t.id === taskId);
     if (!def?.requiresDetail) {
       onChange({ ...data, taskDetails: { ...data.taskDetails, [taskId]: content } });
       return;
@@ -245,12 +269,12 @@ function Body({
       <section>
         <SectionTitle>The 12 disciplines</SectionTitle>
         <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {TASKS.map((t) => {
+          {tasks.map((t) => {
             const isComplete = data.completedTaskIds.includes(t.id);
-            const Icon = t.icon;
-            const isJournal = t.id === JOURNAL_TASK_ID;
-            const isPhoto = t.id === PHOTO_TASK_ID;
-            if (isPhoto) {
+            const Icon = getIcon(t.icon);
+            const isJournal = t.kind === "journal";
+            const isPhoto = t.kind === "photo";
+            if (isPhoto && photoId != null) {
               return (
                 <li
                   key={t.id}
@@ -267,8 +291,8 @@ function Body({
                     completed={isComplete}
                     onChange={(p) => {
                       const set = new Set(data.completedTaskIds);
-                      if (p) set.add(PHOTO_TASK_ID);
-                      else set.delete(PHOTO_TASK_ID);
+                      if (p) set.add(photoId);
+                      else set.delete(photoId);
                       onChange({
                         ...data,
                         photo: p,

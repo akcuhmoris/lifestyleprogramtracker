@@ -1,7 +1,10 @@
 import "server-only";
 import Database from "better-sqlite3";
 import path from "node:path";
-import { CHALLENGE_START, TOTAL_DAYS, todayLocal } from "./date";
+import { CHALLENGE_START, TOTAL_DAYS as DEFAULT_TOTAL_DAYS, todayLocal } from "./date";
+
+// Re-export the default so callers without DB access still have a fallback.
+export const TOTAL_DAYS = DEFAULT_TOTAL_DAYS;
 
 const DB_PATH = path.join(process.cwd(), "hardtracker.db");
 
@@ -67,11 +70,100 @@ function open(): Database.Database {
       uploaded_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      position INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      subtitle TEXT,
+      icon TEXT NOT NULL DEFAULT 'ListChecks',
+      kind TEXT NOT NULL DEFAULT 'check',
+      requires_detail INTEGER NOT NULL DEFAULT 0,
+      detail_label TEXT,
+      detail_placeholder TEXT,
+      archived INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS app_state (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
   `);
+
+  // Seed default total_days if missing.
+  const ds = db
+    .prepare(`SELECT value FROM settings WHERE key = 'total_days'`)
+    .get() as { value: string } | undefined;
+  if (!ds) {
+    db.prepare(`INSERT INTO settings (key, value) VALUES ('total_days', ?)`).run(
+      String(TOTAL_DAYS)
+    );
+  }
+
+  // Seed default 12 tasks on first run.
+  const tcount = db.prepare(`SELECT COUNT(*) as c FROM tasks`).get() as { c: number };
+  if (tcount.c === 0) {
+    const seed = db.prepare(
+      `INSERT INTO tasks (position, title, subtitle, icon, kind, requires_detail, detail_label, detail_placeholder)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    );
+    const DEFAULT_TASKS = [
+      ["Structured diet", "No cheat meals", "Apple", "check", 0, null, null],
+      ["No alcohol", null, "Beer", "check", 0, null, null],
+      ["No processed food", null, "Sandwich", "check", 0, null, null],
+      [
+        "Workout 1",
+        "45 min · log what you did",
+        "Dumbbell",
+        "check",
+        1,
+        "What did you do?",
+        "e.g. Push day · bench, OHP, dips, triceps",
+      ],
+      [
+        "Workout 2",
+        "45 min outdoors · log what you did",
+        "Trees",
+        "check",
+        1,
+        "What did you do?",
+        "e.g. 5-mile zone 2 run along the river",
+      ],
+      ["1 gallon of water", null, "GlassWater", "check", 0, null, null],
+      [
+        "Read 10 pages",
+        "Nonfiction",
+        "BookOpen",
+        "check",
+        0,
+        "What did you read?",
+        "e.g. Atomic Habits · ch. 3, pp. 41–53",
+      ],
+      ["Progress photo", null, "Camera", "photo", 0, null, null],
+      ["Self-care block", "20–30 min", "Sparkles", "check", 0, null, null],
+      ["7+ hours sleep", null, "Moon", "check", 0, null, null],
+      [
+        "No social media",
+        "Until morning task done",
+        "Smartphone",
+        "check",
+        0,
+        null,
+        null,
+      ],
+      ["Journal entry", "Tap to write", "PenLine", "journal", 0, null, null],
+    ] as const;
+    const tx = db.transaction(() => {
+      DEFAULT_TASKS.forEach((row, i) => {
+        seed.run(i, ...row);
+      });
+    });
+    tx();
+  }
 
   // Seed the initial challenge if none exists.
   const row = db.prepare(`SELECT id FROM challenges ORDER BY id ASC LIMIT 1`).get() as
@@ -107,6 +199,136 @@ export type DayRow = {
 };
 
 // ---------- Reads ----------
+
+// ---------- Settings & task definitions ----------
+
+export type TaskKind = "check" | "journal" | "photo";
+
+export type TaskRow = {
+  id: number;
+  position: number;
+  title: string;
+  subtitle: string | null;
+  icon: string;
+  kind: TaskKind;
+  requiresDetail: boolean;
+  detailLabel: string | null;
+  detailPlaceholder: string | null;
+};
+
+export function getTotalDays(): number {
+  const db = getDB();
+  const row = db
+    .prepare(`SELECT value FROM settings WHERE key = 'total_days'`)
+    .get() as { value: string } | undefined;
+  const n = row ? parseInt(row.value, 10) : DEFAULT_TOTAL_DAYS;
+  if (!Number.isFinite(n) || n < 1) return DEFAULT_TOTAL_DAYS;
+  return Math.min(365, Math.max(1, n));
+}
+
+export function setTotalDays(n: number) {
+  const db = getDB();
+  const v = Math.min(365, Math.max(1, Math.floor(n)));
+  db.prepare(
+    `INSERT INTO settings (key, value) VALUES ('total_days', ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+  ).run(String(v));
+}
+
+export function getTasks(): TaskRow[] {
+  const db = getDB();
+  const rows = db
+    .prepare(
+      `SELECT id, position, title, subtitle, icon, kind, requires_detail as requiresDetail,
+              detail_label as detailLabel, detail_placeholder as detailPlaceholder
+       FROM tasks
+       WHERE archived = 0
+       ORDER BY position ASC, id ASC`
+    )
+    .all() as Array<{
+      id: number;
+      position: number;
+      title: string;
+      subtitle: string | null;
+      icon: string;
+      kind: string;
+      requiresDetail: number;
+      detailLabel: string | null;
+      detailPlaceholder: string | null;
+    }>;
+  return rows.map((r) => ({
+    ...r,
+    requiresDetail: !!r.requiresDetail,
+    kind: (["check", "journal", "photo"].includes(r.kind) ? r.kind : "check") as TaskKind,
+  }));
+}
+
+export type TaskInput = {
+  id?: number;
+  title: string;
+  subtitle: string | null;
+  icon: string;
+  kind: TaskKind;
+  requiresDetail: boolean;
+  detailLabel: string | null;
+  detailPlaceholder: string | null;
+};
+
+export function upsertTask(input: TaskInput, position?: number): number {
+  const db = getDB();
+  if (input.id) {
+    db.prepare(
+      `UPDATE tasks SET title = ?, subtitle = ?, icon = ?, kind = ?,
+        requires_detail = ?, detail_label = ?, detail_placeholder = ?
+       WHERE id = ?`
+    ).run(
+      input.title,
+      input.subtitle,
+      input.icon,
+      input.kind,
+      input.requiresDetail ? 1 : 0,
+      input.detailLabel,
+      input.detailPlaceholder,
+      input.id
+    );
+    return input.id;
+  }
+  // new task — append to end if position not provided
+  const max = db.prepare(`SELECT COALESCE(MAX(position), -1) as p FROM tasks`).get() as {
+    p: number;
+  };
+  const pos = position ?? max.p + 1;
+  const r = db
+    .prepare(
+      `INSERT INTO tasks (position, title, subtitle, icon, kind, requires_detail, detail_label, detail_placeholder)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+    .run(
+      pos,
+      input.title,
+      input.subtitle,
+      input.icon,
+      input.kind,
+      input.requiresDetail ? 1 : 0,
+      input.detailLabel,
+      input.detailPlaceholder
+    );
+  return Number(r.lastInsertRowid);
+}
+
+export function archiveTask(id: number) {
+  const db = getDB();
+  db.prepare(`UPDATE tasks SET archived = 1 WHERE id = ?`).run(id);
+}
+
+export function reorderTasks(ordering: number[]) {
+  const db = getDB();
+  const u = db.prepare(`UPDATE tasks SET position = ? WHERE id = ?`);
+  const tx = db.transaction(() => {
+    ordering.forEach((id, i) => u.run(i, id));
+  });
+  tx();
+}
 
 export function getActiveChallenge() {
   const db = getDB();
@@ -218,7 +440,7 @@ function activeRange(): { start: string; endExclusive: string } | null {
   const ch = getActiveChallenge();
   if (!ch) return null;
   const start = ch.start_date;
-  const endExclusive = addDaysISO(start, TOTAL_DAYS);
+  const endExclusive = addDaysISO(start, getTotalDays());
   return { start, endExclusive };
 }
 
@@ -308,7 +530,8 @@ export function getAllDayStatuses(): DayStatusEntry[] {
   const today = todayLocal();
   const out: DayStatusEntry[] = [];
   const start = ch.start_date;
-  for (let i = 0; i < TOTAL_DAYS; i++) {
+  const total = getTotalDays();
+  for (let i = 0; i < total; i++) {
     const d = addDaysISO(start, i);
     out.push({
       date: d,

@@ -3,8 +3,8 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { TOTAL_DAYS } from "@/lib/date";
 import { DayDetailModal } from "./day-detail-modal";
+import type { Task } from "@/lib/tasks";
 
 export type DayStatus = {
   date: string;
@@ -15,14 +15,16 @@ export type DayStatus = {
 type Props = {
   today: string;
   startDate: string;
+  totalDays: number;
+  tasks: Task[];
   statuses: DayStatus[];
 };
 
 type Tone = "future" | "miss" | "partial" | "complete";
 
-function toneFor(s: DayStatus, today: string): Tone {
+function toneFor(s: DayStatus, today: string, taskCount: number): Tone {
   if (s.isFuture) return "future";
-  if (s.completedCount === 12) return "complete";
+  if (taskCount > 0 && s.completedCount === taskCount) return "complete";
   // For "today", don't classify as a miss until the day is over.
   if (s.date === today) {
     if (s.completedCount === 0) return "future";
@@ -42,8 +44,15 @@ const cellStyles: Record<Tone, string> = {
     "bg-accent/25 border-accent/60 text-white shadow-[0_0_18px_-4px_rgba(14,165,255,0.55)] hover:shadow-[0_0_24px_-2px_rgba(14,165,255,0.75)] hover:border-accent",
 };
 
-export function CalendarGrid({ today, startDate, statuses }: Props) {
+export function CalendarGrid({
+  today,
+  startDate,
+  totalDays,
+  tasks,
+  statuses,
+}: Props) {
   const [openDate, setOpenDate] = useState<string | null>(null);
+  const taskCount = tasks.length;
 
   const counts = {
     complete: 0,
@@ -51,15 +60,15 @@ export function CalendarGrid({ today, startDate, statuses }: Props) {
     miss: 0,
     future: 0,
   };
-  for (const s of statuses) counts[toneFor(s, today)]++;
+  for (const s of statuses) counts[toneFor(s, today, taskCount)]++;
 
   return (
     <>
-      <Legend counts={counts} />
+      <Legend counts={counts} totalDays={totalDays} taskCount={taskCount} />
 
       <div className="mt-8 grid grid-cols-5 gap-2.5 sm:grid-cols-10">
         {statuses.map((s, i) => {
-          const tone = toneFor(s, today);
+          const tone = toneFor(s, today, taskCount);
           const isToday = s.date === today;
           const dayN = i + 1;
           const disabled = s.isFuture;
@@ -86,7 +95,7 @@ export function CalendarGrid({ today, startDate, statuses }: Props) {
                 cellStyles[tone],
                 disabled && "cursor-not-allowed opacity-60"
               )}
-              aria-label={`Day ${dayN} · ${s.date} · ${s.completedCount}/12 done`}
+              aria-label={`Day ${dayN} · ${s.date} · ${s.completedCount}/${taskCount} done`}
             >
               {isToday && (
                 <span
@@ -99,7 +108,7 @@ export function CalendarGrid({ today, startDate, statuses }: Props) {
                 {String(dayN).padStart(2, "0")}
               </span>
               <span className="self-end text-[11px] font-medium tabular-nums">
-                {s.isFuture ? "—" : `${s.completedCount}/12`}
+                {s.isFuture ? "—" : `${s.completedCount}/${taskCount}`}
               </span>
             </motion.button>
           );
@@ -110,6 +119,8 @@ export function CalendarGrid({ today, startDate, statuses }: Props) {
         open={openDate !== null}
         date={openDate}
         startDate={startDate}
+        tasks={tasks}
+        totalDays={totalDays}
         onOpenChange={(o) => {
           if (!o) setOpenDate(null);
         }}
@@ -120,8 +131,12 @@ export function CalendarGrid({ today, startDate, statuses }: Props) {
 
 function Legend({
   counts,
+  totalDays,
+  taskCount,
 }: {
   counts: { complete: number; partial: number; miss: number; future: number };
+  totalDays: number;
+  taskCount: number;
 }) {
   const items: { label: string; sw: string; count: number }[] = [
     { label: "Complete", sw: "bg-accent shadow-glow", count: counts.complete },
@@ -135,7 +150,7 @@ function Legend({
   ];
 
   const done = counts.complete;
-  const pct = Math.round((done / TOTAL_DAYS) * 100);
+  const pct = totalDays > 0 ? Math.round((done / totalDays) * 100) : 0;
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-border bg-bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -147,8 +162,11 @@ function Legend({
           <span className="text-3xl font-semibold tracking-tight text-gradient-accent tabular-nums">
             {done}
           </span>
-          <span className="text-sm text-text-dim">/ {TOTAL_DAYS}</span>
+          <span className="text-sm text-text-dim">/ {totalDays}</span>
           <span className="ml-2 text-xs text-accent-glow tabular-nums">{pct}%</span>
+        </div>
+        <div className="mt-1 text-xs text-text-dim">
+          {totalDays} days · {taskCount} {taskCount === 1 ? "task" : "tasks"} per day
         </div>
       </div>
       <div className="flex flex-wrap gap-x-5 gap-y-2">

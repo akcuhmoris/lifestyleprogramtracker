@@ -3,16 +3,17 @@ import {
   getPerTaskStats,
   getWeightSeries,
   getActiveChallenge,
+  getTasks,
+  getTotalDays,
 } from "@/lib/db";
-import { TASKS } from "@/lib/tasks";
 import {
   CHALLENGE_START,
-  TOTAL_DAYS,
   daysBetween,
   formatPretty,
   todayLocal,
 } from "@/lib/date";
 import { StatsBoard } from "@/components/stats-board";
+import { findJournalTaskId, findPhotoTaskId } from "@/lib/tasks";
 
 export const dynamic = "force-dynamic";
 
@@ -20,47 +21,57 @@ export default function StatsPage() {
   const today = todayLocal();
   const ch = getActiveChallenge();
   const startDate = ch?.start_date ?? CHALLENGE_START;
+  const tasks = getTasks();
+  const totalDays = getTotalDays();
 
   const statuses = getAllDayStatuses();
   const perTask = getPerTaskStats();
   const weightSeries = getWeightSeries();
 
   const elapsedRaw = daysBetween(startDate, today) + 1;
-  const elapsed = Math.max(0, Math.min(elapsedRaw, TOTAL_DAYS));
+  const elapsed = Math.max(0, Math.min(elapsedRaw, totalDays));
 
+  const taskCount = tasks.length;
   let full = 0,
     partial = 0,
     missed = 0;
   for (const s of statuses) {
     const isPast = s.date < today;
-    if (s.completedCount === 12) full++;
+    if (taskCount > 0 && s.completedCount === taskCount) full++;
     else if (isPast) {
       if (s.completedCount === 0) missed++;
       else partial++;
     }
   }
-  const inProgressToday = statuses.find((s) => s.date === today);
-  if (inProgressToday && inProgressToday.completedCount === 12) {
-    // already counted
-  }
 
-  // Per-task records
+  // Per-task records, in the order tasks are configured.
   const perTaskMap = new Map(perTask.map((p) => [p.taskId, p.completedDays]));
-  const perTaskRecords = TASKS.map((t) => ({
+  const perTaskRecords = tasks.map((t) => ({
     id: t.id,
     title: t.title,
     completedDays: perTaskMap.get(t.id) ?? 0,
     elapsed,
   }));
 
-  // Aggregates
-  const waterDays = perTaskMap.get(6) ?? 0;
-  const workoutCount = (perTaskMap.get(4) ?? 0) + (perTaskMap.get(5) ?? 0);
+  // Aggregate totals by inferring semantics from task titles where possible.
+  const find = (re: RegExp) =>
+    tasks.find((t) => re.test(t.title) || re.test(t.subtitle ?? ""));
+  const water = find(/water|gallon/i);
+  const workouts = tasks.filter((t) => /workout|run|cardio|lift|train/i.test(t.title));
+  const reading = find(/read/i);
+  const journalId = findJournalTaskId(tasks);
+  const photoId = findPhotoTaskId(tasks);
+
+  const waterDays = water ? perTaskMap.get(water.id) ?? 0 : 0;
+  const workoutCount = workouts.reduce(
+    (sum, w) => sum + (perTaskMap.get(w.id) ?? 0),
+    0
+  );
   const workoutMinutes = workoutCount * 45;
-  const readingDays = perTaskMap.get(7) ?? 0;
+  const readingDays = reading ? perTaskMap.get(reading.id) ?? 0 : 0;
   const totalPages = readingDays * 10;
-  const journalEntries = perTaskMap.get(12) ?? 0;
-  const photoDays = perTaskMap.get(8) ?? 0;
+  const journalEntries = journalId ? perTaskMap.get(journalId) ?? 0 : 0;
+  const photoDays = photoId ? perTaskMap.get(photoId) ?? 0 : 0;
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10 lg:py-14">
@@ -79,7 +90,7 @@ export default function StatsPage() {
 
       <StatsBoard
         elapsed={elapsed}
-        total={TOTAL_DAYS}
+        total={totalDays}
         full={full}
         partial={partial}
         missed={missed}

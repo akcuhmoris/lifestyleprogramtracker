@@ -11,8 +11,13 @@ import {
   clearProgressPhoto as dbClearProgressPhoto,
   dismissRestartFor as dbDismissRestart,
   startNewChallenge as dbStartNewChallenge,
+  setTotalDays as dbSetTotalDays,
+  upsertTask as dbUpsertTask,
+  archiveTask as dbArchiveTask,
+  reorderTasks as dbReorderTasks,
   getDay as dbGetDay,
   type DayRow,
+  type TaskInput,
 } from "@/lib/db";
 import { isFuture, todayLocal } from "@/lib/date";
 import { promises as fs } from "node:fs";
@@ -170,4 +175,52 @@ export async function restartChallengeAction() {
   revalidatePath("/calendar");
   revalidatePath("/stats");
   return { ok: true as const, newStartDate: today };
+}
+
+// ---------- Settings ----------
+
+function revalidateAll() {
+  revalidatePath("/");
+  revalidatePath("/calendar");
+  revalidatePath("/stats");
+  revalidatePath("/settings");
+}
+
+export async function saveTotalDaysAction(days: number) {
+  if (!Number.isFinite(days) || days < 1) {
+    return { ok: false as const, error: "Must be at least 1." };
+  }
+  if (days > 365) {
+    return { ok: false as const, error: "Cap is 365." };
+  }
+  dbSetTotalDays(Math.floor(days));
+  revalidateAll();
+  return { ok: true as const };
+}
+
+export async function saveTaskAction(input: TaskInput) {
+  if (!input.title.trim()) {
+    return { ok: false as const, error: "Title is required." };
+  }
+  const id = dbUpsertTask({
+    ...input,
+    title: input.title.trim(),
+    subtitle: input.subtitle?.trim() || null,
+    detailLabel: input.detailLabel?.trim() || null,
+    detailPlaceholder: input.detailPlaceholder?.trim() || null,
+  });
+  revalidateAll();
+  return { ok: true as const, id };
+}
+
+export async function deleteTaskAction(id: number) {
+  dbArchiveTask(id);
+  revalidateAll();
+  return { ok: true as const };
+}
+
+export async function reorderTasksAction(orderedIds: number[]) {
+  dbReorderTasks(orderedIds);
+  revalidateAll();
+  return { ok: true as const };
 }

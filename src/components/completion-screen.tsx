@@ -9,6 +9,7 @@ import { bigCelebration } from "./confetti";
 type Props = {
   startDate: string;
   endDate: string;
+  totalDays: number;
   totals: {
     waterGallons: number;
     workoutMinutes: number;
@@ -22,6 +23,7 @@ type Props = {
 export function CompletionScreen({
   startDate,
   endDate,
+  totalDays,
   totals,
   weightChange,
 }: Props) {
@@ -51,10 +53,10 @@ export function CompletionScreen({
       >
         <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-accent-glow shadow-[0_0_18px_-4px_rgba(14,165,255,0.5)]">
           <Sparkles className="h-3 w-3" strokeWidth={2.5} />
-          100 of 100
+          {totalDays} of {totalDays}
         </span>
         <h1 className="mt-5 text-5xl font-semibold tracking-tight sm:text-6xl">
-          <span className="text-gradient-accent">Challenge complete.</span>
+          <span className="text-gradient-accent">Program complete.</span>
         </h1>
         <p className="mt-4 text-base text-text-muted">
           {startDate} → {endDate} · every task, every day.

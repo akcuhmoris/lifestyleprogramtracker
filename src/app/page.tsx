@@ -6,9 +6,12 @@ import {
   getAllDayStatuses,
   getDay,
   getPerTaskStats,
+  getTasks,
+  getTotalDays,
   getWeightSeries,
 } from "@/lib/db";
-import { CHALLENGE_START, TOTAL_DAYS, addDays, todayLocal } from "@/lib/date";
+import { findJournalTaskId, findPhotoTaskId } from "@/lib/tasks";
+import { CHALLENGE_START, addDays, todayLocal } from "@/lib/date";
 
 export const dynamic = "force-dynamic";
 
@@ -17,32 +20,47 @@ export default function Home() {
   const day = getDay(today);
   const ch = getActiveChallenge();
   const startDate = ch?.start_date ?? CHALLENGE_START;
+  const tasks = getTasks();
+  const totalDays = getTotalDays();
 
-  // Detect full completion: every one of the 100 cells is 12/12.
+  // Detect full completion: every one of the configured days has all tasks done.
   const statuses = getAllDayStatuses();
+  const taskCount = tasks.length;
   const fullyComplete =
-    statuses.length === TOTAL_DAYS &&
-    statuses.every((s) => s.completedCount === 12);
+    taskCount > 0 &&
+    statuses.length === totalDays &&
+    statuses.every((s) => s.completedCount === taskCount);
 
   if (fullyComplete) {
     const perTask = getPerTaskStats();
     const perTaskMap = new Map(perTask.map((p) => [p.taskId, p.completedDays]));
+    // Compute totals from any task whose title hints at the metric — fallback to 0.
+    // We bucket by inferred semantics from the seed defaults.
+    const find = (re: RegExp) =>
+      tasks.find((t) => re.test(t.title) || re.test(t.subtitle ?? ""));
+    const water = find(/water|gallon/i);
+    const workouts = tasks.filter((t) => /workout|run|cardio|lift|train/i.test(t.title));
+    const reading = find(/read/i);
+    const journalId = findJournalTaskId(tasks);
+    const photoId = findPhotoTaskId(tasks);
     const totals = {
-      waterGallons: perTaskMap.get(6) ?? 0,
-      workoutMinutes: ((perTaskMap.get(4) ?? 0) + (perTaskMap.get(5) ?? 0)) * 45,
-      totalPages: (perTaskMap.get(7) ?? 0) * 10,
-      journalEntries: perTaskMap.get(12) ?? 0,
-      photoDays: perTaskMap.get(8) ?? 0,
+      waterGallons: water ? perTaskMap.get(water.id) ?? 0 : 0,
+      workoutMinutes:
+        workouts.reduce((sum, w) => sum + (perTaskMap.get(w.id) ?? 0), 0) * 45,
+      totalPages: reading ? (perTaskMap.get(reading.id) ?? 0) * 10 : 0,
+      journalEntries: journalId ? perTaskMap.get(journalId) ?? 0 : 0,
+      photoDays: photoId ? perTaskMap.get(photoId) ?? 0 : 0,
     };
     const weights = getWeightSeries();
     const weightChange =
       weights.length >= 2 ? weights[weights.length - 1].weight - weights[0].weight : null;
-    const endDate = addDays(startDate, TOTAL_DAYS - 1);
+    const endDate = addDays(startDate, totalDays - 1);
     return (
       <main className="min-h-screen">
         <CompletionScreen
           startDate={startDate}
           endDate={endDate}
+          totalDays={totalDays}
           totals={totals}
           weightChange={weightChange}
         />
@@ -57,6 +75,8 @@ export default function Home() {
       <TodayView
         today={today}
         startDate={startDate}
+        totalDays={totalDays}
+        tasks={tasks}
         initialCompleted={day.completedTaskIds}
         initialNotes={day.notes}
         initialJournal={day.journal}

@@ -2,14 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Calendar, Home } from "lucide-react";
+import {
+  BarChart3,
+  Calendar,
+  HelpCircle,
+  Home,
+  Settings as SettingsIcon,
+  Target,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { openWelcome } from "./welcome-modal";
 
 const items = [
   { href: "/", label: "Today", icon: Home },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/stats", label: "Stats", icon: BarChart3 },
+  { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 export function Nav() {
@@ -23,12 +32,22 @@ export function Nav() {
           className="flex items-center gap-2.5 text-sm font-semibold tracking-tight"
         >
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-bg shadow-glow">
-            <span className="text-[12px] font-bold">100</span>
+            <Target className="h-4 w-4" strokeWidth={2.5} />
           </span>
-          <span className="text-text">Hard</span>
+          <span className="text-text">Program</span>
         </Link>
 
-        <div className="flex items-center gap-1 rounded-full border border-border-subtle bg-bg-card p-1">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={openWelcome}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border-subtle bg-bg-card text-text-muted hover:border-accent/40 hover:text-accent-glow transition-colors"
+            aria-label="Open help"
+            title="How it works"
+          >
+            <HelpCircle className="h-4 w-4" strokeWidth={2.2} />
+          </button>
+          <div className="flex items-center gap-1 rounded-full border border-border-subtle bg-bg-card p-1">
           {items.map((item) => {
             const active =
               item.href === "/"
@@ -59,6 +78,7 @@ export function Nav() {
               </Link>
             );
           })}
+          </div>
         </div>
       </div>
     </nav>

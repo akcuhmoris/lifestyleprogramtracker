@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Nav } from "@/components/nav";
+import { WelcomeModal } from "@/components/welcome-modal";
 
 const sans = Inter({
   subsets: ["latin"],
@@ -17,8 +18,8 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "100 Hard",
-  description: "100 days. 12 tasks. No shortcuts.",
+  title: "Program — Lifestyle tracker",
+  description: "Track any lifestyle program — your tasks, your length, your rules.",
 };
 
 export default function RootLayout({
@@ -37,6 +38,7 @@ export default function RootLayout({
       >
         <Nav />
         {children}
+        <WelcomeModal />
       </body>
     </html>
   );

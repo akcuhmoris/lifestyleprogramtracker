@@ -15,13 +15,14 @@ import {
 type Props = {
   missDate: string;
   missCount: number;
+  taskCount: number;
 };
 
-export function RestartBanner({ missDate, missCount }: Props) {
+export function RestartBanner({ missDate, missCount, taskCount }: Props) {
   const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const incomplete = 12 - missCount;
+  const incomplete = Math.max(0, taskCount - missCount);
 
   async function handleDismiss() {
     setBusy(true);
@@ -60,9 +61,9 @@ export function RestartBanner({ missDate, missCount }: Props) {
                 {formatPretty(missDate)}
               </div>
               <p className="mt-1 text-[13px] text-text-muted leading-relaxed">
-                The 100 Hard protocol says to restart from Day 1. Or you can keep
-                going on modified rules — the miss stays on the calendar and the
-                day counter advances normally.
+                The strict rule is to restart from Day 1. Or you can keep going
+                on modified rules — the miss stays on the calendar and the day
+                counter advances normally.
               </p>
             </div>
           </div>

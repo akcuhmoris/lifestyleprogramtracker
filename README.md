@@ -1,31 +1,143 @@
-# 100 Hard
+# Program — Lifestyle Program Tracker
 
-A personal habit tracker for the **100 Hard** challenge — 100 days, 12 daily disciplines, no shortcuts.
+A local-first habit tracker for any lifestyle program — 75 Hard, 100 Hard, a 30-day reset, a custom routine you invented yourself, whatever you want to commit to.
 
-Runs locally on your laptop. No accounts, no servers, no telemetry, no cloud. Your data stays in a SQLite file in the project directory.
+You configure the **length** (1–365 days) and the **daily requirements** (any number of tasks, each with its own icon, optional text-entry requirement, and special "Journal" / "Photo" behaviors). The app tracks completion per day, your weight over time, free-text notes, journal entries, workout / reading detail, and progress photos.
 
-> **Status:** Feature-complete. Today view, calendar/heatmap with editable past-day detail modal, stats page, restart-prompt + restart flow, and day-100 completion celebration are all live. See [Daily-use mechanics](#daily-use-mechanics).
+Runs locally on your laptop. No accounts, no servers, no telemetry, no cloud. Your data lives in a single SQLite file in the project root.
+
+> **Status:** Feature-complete and fully configurable. Today view, calendar/heatmap with editable past-day detail modal, stats page, restart-prompt + restart flow, completion celebration, an in-app Settings page, and a welcome / help modal that explains the flow to new users — all live.
 
 ---
 
-## The 12 daily tasks
+## App flow
 
-Each day you check off whether you did each of these:
+A high-level look at the journey from clone to celebration.
+
+```
+┌───────────────────────────────────────────────────────────────────┐
+│  FIRST LAUNCH                                                     │
+│  • npm install && npm run dev                                     │
+│  • SQLite DB created with default 100-day program seeded          │
+│  • Welcome modal auto-opens, walks you through every screen       │
+└───────────────────────────────────────────────────────────────────┘
+              │
+              ▼
+┌───────────────────────────────────────────────────────────────────┐
+│  CUSTOMIZE (optional)  /settings                                  │
+│  • Edit program length (1–365 days)                               │
+│  • Add / remove / reorder tasks, pick icons                       │
+│  • Mark a task as Journal / Photo / requires-text                 │
+└───────────────────────────────────────────────────────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────────┐
+│  EACH DAY  /                            │
+│  ┌─────────────────────────────────┐    │
+│  │  Tap task cards → ripple +      │    │
+│  │  confetti + check               │    │
+│  │  Workout cards → write what     │    │
+│  │  you did (required)             │    │
+│  │  Journal card → write modal     │    │
+│  │  Photo card → upload image      │    │
+│  │  Log weight + daily notes       │    │
+│  └─────────────────────────────────┘    │
+│         Progress bar fills              │
+│             │                           │
+│   all done? │ yes → 🎉 celebration      │
+│             │ no                        │
+│             ▼                           │
+│       sleep, repeat tomorrow            │
+└─────────────────────────────────────────┘
+              │
+              │  (if you ended yesterday short)
+              ▼
+┌───────────────────────────────────────────────────────────────────┐
+│  RESTART BANNER (only if a past day has misses + isn't dismissed) │
+│  • Restart from Day 1 → archive current attempt, start fresh      │
+│  • Keep going (modified rules) → dismiss prompt, advance counter  │
+└───────────────────────────────────────────────────────────────────┘
+              │
+              ▼
+┌───────────────────────────────────────────────────────────────────┐
+│  REVIEW                                                           │
+│  /calendar  → heatmap, tap past day to edit                       │
+│  /stats     → per-task bars, totals, weight trend                 │
+└───────────────────────────────────────────────────────────────────┘
+              │
+              ▼
+┌───────────────────────────────────────────────────────────────────┐
+│  COMPLETION                                                       │
+│  All days N/N → /  shows the victory screen                       │
+│  Trophy + totals + start→end dates + confetti                     │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+### Step-by-step
+
+1. **Clone and install.** `npm install` builds `better-sqlite3` natively; `npm run dev` boots the server on <http://localhost:3000>.
+2. **Welcome modal.** Auto-opens on first visit. Re-open any time from the **?** button in the top nav.
+3. **(Optional) customize.** Hit **Settings** in the nav to change program length, edit the task list, change icons, mark a task as Journal/Photo, or require text on any task.
+4. **Daily check-in.** Open **Today**. Each task is a card you tap to check off. Workout cards require you to write what you did; the Journal card opens a modal; the Photo card opens a file picker. Notes and weight live below the task grid.
+5. **Watch the bars.** The progress ring shows where you are in the program; the linear bar shows where you are in today. Both glow brighter as you near completion.
+6. **Calendar.** Open **Calendar** anytime. Each cell is colored by completion (dim / red / yellow / blue). Tap any past or current day to open a full editor.
+7. **Stats.** Open **Stats** for per-task completion percentages, totals (water, workouts, pages, journal, photos), and a weight trend sparkline.
+8. **Miss a day?** A banner appears on Today next time you open it: pick **Restart from Day 1** (archives the current attempt, starts a fresh program with today as Day 1) or **Keep going (modified rules)** (the miss stays in your history, counter advances).
+9. **Finish strong.** When every day in your program is `N/N`, the Today page replaces itself with a celebration screen: trophy, totals, dates, confetti, and links back to Calendar / Stats.
+
+---
+
+## What you can track
+
+For **every day** of your program, regardless of how you've configured tasks, the app always supports:
+
+- A free-text **"What did you do today?"** notes field (autosaves)
+- A daily **weight check-in** with delta vs. your previous entry
+- Edit-anytime access from the calendar's day detail modal
+
+And on top of that, you define your own **daily requirements** — a configurable list of tasks the app shows as cards on the today view. Each task is independent and can be:
+
+- A **Checkbox** — the standard tap-to-complete card
+- **Requires text** — like a workout — the user must write what they did (e.g. "Push day · bench, OHP, dips, triceps") before the checkbox flips
+- A **Journal** entry — opens a modal with a write-anything textarea; saving non-empty text marks the task complete
+- A **Photo** upload — opens a file picker, stores the image locally, shows a thumbnail with a full-size preview
+
+The defaults seeded on first run are the 100 Hard task list — a common starting point — but you can replace them entirely in Settings.
+
+---
+
+## Customizable from day one
+
+Visit `/settings` (the **Settings** tab in the nav) and you can:
+
+- Change the **program length** (1–365 days). Default 100.
+- **Add / edit / remove / reorder tasks** with up/down controls.
+- Pick from a curated set of ~30 icons for each task.
+- Mark any task as **Journal** or **Photo** (at most one of each — these get the special UI described above).
+- Toggle **"Requires text to mark complete"** on any task.
+
+Changes apply immediately to the today view, calendar, and stats.
+
+---
+
+## Default starter template (the 100 Hard challenge)
+
+If you don't touch Settings, the app seeds your program with these 12 daily tasks:
 
 1. Followed structured diet (no cheat meals)
 2. No alcohol
 3. No processed food
-4. Workout 1 (45 min)
-5. Workout 2 (45 min, must be outdoors)
+4. Workout 1 (45 min · requires you to log what you did)
+5. Workout 2 (45 min outdoors · requires you to log what you did)
 6. Drank 1 gallon of water
-7. Read 10 pages of nonfiction
-8. Took progress photo (upload an image — stored locally in `public/progress-photos/`, gitignored)
+7. Read 10 pages of nonfiction (optional text entry for the book/chapter)
+8. Took progress photo (upload an image — stored locally)
 9. Self-care block (20–30 min)
 10. Slept 7+ hours
 11. No social media before morning task is complete
 12. Wrote journal entry
 
-Plus a daily weigh-in and free-text "what did you do today?" notes.
+Replace, edit, or delete any of these from Settings.
 
 ---
 
@@ -49,29 +161,29 @@ If `npm install` fails on `better-sqlite3`, install the build prerequisites for 
 ## Quick start
 
 ```bash
-git clone <your-fork-url> 100hard
-cd 100hard
+git clone https://github.com/akcuhmoris/lifestyleprogramtracker.git program
+cd program
 npm install
 npm run dev
 ```
 
 Open <http://localhost:3000> in any browser.
 
-The SQLite database (`hardtracker.db`) is created automatically on first request and lives in the project root. It's gitignored.
+On first launch, the SQLite database (`hardtracker.db`) is created in the project root and seeded with a default program (100 days, the 12 tasks above). Head to **Settings** to customize.
 
 ---
 
 ## Setting your start date
 
-The challenge start date is hardcoded in `src/lib/date.ts`:
+The default start date is in `src/lib/date.ts`:
 
 ```ts
-export const CHALLENGE_START = "2026-05-26"; // <-- change this
+export const CHALLENGE_START = "2026-05-26"; // first-run seed
 ```
 
-Use ISO date format (`YYYY-MM-DD`). Day 1 is whatever you put here. The app computes the current day number from your local system date.
+This value is **only used the first time** the database is created. After that, the start date is stored in the `challenges` table and changes only via the in-app **Restart** flow.
 
-If you change the start date after entering data, **delete `hardtracker.db`** before starting — otherwise the existing rows will be dated relative to your old start.
+If you haven't logged anything yet and want a different start date: edit `CHALLENGE_START`, delete `hardtracker.db` (and the `-shm`/`-wal` sidecars), then `npm run dev`. Otherwise, when you're ready to start over, use the **Restart from Day 1** button on the today view (appears any time you have an unhandled missed day, or via the restart-banner flow).
 
 ---
 
@@ -94,7 +206,7 @@ No tracking. No analytics. Nothing hits the network at runtime.
 
 ```
 .
-├── hardtracker.db          # local SQLite database (gitignored, auto-created)
+├── hardtracker.db              # local SQLite database (gitignored, auto-created)
 ├── next.config.mjs
 ├── tailwind.config.ts
 ├── public/
@@ -105,27 +217,31 @@ No tracking. No analytics. Nothing hits the network at runtime.
 │   │   ├── globals.css               # dark theme, ambient blue gradient, scrollbar
 │   │   ├── layout.tsx                # wraps every page with the nav bar
 │   │   ├── page.tsx                  # / route — today view OR completion screen
-│   │   ├── calendar/page.tsx         # /calendar route — 100-day heatmap
-│   │   └── stats/page.tsx            # /stats route — aggregates + weight trend
+│   │   ├── calendar/page.tsx         # /calendar route — heatmap
+│   │   ├── stats/page.tsx            # /stats route — aggregates + weight trend
+│   │   └── settings/page.tsx         # /settings route — task list + length editor
 │   ├── components/
-│   │   ├── calendar-grid.tsx         # 100-cell heatmap + legend
-│   │   ├── completion-screen.tsx     # day-100 victory layout
+│   │   ├── calendar-grid.tsx         # heatmap + legend
+│   │   ├── completion-screen.tsx     # final victory layout
 │   │   ├── confetti.tsx              # small-burst + big-celebration helpers
 │   │   ├── day-detail-modal.tsx      # editable modal for any day from the calendar
-│   │   ├── journal-modal.tsx         # task #12 dialog (today view)
-│   │   ├── nav.tsx                   # top nav (Today / Calendar / Stats)
+│   │   ├── day-progress-bar.tsx      # animated linear "tasks done today" bar
+│   │   ├── journal-modal.tsx         # Journal task dialog
+│   │   ├── nav.tsx                   # top nav (Today / Calendar / Stats / Settings)
 │   │   ├── notes-field.tsx           # autosaving "what did you do today" textarea
-│   │   ├── photo-card.tsx            # progress-photo upload + thumbnail + preview
-│   │   ├── progress-ring.tsx         # animated SVG ring
+│   │   ├── photo-card.tsx            # photo task upload + thumbnail + preview
+│   │   ├── progress-ring.tsx         # animated SVG ring (overall program progress)
 │   │   ├── restart-banner.tsx        # missed-day prompt + confirm dialog
+│   │   ├── settings-form.tsx         # tasks list editor + length input + icon picker
 │   │   ├── stats-board.tsx           # per-task bars, totals, weight sparkline
-│   │   ├── task-card.tsx             # tappable 12-task cards w/ ripple + confetti
+│   │   ├── task-card.tsx             # tappable task cards w/ ripple + confetti
 │   │   ├── today-view.tsx            # composes the today route
 │   │   └── weight-card.tsx           # daily weigh-in + delta-from-previous
 │   └── lib/
 │       ├── date.ts         # local-timezone date math, day number, ISO helpers
 │       ├── db.ts           # better-sqlite3 connection, schema, read/write
-│       ├── tasks.ts        # the 12 task definitions + icons
+│       ├── icons.ts        # curated Lucide icon registry for the picker
+│       ├── tasks.ts        # shared Task type + journal/photo finders
 │       └── utils.ts        # cn() class merger
 ```
 
@@ -135,20 +251,22 @@ No tracking. No analytics. Nothing hits the network at runtime.
 
 All writes go through Server Actions in `src/app/actions.ts`, which call helpers in `src/lib/db.ts`. The schema:
 
-| Table              | Columns                                            | Purpose                              |
-| ------------------ | -------------------------------------------------- | ------------------------------------ |
-| `challenges`       | `id`, `start_date`, `status`, `created_at`         | Tracks active + historical attempts  |
-| `days`             | `date` (PK), `challenge_id`, `notes`, `updated_at` | Per-day "what did you do" notes      |
-| `task_completions` | `(date, task_id)` (PK), `completed_at`             | One row per checked task             |
-| `journal_entries`  | `date` (PK), `content`, timestamps                 | Task #12 reflective journal          |
-| `weights`          | `date` (PK), `weight_lbs`, timestamps              | Daily weigh-in                       |
-| `task_details`     | `(date, task_id)` (PK), `content`                  | Workout / reading notes per day      |
-| `progress_photos`  | `date` (PK), `filename`, `mime`                    | Filenames of uploaded photos         |
-| `app_state`        | `key` (PK), `value`                                | Misc state (dismissed prompts, etc.) |
+| Table              | Columns                                                                       | Purpose                                       |
+| ------------------ | ----------------------------------------------------------------------------- | --------------------------------------------- |
+| `challenges`       | `id`, `start_date`, `status`, `created_at`                                    | Tracks the active program + historical attempts |
+| `days`             | `date` (PK), `challenge_id`, `notes`, `updated_at`                            | Per-day "what did you do" notes               |
+| `task_completions` | `(date, task_id)` (PK), `completed_at`                                        | One row per checked task                      |
+| `journal_entries`  | `date` (PK), `content`, timestamps                                            | Journal-kind reflective entry                 |
+| `weights`          | `date` (PK), `weight_lbs`, timestamps                                         | Daily weigh-in                                |
+| `task_details`     | `(date, task_id)` (PK), `content`                                             | Per-day text entry for any task (e.g. workout) |
+| `progress_photos`  | `date` (PK), `filename`, `mime`                                               | Filenames of uploaded photos                  |
+| `tasks`            | `id`, `position`, `title`, `subtitle`, `icon`, `kind`, `requires_detail`, ... | Configurable daily-task definitions           |
+| `settings`         | `key` (PK), `value`                                                           | Configurable settings (e.g. `total_days`)     |
+| `app_state`        | `key` (PK), `value`                                                           | Misc state (dismissed prompts, etc.)          |
 
 Uploaded photos live at `public/progress-photos/{date}.{ext}` (gitignored). Back them up by copying that folder.
 
-The DB file is in the project root by default. To back it up, just copy `hardtracker.db`.
+The DB file lives in the project root. To back it up, copy `hardtracker.db`.
 
 ---
 
@@ -156,55 +274,46 @@ The DB file is in the project root by default. To back it up, just copy `hardtra
 
 ### Today view
 
-- The day counter at the top shows **Day N of 100** with a circular progress ring of the overall challenge.
-- Tap any of the 12 cards to mark it complete. You'll get a spring animation, a ripple, and a small confetti burst.
-- When all 12 are done, the page fires a celebration animation and shows a "Day N complete" callout.
-- **Workouts** (cards 4 & 5) require you to write what you did before they can be checked. Tapping the card opens the inline drawer and focuses the textarea; typing auto-checks, clearing auto-unchecks.
-- **Reading** (card 7) lets you log the book / chapter (optional — toggling the checkbox still works without text).
-- **Progress photo** (card 8) opens a file picker. Once an image is uploaded the card flips to checked and shows a thumbnail; click it for a full-size preview. Replace or remove from the card footer. Files are stored at `public/progress-photos/` (gitignored) — only you can see them.
+- The day counter at the top shows **Day N of {total}** with a circular progress ring of the overall program.
+- A linear **today progress bar** below the header shows how many of today's tasks are done with a glowing fill animation.
+- Tap any of the cards to mark it complete. You get a spring animation, a ripple, and a small confetti burst.
+- When all of today's tasks are done, the page fires a celebration and shows a "Day N complete" callout.
+- **Tasks marked "Requires text"** (workouts by default) open the inline drawer and focus the textarea; typing auto-checks the card, clearing auto-unchecks.
+- **Tasks of kind "Photo"** open a file picker. Once an image is uploaded the card flips to checked and shows a thumbnail; click for a full-size preview. Replace or remove from the card footer.
+- **Tasks of kind "Journal"** open a modal with a textarea — saving any non-empty content checks the card.
 - The notes field at the bottom autosaves about 600 ms after you stop typing.
-- The weight card shows your weight delta vs. the most recent prior entry. Empty = no entry for today.
-- Tapping the **Journal entry** card opens a modal. Saving any non-empty content marks task #12 complete. Clearing it unchecks the box.
+- The weight card shows your weight delta vs. the most recent prior entry.
 
 ### Calendar view
 
-`/calendar` shows a 100-cell grid. Each cell is color-coded by completion (see *Coloring rules* below). Tap any past or current day to open the **day detail modal** — a single panel where you can:
+`/calendar` shows a grid with one cell per day (length = whatever you set in Settings). Each cell is color-coded by completion (see *Coloring rules* below). Tap any past or current day to open the **day detail modal** — a single panel where you can:
 
-- Check/uncheck any of the 12 tasks
-- Add or edit workout / reading details
+- Check/uncheck any task
+- Add or edit text-entry details (workouts, reading, etc.)
+- Upload / view / replace / remove that day's progress photo
 - Log or change your weight
 - Edit the day's notes and journal entry
 
-Edits made in the modal flow back to the calendar colors the moment you close it. Future days are read-only; the cell can't be opened.
-
-### Editing past days
-
-Past days are fully editable through the calendar detail modal. If you check off a previously-missed task and the count reaches 12, the day flips from yellow/red to electric blue.
-
-### Future days
-
-Server actions reject writes for dates after today (local timezone). The DB never accepts a future-dated check.
+Edits flow back to the calendar colors the moment you close the modal. Future days are read-only.
 
 ### Coloring rules
 
-Used in the calendar grid and the day detail modal status badge.
-
 - **Dim** — future day or no activity yet
-- **Red** — 0 of 12 tasks checked at end of day
-- **Yellow** — 1–11 tasks checked at end of day
-- **Electric blue** — 12 of 12 (full completion)
-- A pulsing blue dot in the top-right of today's calendar cell marks the day-in-progress.
+- **Red** — 0 of N tasks checked at end of day
+- **Yellow** — 1 to N–1 tasks checked at end of day
+- **Electric blue** — N of N (full completion)
+- A pulsing blue dot in today's cell marks the day-in-progress.
 
 ### Stats view
 
-`/stats` aggregates every metric the app tracks:
+`/stats` aggregates everything the app tracks:
 
 - **Overview** — full / partial / missed / remaining day counts
-- **Totals** — water gallons (1 × completed water days), workout sessions and minutes (45 × completed workouts), pages read (10 × completed reading days), journal entries, photos logged
+- **Totals** — water gallons, workout minutes, pages read, journal entries, photos logged (inferred from task titles where possible)
 - **Weight trend** — animated sparkline of every weigh-in, with start / lowest / highest stats and a delta chip
-- **Per-task completion** — horizontal bar for each of the 12 tasks with `N/elapsed` and a percentage
+- **Per-task completion** — horizontal bar for each task with `N/elapsed` and a percentage
 
-All values are computed from the active challenge only — restarted attempts are archived but not aggregated.
+All values are scoped to the active program only — restarted attempts are archived but not aggregated.
 
 ### Restart prompt
 
@@ -212,32 +321,32 @@ If you have a past day with any task still missing and haven't dismissed the pro
 
 > *You missed N tasks on [date]. Restart from Day 1 or keep going (modified rules)?*
 
-- **Restart from Day 1** — confirm dialog, then a new challenge row is created with today as its start date. The old attempt is archived (status = `restarted`) and no longer drives the calendar or stats, but its rows stay in the database for posterity.
+- **Restart from Day 1** — confirm dialog, then a new program row is created with today as the start date. The old attempt is archived (`status = restarted`) and no longer drives the calendar or stats, but its rows stay in the database.
 - **Keep going** — sets a per-date dismissal flag; the banner won't reappear for that date. The day stays as a miss on the calendar and the day counter advances normally.
 
-### Day-100 completion screen
+### Completion screen
 
-When all 100 cells in the active challenge are 12/12, the today route renders a victory screen instead of the daily list. Trophy badge, gradient "Challenge complete" headline, totals for the entire run (water, workouts, pages, journal, photos, weight change), and shortcuts to the full stats / calendar. Confetti fires on first view.
+When every day in your program is fully complete, the today route renders a victory screen instead of the daily list — trophy badge, "Program complete" headline, run totals (water, workouts, pages, journal, photos, weight change), and shortcuts to stats / calendar. Confetti fires on first view.
 
 ---
 
-## Customizing
-
-### Change the tasks
-
-Edit `src/lib/tasks.ts`. Each task has `id`, `title`, optional `subtitle`, and an icon from [Lucide](https://lucide.dev). `id` is the primary key in `task_completions`, so don't renumber existing tasks if you have data — add new ids instead.
-
-### Use kilograms instead of pounds
-
-The `weights` table column is named `weight_lbs` but stores any numeric value. Change the unit label in `src/components/weight-card.tsx` (search for `lbs`). For accurate delta math, just be consistent.
+## Customizing further (beyond Settings)
 
 ### Change the accent color
 
 Edit the `accent` palette in `tailwind.config.ts`. The default is electric blue `#0EA5FF`.
 
-### Change the timezone behavior
+### Use kilograms instead of pounds
 
-"Today" is computed via the browser/Node local timezone in `src/lib/date.ts`. There's no timezone setting — the app trusts your OS clock.
+The `weights` table column is named `weight_lbs` but stores any numeric value. Change the unit label in `src/components/weight-card.tsx` and `src/components/stats-board.tsx` (search for `lbs`).
+
+### Add more icons to the picker
+
+Edit `src/lib/icons.ts` and add the desired Lucide icon to the `ICONS` map. It'll show up in the picker immediately.
+
+### Change the seed defaults
+
+If you want a different starter template (so cloners see your program instead of 100 Hard), edit the `DEFAULT_TASKS` array in `src/lib/db.ts`. Only runs when the `tasks` table is empty on first open.
 
 ---
 
@@ -245,15 +354,13 @@ Edit the `accent` palette in `tailwind.config.ts`. The default is electric blue 
 
 **`npm install` fails compiling `better-sqlite3`.** Install your platform's C toolchain (see Requirements). On macOS that's `xcode-select --install`.
 
-**Schema changed after I started using the app and now reads fail.** This app does not run migrations. If you change a table definition in `src/lib/db.ts`, delete `hardtracker.db` (and the `-wal` / `-shm` sidecar files) and restart `npm run dev`. The schema will be recreated.
+**Day counter shows "Starts on ..."** You're before your configured start date. Either wait, or edit `CHALLENGE_START` in `src/lib/date.ts` (only effective on first DB creation).
 
-**Day counter shows "Starts on ..."** You're before your configured start date. Either wait, or edit `CHALLENGE_START` in `src/lib/date.ts`.
+**Day counter shows "Challenge complete".** You're past the configured length. Congrats — that's the intended end state.
 
-**Day counter shows "Challenge complete".** You're past day 100. Congrats — that's the intended end state.
+**Animations feel sluggish.** If your OS has *Reduce Motion* enabled, the app respects it and disables transitions/confetti.
 
-**Animations feel sluggish.** If your OS has *Reduce Motion* enabled, the app respects it and disables transitions/confetti. Turn off reduced motion in OS Accessibility settings to get the full polish.
-
-**Port 3000 in use.** Run `npm run dev -- -p 3001` (or any other port).
+**Port 3000 in use.** Run `npm run dev -- -p 3001`.
 
 ---
 
@@ -276,4 +383,4 @@ Everything is local. The only network requests during normal use are for Google 
 
 ## License
 
-MIT. Use it, fork it, change it. If it helps you finish 100 days, that's the only thanks needed.
+MIT. Use it, fork it, change it. If it helps you finish your program, that's the only thanks needed.
