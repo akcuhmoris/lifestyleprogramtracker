@@ -24,6 +24,9 @@ jobs:
         run: npm run lint
         # The web app's eslint config flags type errors too via next/core-web-vitals.
 
+      - name: Test
+        run: npm test
+
       - name: Build (web)
         run: npm run build
         env:

@@ -15,6 +15,7 @@ import {
   Sparkles,
   Target,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -194,7 +195,7 @@ function Step({
   body,
 }: {
   n: number;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   title: string;
   body: string;
 }) {

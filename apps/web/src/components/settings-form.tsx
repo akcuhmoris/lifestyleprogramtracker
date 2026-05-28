@@ -13,6 +13,7 @@ import {
   Plus,
   Trash2,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -158,7 +159,7 @@ export function SettingsForm({ initialTotalDays, initialTasks }: Props) {
               Daily requirements
             </h2>
             <p className="mt-1 text-sm text-text-muted">
-              Add, edit, reorder, or delete the tasks you'll check off each day.
+              Add, edit, reorder, or delete the tasks you&apos;ll check off each day.
             </p>
           </div>
           <button
@@ -333,7 +334,7 @@ function Pill({
   icon: Icon,
   label,
 }: {
-  icon?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon?: LucideIcon;
   label: string;
 }) {
   return (

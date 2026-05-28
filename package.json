@@ -10,6 +10,7 @@
     "dev": "npm run dev --workspace=@program/web",
     "build": "npm run build --workspace=@program/web",
     "start": "npm run start --workspace=@program/web",
-    "lint": "npm run lint --workspace=@program/web"
+    "lint": "npm run lint --workspace=@program/web",
+    "test": "npm test --workspaces --if-present"
   }
 }

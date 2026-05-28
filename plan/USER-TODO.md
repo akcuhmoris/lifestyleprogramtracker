@@ -42,14 +42,20 @@ When 1 & 2 are filing, move on to "this week."
 
 While you're filling out forms:
 
-- [x] **Monorepo migration.** Web app moved to `apps/web/`. Shared code in `packages/shared/`. ✅ done.
-- [x] **Stage Supabase SQL migrations.** Schema + RLS + sign-up trigger + storage policies. ✅ done, ready to apply.
-- [x] **Scaffold `packages/api`.** Placeholder for the tRPC routers. ✅ done.
-- [x] **Add CI workflow** that runs lint + build on every PR. ✅ done.
-- [ ] **Draft a Privacy Policy** and **Terms of Service**. I can write boilerplate that's a good starting point — you'll want a lawyer to review before publishing if you're going for real users at scale.
-- [ ] **Draft App Store + Play Store metadata** (description, keywords, screenshots plan).
-
-→ Tell me to do those two drafts and I'll add them under `plan/legal/` and `plan/store-listings/`.
+- [x] **Monorepo migration.** Web app moved to `apps/web/`. Shared code in `packages/shared/`. ✅
+- [x] **Stage Supabase SQL migrations.** Schema + RLS + sign-up trigger + storage policies. ✅ ready to apply.
+- [x] **Scaffold `packages/api`.** Placeholder for the tRPC routers. ✅
+- [x] **CI workflow.** Lint + test + build on every PR. ✅
+- [x] **Privacy Policy + Terms of Service drafts.** ✅ at `plan/legal/`.
+- [x] **App Store + Play Store listing drafts.** ✅ at `plan/store-listings/`.
+- [x] **Production hardening done now (no accounts needed):**
+  - Security headers (X-Frame-Options, Permissions-Policy, HSTS in prod) on every response
+  - `/api/health` endpoint for uptime monitoring
+  - Custom `not-found.tsx` (friendly 404)
+  - Global `error.tsx` (friendly 500 with retry + request ID)
+  - Structured `logger` stub ready to swap for Sentry in week 9
+- [x] **Test infrastructure.** Vitest configured in `packages/shared`. 25 tests for date math + task helpers, all passing.
+- [x] **Production build verified.** `npm run build` is green, including type-check + lint.
 
 ---
 
@@ -296,6 +302,12 @@ Mark these done so we can see progress at a glance.
 ### Migration milestones
 - [x] Monorepo set up
 - [x] SQL migrations staged
+- [x] CI configured
+- [x] Production build green + 25 tests passing
+- [x] Security headers + health endpoint
+- [x] Friendly 404 + 500 + structured logger stub
+- [x] Privacy Policy + ToS drafts
+- [x] App Store + Play Store listing drafts
 - [ ] Supabase staging project created
 - [ ] SQL migrations applied to staging
 - [ ] Local data imported to staging

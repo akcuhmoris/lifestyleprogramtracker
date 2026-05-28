@@ -10,6 +10,7 @@ import {
   TrendingDown,
   TrendingUp,
   Minus,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -175,7 +176,7 @@ function Totalor({
   value,
   unit,
 }: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   label: string;
   value: string;
   unit: string;
