@@ -16,7 +16,8 @@ These docs are written to be read in order. Each one is short enough to read in 
 | 05 | [Deployment](./05-deployment.md) | Hosting, environments, CI/CD, secrets. |
 | 06 | [Distribution](./06-distribution.md) | App Store / Play Store submission and the web release process. |
 | 07 | [Production readiness](./07-production-readiness.md) | Monitoring, errors, backups, security, privacy, ToS. |
-| 08 | [Roadmap](./08-roadmap.md) | A concrete 12-week plan from today to a v1 launch. |
+| 08 | [Roadmap](./08-roadmap.md) | Untimed phase-by-phase plan with live status badges. |
+| 🚨 | [USER-TODO](./USER-TODO.md) | What only you can do, in dependency order. |
 
 ## Snapshot of the recommended stack
 

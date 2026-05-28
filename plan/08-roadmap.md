@@ -1,195 +1,327 @@
-# 08 — Roadmap
+# 🗺️ Roadmap
 
-A concrete 12-week plan from today's local prototype to a v1 launch with web + iOS + Android. Pad as needed for your real availability — these are working weeks, not calendar weeks.
+> [!NOTE]
+> This roadmap is **untimed**. Phases unlock when their dependencies are met, not on a calendar. Every shipped item gets a ✅ the moment it lands on the `production` branch.
 
-## Pre-flight (week 0)
+## Progress
 
-Things you do before writing any production code. ~1-3 days of evenings.
+```
+Phase 1 ████████████████████  100%
+Phase 2 ████████░░░░░░░░░░░░   38%   ← you are here
+Phase 3 ░░░░░░░░░░░░░░░░░░░░    0%
+Phase 4 ░░░░░░░░░░░░░░░░░░░░    0%
+Phase 5 ░░░░░░░░░░░░░░░░░░░░    0%
+Phase 6 ░░░░░░░░░░░░░░░░░░░░    0%
+Phase 7 ░░░░░░░░░░░░░░░░░░░░    0%
+Phase 8 ░░░░░░░░░░░░░░░░░░░░    0%
+Phase 9 ░░░░░░░░░░░░░░░░░░░░    0%
 
-- [ ] Sign up for the accounts in [05 — Deployment](./05-deployment.md).
-- [ ] Buy a domain.
-- [ ] Enroll in the Apple Developer Program (24-72h activation, do this first).
-- [ ] Reserve App Store + Play Console listings as drafts.
-- [ ] Decide on the v1 brand name (current default: `Program`).
-- [ ] Decide on free vs paid (default: free).
+22 of 75 items shipped
+```
 
-## Week 1 — Foundation
+## How the phases connect
 
-**Goal:** the existing app runs unchanged inside a monorepo with the future structure ready to absorb new code.
+```mermaid
+flowchart TD
+    P1["🏗️ Phase 1<br/>Foundation<br/>✅ done"]
+    P2["🔑 Phase 2<br/>Accounts &amp; decisions<br/>🟡 in progress"]
+    P3["🗄️ Phase 3<br/>Backend wiring<br/>⬜ blocked"]
+    P4["🔌 Phase 4<br/>API rewrite<br/>⬜ blocked"]
+    P5["🔐 Phase 5<br/>Auth &amp; multi-tenancy<br/>⬜ blocked"]
+    P6["🖼️ Phase 6<br/>Media &amp; storage<br/>⬜ blocked"]
+    P7["📱 Phase 7<br/>Mobile app<br/>⬜ blocked"]
+    P8["🛡️ Phase 8<br/>Production hardening<br/>⬜ blocked"]
+    P9["🚀 Phase 9<br/>Beta &amp; launch<br/>⬜ blocked"]
 
-- [ ] Restructure the repo: `apps/web`, `packages/shared`, `packages/api`, `pnpm-workspace.yaml`.
-- [ ] Move `lib/date.ts`, `lib/tasks.ts`, `lib/icons.ts` into `packages/shared`.
-- [ ] Move Zod schemas (inline today) into `packages/shared/src/schemas.ts`.
-- [ ] CI: GitHub Actions running typecheck + lint on every PR.
-- [ ] Update `README.md` to point at the monorepo layout.
+    P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8 --> P9
 
-**Definition of done:** `pnpm install && pnpm --filter web dev` still serves the current app at `localhost:3000`.
+    classDef done fill:#0EA5FF,stroke:#0284C7,color:#0A0A0B
+    classDef wip fill:#F5C518,stroke:#A07700,color:#0A0A0B
+    classDef todo fill:#26262C,stroke:#3a3a42,color:#A1A1AA
+    class P1 done
+    class P2 wip
+    class P3,P4,P5,P6,P7,P8,P9 todo
+```
 
-## Week 2 — Backend: schema + RLS
+> Legend: 🟦 done · 🟨 in progress · ⬛ blocked on a dependency
 
-**Goal:** Supabase project exists with the production schema and RLS policies. Test data flows end-to-end.
+---
 
-- [ ] Supabase staging project created.
-- [ ] Initial migration written (all tables from [02 — Backend](./02-backend.md)).
-- [ ] RLS policies on every user-scoped table.
-- [ ] Apply via Supabase CLI; verify schema in the dashboard.
-- [ ] Seed script: insert a test user + default tasks for that user.
-- [ ] Manual smoke test from the SQL editor: insert a `task_completion`, confirm RLS rejects access from another user's JWT.
+## 🏗️ Phase 1 — Foundation ✅
 
-**Definition of done:** you can sign in as a test user in the Supabase dashboard and see only their data.
+The local prototype gets the structure it needs to grow into a real product. No external accounts required.
 
-## Week 3 — API: tRPC routers
+**Status:** ✅ complete · merged on `production`
 
-**Goal:** every Server Action in the current app has a tRPC procedure equivalent backed by Supabase.
+<details>
+<summary><strong>What shipped</strong> (22 items)</summary>
 
-- [ ] tRPC infrastructure in `packages/api`: context, middleware, root router.
-- [ ] Routers: `tasks`, `entries`, `media`, `stats`, `settings`.
-- [ ] Mount tRPC under `apps/web/app/api/trpc/[trpc]/route.ts`.
-- [ ] Auth middleware: read session cookie OR bearer token, resolve `userId`.
-- [ ] Migrate Server Actions to call tRPC procedures (or refactor the web to use the tRPC client directly).
-- [ ] Manual smoke test: open the existing web app against staging; every interaction works as before but now via tRPC + Postgres.
+### Repo structure
+- [x] Monorepo restructured to `apps/web` + `packages/shared` + `packages/api`
+- [x] Existing data preserved through the move
+- [x] npm workspaces wired up (no pnpm required)
+- [x] Local dev still works: `npm run dev` from the root serves the existing app
 
-**Definition of done:** the web app has zero references to `better-sqlite3` and works against Supabase.
+### Backend artifacts (staged, not yet applied)
+- [x] Postgres schema migration written
+- [x] Row-level security policies written
+- [x] Sign-up seed trigger written (auto-creates default 12 tasks + challenge + settings per new user)
+- [x] Storage bucket policies written
 
-## Week 4 — Auth + multi-tenancy on web
+### CI + quality
+- [x] GitHub Actions workflow: lint + test + build on every PR
+- [x] Vitest configured in `packages/shared`
+- [x] 25 unit tests for date math and task helpers — all passing
+- [x] Production build (`npm run build`) verified green, including type-check + lint
+- [x] Three LucideIcon prop-type bugs fixed (would have failed CI)
 
-**Goal:** the web app requires sign-in. Each user sees only their data.
+### Production hardening (no accounts needed)
+- [x] Security headers on every response (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy; HSTS in prod)
+- [x] `/api/health` endpoint for uptime monitoring
+- [x] Custom `not-found.tsx` (friendly 404)
+- [x] Global `error.tsx` boundary (retry + request ID)
+- [x] `lib/logger.ts` — newline-JSON logger ready to swap for Sentry
 
-- [ ] Sign-up + sign-in + magic-link screens.
-- [ ] Google OAuth + Apple OAuth enabled in Supabase.
-- [ ] Account menu in the nav: display name, sign out, settings link, danger zone.
-- [ ] Delete-account flow (covered in [07](./07-production-readiness.md)).
-- [ ] Update existing seed logic: on first sign-in for a user with no tasks, seed the default 12.
-- [ ] Migrate your existing local data to your new Supabase account using the import script (covered in [02](./02-backend.md)).
+### Drafts
+- [x] Privacy Policy template (GDPR/CCPA aware) at `plan/legal/`
+- [x] Terms of Service template at `plan/legal/`
+- [x] App Store Connect metadata at `plan/store-listings/`
+- [x] Play Console metadata + Data Safety form at `plan/store-listings/`
+- [x] Screenshots plan with story arc + device sizes
+</details>
 
-**Definition of done:** a new email signs up, sees an empty Day 1, customizes their tasks, and uses the app for a day without issues.
+---
 
-## Week 5 — File storage migration
+## 🔑 Phase 2 — Accounts & decisions 🟡
 
-**Goal:** progress photos live in Supabase Storage, not `public/`.
+The only phase that requires *only* you. Most of these can run in parallel; the slow ones (Apple, Google) gate later phases, so start them first.
 
-- [ ] Create `progress-photos` bucket; configure RLS so users only access `progress-photos/{their-user-id}/*`.
-- [ ] `media.requestPhotoUpload` returns a signed PUT URL.
-- [ ] `media.confirmPhoto` records the storage key + mime in Postgres.
-- [ ] Web client: photo card uploads via signed URL, displays via signed read URL.
-- [ ] Migration: any existing `public/progress-photos/*` files copied to the bucket via a one-shot script.
-- [ ] `next.config.mjs` updated to allow the Supabase image host.
+**Status:** 🟡 in progress (8 of 21 done)
 
-**Definition of done:** upload a photo on the web, see it in the bucket, see the thumbnail in the calendar's day detail modal.
+> [!IMPORTANT]
+> **Apple Developer enrollment takes 24-72 h to activate.** Start it first; everything else can fill in around it. Phase 3 unlocks the moment Supabase has a staging project.
 
-## Week 6 — Mobile shell
+### 🤖 What I already shipped here
 
-**Goal:** Expo app boots, shows the bottom tab bar, can authenticate.
+- [x] Brand naming + nav badge updated to **Program**
+- [x] Domain placeholder used consistently in legal + store drafts
+- [x] Plan docs: 00-overview, 01-architecture, 02-backend, 03-mobile, 04-sync, 05-deployment, 06-distribution, 07-production-readiness, 08-roadmap
+- [x] Push the `production` branch to GitHub
 
-- [ ] `apps/mobile` Expo project created in the monorepo.
-- [ ] NativeWind configured against the shared Tailwind tokens.
-- [ ] React Navigation bottom tab bar: Today / Calendar / Stats / Settings.
-- [ ] Sign-in / sign-up screens.
-- [ ] tRPC client + TanStack Query wired up, hitting staging.
-- [ ] Deep-link config for magic-link sign-in.
-- [ ] App runs on the iOS simulator + Android emulator.
+### 👤 What only you can do
 
-**Definition of done:** sign in on the mobile app and see a blank Today screen with the correct day number.
+| Status | Item | Cost | Notes |
+| ------ | ---- | ---- | ----- |
+| ⬜ | [Apple Developer Program](https://developer.apple.com/programs/enroll/) | $99/yr | 24–72 h to activate. **Start first.** |
+| ⬜ | [Google Play Console](https://play.google.com/console) | $25 one-time | ~48 h to activate. |
+| ⬜ | [Supabase](https://supabase.com) account + `program-staging` project | Free | **Unlocks Phase 3.** |
+| ⬜ | [Vercel](https://vercel.com) account (link GitHub) | Free | |
+| ⬜ | [Sentry](https://sentry.io) account | Free | |
+| ⬜ | [Expo](https://expo.dev) account | Free | Needed for Phase 7. |
+| ⬜ | Buy a domain | ~$12/yr | Locks the brand. |
+| ⬜ | Reserve App Store + Play bundle / package IDs | Free | e.g. `com.yourname.program` |
 
-## Week 7 — Mobile: Today + Calendar screens
+### 🧭 Decisions (no signup needed, just thought)
 
-**Goal:** the two most-used screens work natively.
+| Status | Decision | Default if no answer |
+| ------ | -------- | -------------------- |
+| ⬜ | Final brand name | `Program` |
+| ⬜ | Free or paid v1 | Free |
+| ⬜ | US-only or worldwide | Worldwide (GDPR-aware) |
+| ⬜ | Anonymous accounts allowed | No (force sign-in) |
 
-- [ ] TodayScreen: progress ring, progress bar, task cards (including journal modal + photo picker), notes field, weight card.
-- [ ] CalendarScreen: grid + day-detail modal (a native bottom sheet).
-- [ ] Reanimated for task-check animations + ripple.
-- [ ] `expo-image-picker` for photo selection; signed-URL upload.
-- [ ] `expo-haptics` light feedback on each check.
+---
 
-**Definition of done:** complete a full day on the mobile app — every task check, photo upload, notes save, weight log — and verify each change shows up on the web.
+## 🗄️ Phase 3 — Backend wiring ⬜
 
-## Week 8 — Mobile: Stats + Settings + polish
+Take the staged SQL from Phase 1 and apply it to a real Postgres database.
 
-**Goal:** mobile reaches feature parity with web.
+**Status:** ⬜ blocked on Phase 2 (Supabase project keys needed)
 
-- [ ] StatsScreen with native charts (Skia or Reanimated for the sparkline).
-- [ ] SettingsScreen: length input, tasks list editor, icon picker.
-- [ ] Restart banner + restart confirmation sheet.
-- [ ] Day-N completion celebration screen.
-- [ ] Welcome modal / onboarding stack for first-launch.
+**Unlock condition:** You send me the staging project's URL + anon key + service-role key.
 
-**Definition of done:** open the mobile app cold, sign in, customize a task, complete a day, restart the program, restart again — every screen feels finished.
+### What ships in this phase
 
-## Week 9 — Production hardening
+- [ ] Supabase CLI installed and linked to your staging project
+- [ ] Apply `20260528000000_initial_schema.sql`
+- [ ] Apply `20260528000001_rls_policies.sql`
+- [ ] Apply `20260528000002_seed_defaults_trigger.sql`
+- [ ] Create `progress-photos` storage bucket (private)
+- [ ] Apply `20260528000003_storage_bucket.sql`
+- [ ] Smoke test: insert a test user via the dashboard, verify the trigger creates their 12 default tasks
+- [ ] Confirm RLS rejects cross-user reads from the SQL editor
+- [ ] Add Supabase environment variables to `apps/web/.env.local` (committed via `.env.example`)
 
-**Goal:** ship-quality observability and reliability.
+> [!TIP]
+> When you send keys, use any channel you trust. Anon key is safe in the client; service-role key is server-only — don't paste that in a screenshot.
 
-- [ ] Sentry on web + mobile.
-- [ ] PostHog (optional) with opt-out toggle.
-- [ ] Rate limiting on write endpoints (Upstash Redis middleware).
-- [ ] Security headers (CSP, HSTS, etc.) on web.
-- [ ] Account-deletion flow shipped.
-- [ ] Data-export endpoint (email a ZIP) — manual for now is fine.
-- [ ] Privacy Policy + Terms of Service drafted and hosted at `/privacy` and `/terms`.
+---
 
-**Definition of done:** Sentry shows zero unhandled errors for 48 hours of dogfooding.
+## 🔌 Phase 4 — API rewrite ⬜
 
-## Week 10 — Closed beta
+Replace the in-process `better-sqlite3` calls with Supabase calls behind a tRPC API that the mobile app can also consume.
 
-**Goal:** real users on real devices report real bugs.
+**Status:** ⬜ blocked on Phase 3
 
-- [ ] TestFlight build live, invite ~10 close friends.
-- [ ] Play Console internal track, same crew.
-- [ ] Web staging URL shared with the same crowd.
-- [ ] In-app feedback link (mailto: works fine).
-- [ ] Daily standup with yourself: pick 1-2 bug reports a day to fix.
+### What ships in this phase
 
-**Definition of done:** 5 testers have used the app for 7+ days without a P0 bug.
+- [ ] tRPC infrastructure in `packages/api/` (context, middleware, root router)
+- [ ] Auth middleware reads session cookie (web) or bearer token (mobile)
+- [ ] Routers: `tasks`, `entries`, `media`, `stats`, `settings`, `account`
+- [ ] Every existing Server Action ported to a tRPC procedure with the same input/output shape
+- [ ] `apps/web/src/lib/db.ts` (better-sqlite3) deleted; Supabase client used instead
+- [ ] TanStack Query wired into the web client
+- [ ] Optimistic updates preserved on all mutations
+- [ ] Existing UI behavior unchanged from the user's perspective
 
-## Week 11 — Store submission
+**Definition of done:** the web app at staging looks and feels identical to the current local version, but writes are landing in Postgres.
 
-**Goal:** Apple + Google have your binaries.
+---
 
-- [ ] Final EAS production builds.
-- [ ] App Store Connect: complete metadata, screenshots, app review info.
-- [ ] Play Console: complete metadata, screenshots, data safety form.
-- [ ] Submit for review.
-- [ ] While waiting: complete the web landing page or sign-in entry.
-- [ ] Set up the status page.
+## 🔐 Phase 5 — Auth & multi-tenancy ⬜
 
-**Definition of done:** both reviews submitted; you've eaten popcorn while waiting.
+Real sign-up, real sign-in, and the import of your existing local data into your new Supabase account.
 
-## Week 12 — Launch
+**Status:** ⬜ blocked on Phase 4
 
-**Goal:** the public can install.
+### What ships in this phase
 
-- [ ] iOS App Store approval (typically by mid-week).
-- [ ] Google Play approval (typically by mid-week).
-- [ ] Phased rollout enabled (10% → 50% → 100% over 5 days).
-- [ ] Web custom domain DNS verified; production-ready.
-- [ ] Post a launch tweet / Mastodon post / wherever your audience is.
-- [ ] Watch Sentry like a hawk for 72 hours.
+- [ ] Email + password sign-up and sign-in
+- [ ] Magic-link sign-in (web)
+- [ ] Google OAuth (Supabase config + web callback)
+- [ ] Apple OAuth (required by App Store; **needs Apple Developer enrollment from Phase 2**)
+- [ ] Account menu in the nav: display name, sign out, settings, danger zone
+- [ ] **Delete my account** flow with 30-day grace + confirmation email
+- [ ] **Download my data** flow (ZIP of JSON + photos)
+- [ ] `tools/import-from-sqlite.ts` script
+- [ ] Import the existing local DB into your Supabase account
+- [ ] Verify every check, weight, note, photo, and journal entry appears
 
-**Definition of done:** a stranger downloaded the app, completed Day 1, and the only Sentry events you saw were the ones you expected.
+---
 
-## What v1.1 looks like (post-launch backlog)
+## 🖼️ Phase 6 — Media & storage ⬜
 
-In rough priority order:
+Move progress photos from the laptop filesystem to Supabase Storage so they sync across devices.
 
-1. Push notifications (morning kickoff + evening "tasks left" reminders).
-2. Supabase Realtime for sub-second cross-device updates.
-3. Couples / accountability mode — share a program with one other user.
-4. Apple HealthKit + Google Fit integrations for auto-weight and auto-workout import.
-5. Light mode (currently dark-only, intentionally).
-6. Widgets (iOS home screen + Android lock screen).
-7. Apple Watch glance / quick-check.
-8. Offline-first sync (Option B from [04](./04-sync-strategy.md)).
-9. A web landing page that converts.
-10. Paid tier (if the data says people want one).
+**Status:** ⬜ blocked on Phase 5
 
-## How to use this roadmap
+### What ships in this phase
 
-- Treat the weeks as **focus blocks**, not deadlines. If week 3 turns into 2 weeks, the launch slides — but the order rarely changes.
-- Don't skip weeks 9-10. The temptation is huge ("it's mostly working, let's ship!"). Resist. The difference between "mostly working" and "trustworthy" is what determines whether your first 100 users stay.
-- **Each Friday:** write yourself a one-line note about what you didn't ship that week. After 4 weeks, look at the list. Some of it should disappear (was never important). Some of it is the actual scope you missed; cut it now while it's cheap.
+- [ ] `media.requestPhotoUpload` returns a signed PUT URL
+- [ ] `media.confirmPhoto` records storage key + mime in Postgres
+- [ ] Web photo card uploads via signed URL
+- [ ] Web photo preview reads via signed read URL (cached)
+- [ ] Migration: existing `public/progress-photos/*` files copied to the bucket under your user ID
+- [ ] `next.config.mjs` updated to allow the Supabase image host
 
-## Checklist for this doc
+---
 
-- [ ] You've blocked time on your calendar for at least the first 4 weeks.
-- [ ] You've told 1-2 friends "I'm going to ask you to test something in ~6 weeks."
-- [ ] You have a current-state snapshot of your data backed up before you start migrating in week 2.
+## 📱 Phase 7 — Mobile app ⬜
+
+The iOS + Android client. Same data, native screens.
+
+**Status:** ⬜ blocked on Phase 6
+
+> [!IMPORTANT]
+> This phase needs the Apple Developer + Google Play accounts and the Expo account from Phase 2. Mobile bundle IDs must be reserved before this phase begins.
+
+### What ships in this phase
+
+- [ ] `apps/mobile` Expo project in the monorepo
+- [ ] NativeWind configured against the shared Tailwind tokens
+- [ ] React Navigation tab bar (Today / Calendar / Stats / Settings)
+- [ ] Sign-in + sign-up + magic-link screens
+- [ ] tRPC client + TanStack Query against staging
+- [ ] Deep links for magic-link sign-in
+- [ ] TodayScreen with native cards + reanimated task-check
+- [ ] CalendarScreen with native bottom sheet for day detail
+- [ ] StatsScreen with native charts
+- [ ] SettingsScreen with native editor + bottom-sheet icon picker
+- [ ] Photo card uses `expo-image-picker` + signed-URL upload
+- [ ] Welcome modal / onboarding stack
+- [ ] Restart banner + completion screen
+- [ ] App boots on iOS simulator + Android emulator
+
+---
+
+## 🛡️ Phase 8 — Production hardening ⬜
+
+Ship-quality monitoring, security, and policy compliance.
+
+**Status:** ⬜ blocked on Phase 7
+
+### What ships in this phase
+
+- [ ] Sentry web project integrated
+- [ ] Sentry mobile project integrated
+- [ ] PostHog opt-in analytics (optional)
+- [ ] Rate limiting on write endpoints (Upstash Redis middleware)
+- [ ] CSP header configured with the real third-party origin allowlist
+- [ ] Privacy Policy published at `/privacy`
+- [ ] Terms of Service published at `/terms`
+- [ ] Restore drill performed against staging
+- [ ] Status page set up (Hyperping / BetterUptime / manual)
+- [ ] One-page incident runbook written
+
+---
+
+## 🚀 Phase 9 — Beta & launch ⬜
+
+TestFlight + Play internal track → store submission → public release.
+
+**Status:** ⬜ blocked on Phase 8
+
+### Beta sub-phase
+
+- [ ] First EAS Build for iOS uploaded to TestFlight
+- [ ] First EAS Build for Android uploaded to Play internal track
+- [ ] 5-10 testers invited
+- [ ] In-app feedback path (`mailto:`)
+- [ ] Bug reports triaged daily
+- [ ] **Exit criteria:** 5 testers using the app 10+ days with zero P0 bug reports
+
+### Store submission sub-phase
+
+- [ ] Final EAS production builds
+- [ ] App Store Connect metadata completed (from `plan/store-listings/app-store.md`)
+- [ ] Play Console metadata + Data Safety form completed (from `play-store.md`)
+- [ ] Screenshots captured per `screenshots.md`
+- [ ] Demo account created and seeded for App Review
+- [ ] Submitted for review
+
+### Launch sub-phase
+
+- [ ] iOS approval received
+- [ ] Android approval received
+- [ ] Phased rollout enabled (10% → 50% → 100% over 5 days)
+- [ ] Custom domain DNS verified
+- [ ] Sentry watched for 72 h with no surprises
+- [ ] **Public** 🎉
+
+---
+
+## 🔭 Post-launch backlog (no order)
+
+Not part of v1. These ride on signals from real users.
+
+- Push notifications (morning kickoff + evening "tasks left" reminders)
+- Supabase Realtime for sub-second cross-device updates
+- Couples / accountability mode (share a program with one other user)
+- Apple HealthKit + Google Fit auto-import (weight, workout)
+- Light mode
+- iOS home screen widgets + Android lock-screen widgets
+- Apple Watch glance
+- Offline-first sync (replaces the cache-only strategy from `04-sync-strategy.md`)
+- Web landing page that actually converts
+- Paid tier (if data warrants)
+
+---
+
+## How this file gets updated
+
+Every time something ships, I add `[x]` and re-bake the progress bar at the top. If a phase moves from blocked to in-progress, its status badge flips from ⬜ to 🟡. When all of a phase's items are checked, its badge flips to ✅ and the next phase's status flips to 🟡.
+
+To see at a glance what's left in flight, search for `🟡` in this file — that's the live phase.
+
+> [!TIP]
+> The companion to this file is [`USER-TODO.md`](./USER-TODO.md), which lists exactly what **you** need to do, in dependency order, with checkpoints I can act on the moment they're done.

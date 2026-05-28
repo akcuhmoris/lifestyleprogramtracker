@@ -1,286 +1,110 @@
-# What you need to do — sequenced
+# 👤 What only you can do
 
-The plan in this folder is detailed but most of it depends on either **accounts** (Supabase, Apple, etc.) or **secrets** that only you can produce. This doc separates the two streams:
+> [!NOTE]
+> This file is the **single source of truth for human-only work**. Items unlock the AI side of the work — when you finish something, I can proceed.
 
-- **🤖 AI-doable** items — things I can do on this branch with no input from you.
-- **👤 You-only** items — accounts, payments, secrets, app-store listings.
+For the full picture of where we are and what's next, see [`08-roadmap.md`](./08-roadmap.md).
 
-Work the two columns in parallel. The dependency arrows are at the bottom of each section.
+## Status
 
-> **Where you are right now:** the monorepo migration is done. The app still works locally exactly as before (just from `apps/web/` now). All your data is preserved. Schema + RLS SQL for Supabase is staged in `apps/web/supabase/migrations/`. The next steps are listed below.
-
----
-
-## Right now — do this today (≤ 30 minutes)
-
-### 👤 You-only
-
-| # | Task | Time | Why now |
-| - | ---- | ---- | ------- |
-| 1 | **Enroll in the Apple Developer Program** at <https://developer.apple.com/programs/enroll/>. $99/year. | 10 min to fill, **24–72 h to activate**. | This is the slowest gate. Start it now so it's done by week 4. |
-| 2 | **Create a Google Play Console account** at <https://play.google.com/console>. $25 one-time. | 10 min to fill, **~48 h to activate**. | Same reason. |
-| 3 | **Decide on the final brand name.** Current default in the code is `Program`. | 10 min of thought. | Affects domain purchase + App Store name + bundle ID. |
-
-When 1 & 2 are filing, move on to "this week."
+| Phase | Your work | AI work | Status |
+| ----- | --------- | ------- | ------ |
+| 🏗️ Phase 1 — Foundation | none | scaffolding, hardening, tests, drafts | ✅ done |
+| 🔑 Phase 2 — Accounts & decisions | **this is you, right now** | drafts already in | 🟡 in progress |
+| 🗄️ Phase 3 — Backend wiring | send me Supabase keys | apply migrations | ⬜ waits on you |
+| 🔌 Phase 4 — API rewrite | nothing | port to tRPC | ⬜ waits on Phase 3 |
+| 🔐 Phase 5 — Auth | enable OAuth providers | UI + import script | ⬜ waits on Phase 4 |
+| 🖼️ Phase 6 — Media & storage | nothing | bucket + signed URLs | ⬜ waits on Phase 5 |
+| 📱 Phase 7 — Mobile app | install Xcode, reserve bundle IDs | build the app | ⬜ waits on Phase 6 |
+| 🛡️ Phase 8 — Production hardening | create Sentry projects | wire it all in | ⬜ waits on Phase 7 |
+| 🚀 Phase 9 — Beta & launch | recruit testers, click "Release" | upload builds, fix bugs | ⬜ waits on Phase 8 |
 
 ---
 
-## This week — accounts + decisions
+## 🔑 Phase 2 — what to do now
 
-### 👤 You-only
+All of these are independent and can run in parallel. The slow ones (Apple, Google) gate later phases — start them first.
 
-| # | Task | Time | Notes |
-| - | ---- | ---- | ----- |
-| 4 | **Buy a domain.** Cloudflare Registrar or Porkbun. $12/year. | 15 min | Pick now to match the brand. e.g. `program.app`, `tryprogram.com`, `getprogram.io`. |
-| 5 | **Create a Supabase account** at <https://supabase.com>. Don't create a project yet. | 5 min | We'll create staging + production projects together in week 2. |
-| 6 | **Create a Vercel account** linked to your GitHub. | 5 min | |
-| 7 | **Create a Sentry account** at <https://sentry.io>. Free tier. | 5 min | |
-| 8 | **Decide:** free or paid for v1? | 5 min | Recommended: free. Skip Stripe/RevenueCat for v1. |
-| 9 | **Decide:** US-only or worldwide? | 5 min | Affects whether you need a GDPR-compliant privacy policy on day one (recommended yes either way). |
+### Accounts to create
 
-### 🤖 What I can do in parallel
+- [ ] **Apple Developer Program** — <https://developer.apple.com/programs/enroll/> · $99/yr · **24–72 h to activate, start first**
+- [ ] **Google Play Console** — <https://play.google.com/console> · $25 one-time · ~48 h to activate
+- [ ] **Supabase** — <https://supabase.com> · free · then create a project named `program-staging`, pick a region near you, save the DB password in a password manager
+- [ ] **Vercel** — <https://vercel.com> · free · link your GitHub account
+- [ ] **Sentry** — <https://sentry.io> · free
+- [ ] **Expo** — <https://expo.dev> · free (you'll need it before Phase 7)
+- [ ] **Domain registrar** — Cloudflare Registrar or Porkbun · ~$12/yr · lock in your brand
 
-While you're filling out forms:
+### Decisions to make
 
-- [x] **Monorepo migration.** Web app moved to `apps/web/`. Shared code in `packages/shared/`. ✅
-- [x] **Stage Supabase SQL migrations.** Schema + RLS + sign-up trigger + storage policies. ✅ ready to apply.
-- [x] **Scaffold `packages/api`.** Placeholder for the tRPC routers. ✅
-- [x] **CI workflow.** Lint + test + build on every PR. ✅
-- [x] **Privacy Policy + Terms of Service drafts.** ✅ at `plan/legal/`.
-- [x] **App Store + Play Store listing drafts.** ✅ at `plan/store-listings/`.
-- [x] **Production hardening done now (no accounts needed):**
-  - Security headers (X-Frame-Options, Permissions-Policy, HSTS in prod) on every response
-  - `/api/health` endpoint for uptime monitoring
-  - Custom `not-found.tsx` (friendly 404)
-  - Global `error.tsx` (friendly 500 with retry + request ID)
-  - Structured `logger` stub ready to swap for Sentry in week 9
-- [x] **Test infrastructure.** Vitest configured in `packages/shared`. 25 tests for date math + task helpers, all passing.
-- [x] **Production build verified.** `npm run build` is green, including type-check + lint.
+- [ ] **Brand name** — current default `Program`
+- [ ] **Free or paid for v1** — current default Free
+- [ ] **US-only or worldwide** — current default Worldwide w/ GDPR-aware policies
+- [ ] **Domain name** — feeds into the App Store + Play listings
+- [ ] **iOS bundle ID + Android package name** — e.g. `com.yourname.program` (lock once, never change)
+
+> [!IMPORTANT]
+> The single most important hand-off: when your **Supabase staging project** exists, send me **Project URL**, **anon public key**, and **service role key** (the last one is sensitive — share over a channel you trust). That single message unlocks Phases 3 → 6 and I can run with it for a long stretch.
 
 ---
 
-## Week 2 — Supabase setup
+## 🔐 Phase 5 — what to do when we get there
 
-**Wait for:** items 5 + 8 above.
+These configurations live inside Supabase's dashboard. They need real OAuth app credentials from Google + Apple.
 
-### 👤 You-only
-
-| # | Task | Notes |
-| - | ---- | ----- |
-| 10 | **Create a Supabase project for `staging`.** | Pick a region near you. Pick a strong DB password and put it in a password manager. |
-| 11 | **Send me the staging project's URL + anon key + service-role key.** | Share via a secure channel; service-role key is sensitive. |
-
-### 🤖 What I'll do after you give me the keys
-
-- [ ] Apply all migrations in `apps/web/supabase/migrations/` to the staging project.
-- [ ] Create the `progress-photos` storage bucket and re-apply the storage policies.
-- [ ] Wire up Supabase clients (server + browser) in `apps/web/src/lib/supabase/`.
-- [ ] Add the env vars to the local dev workflow.
-- [ ] Smoke-test: insert a test user via the Supabase auth dashboard, verify the seed trigger creates their 12 tasks.
-
-**Definition of done for week 2:** the dashboard shows a test user with 12 seeded tasks and the storage bucket exists.
+- [ ] Enable Google OAuth in Supabase (Settings → Auth → Providers → Google). Requires a Google Cloud Console OAuth app.
+- [ ] Enable Apple OAuth in Supabase. Requires Apple Developer enrollment to be complete.
+- [ ] Confirm magic-link email template branding looks right.
 
 ---
 
-## Week 3 — tRPC API + Server Action migration
+## 📱 Phase 7 — what to do when we get there
 
-**Wait for:** week 2 done.
-
-### 👤 You-only
-
-- Nothing. Sit back and watch.
-
-### 🤖 What I'll do
-
-- [ ] Build the tRPC router infrastructure in `packages/api/`.
-- [ ] Port every Server Action in `apps/web/src/app/actions.ts` to a tRPC procedure.
-- [ ] Replace the `better-sqlite3` calls in `apps/web/src/lib/db.ts` with Supabase calls.
-- [ ] Wire TanStack Query into the web client.
-- [ ] Keep the existing UI working — same animations, same UX.
-
-**Definition of done for week 3:** the web app has zero references to `better-sqlite3`, runs against staging Supabase, and looks/feels identical.
+- [ ] **Install Xcode** from the Mac App Store (~10 GB) — needed for the iOS simulator
+- [ ] **Install Android Studio** (only if you want to test on the Android emulator locally; EAS Build can produce production builds without it)
+- [ ] **Reserve a bundle ID** in App Store Connect, e.g. `com.yourname.program`
+- [ ] **Reserve a package name** in Play Console (same identifier by convention)
+- [ ] **Add at least one test device** to your Apple Developer profile for TestFlight
 
 ---
 
-## Week 4 — Auth + multi-tenancy
+## 🛡️ Phase 8 — what to do when we get there
 
-**Wait for:** week 3 done.
-
-### 👤 You-only
-
-| # | Task | Notes |
-| - | ---- | ----- |
-| 12 | **Enable Google OAuth in Supabase.** Settings → Auth → Providers → Google. Requires a Google Cloud Console OAuth app. | Follow Supabase's setup doc. |
-| 13 | **Enable Apple OAuth in Supabase.** Required by Apple if you offer Google sign-in on iOS. | Apple Developer enrollment must be complete by now. |
-
-### 🤖 What I'll do
-
-- [ ] Sign-up + sign-in + magic-link UI on the web.
-- [ ] Account menu in the nav (sign out, settings, danger zone).
-- [ ] Account-deletion flow.
-- [ ] Data-export flow ("download my data" — emails a ZIP).
-- [ ] Run the import script against your existing local data so your real entries land in your new Supabase account.
-
-**Definition of done for week 4:** you sign in on the web with your email, see your real 26 task completions and your real notes and weight logs. You can sign out and back in.
+- [ ] Create a **Sentry project for `web`** and one for `mobile`
+- [ ] (Optional) Create a **PostHog** account if you want analytics
+- [ ] Pick a **support / privacy contact email** (e.g. `support@yourdomain.app`)
+- [ ] Review the **Privacy Policy + Terms** drafts in `plan/legal/`, fill in the `[BRACKETED]` placeholders, ideally have a lawyer review
 
 ---
 
-## Week 5 — Storage migration (progress photos)
+## 🚀 Phase 9 — what to do when we get there
 
-**Wait for:** week 4 done.
+### Beta
 
-### 👤 You-only
+- [ ] **Accept the App Store Connect agreement** (if not already) — required before TestFlight works
+- [ ] **Invite 5–10 testers** to TestFlight by email
+- [ ] **Invite the same crew** to Play Console internal track
+- [ ] **Use the app daily** and file bug reports — be your own toughest tester
 
-- Nothing.
+### Store submission
 
-### 🤖 What I'll do
+- [ ] **App Store Connect metadata** — paste from `plan/store-listings/app-store.md`, fill in `[BRACKETS]`
+- [ ] **Play Console metadata** — paste from `plan/store-listings/play-store.md`
+- [ ] **Data Safety form** in Play — answers in the draft, but you press the buttons
+- [ ] **Upload screenshots** per `plan/store-listings/screenshots.md`
+- [ ] **Submit for review**
 
-- [ ] `media.requestPhotoUpload` and `media.confirmPhoto` tRPC procedures.
-- [ ] Update web photo card to upload via signed URL.
-- [ ] Migrate any existing `public/progress-photos/*` to the bucket.
-- [ ] Display via signed read URL with caching.
+### Launch
 
----
-
-## Week 6 — Mobile app foundation
-
-**Wait for:** week 5 done. Items 1 + 4 must also be done by now.
-
-### 👤 You-only
-
-| # | Task | Notes |
-| - | ---- | ----- |
-| 14 | **Create an Expo account** at <https://expo.dev>. | Free. |
-| 15 | **Install Xcode on your Mac** (Mac App Store, ~10 GB). | Needed to run the iOS simulator locally. |
-| 16 | **Install Android Studio** (only if you want to test Android locally; EAS Build covers production builds without it). | Optional. |
-| 17 | **Reserve a bundle ID** in App Store Connect, e.g. `com.program.lifestyle`. | Once chosen, it's locked. |
-| 18 | **Reserve a package name** in Play Console, same as above. | Same identifier on both stores by convention. |
-
-### 🤖 What I'll do
-
-- [ ] Scaffold `apps/mobile` with Expo SDK.
-- [ ] NativeWind config sharing the existing Tailwind tokens.
-- [ ] React Navigation tab bar (Today / Calendar / Stats / Settings).
-- [ ] Auth screens.
-- [ ] tRPC client + TanStack Query.
-- [ ] You install on your phone via Expo Go and we test sign-in.
+- [ ] **Click "Release"** on both stores when approved
+- [ ] **DNS record** for your custom domain pointed at Vercel
+- [ ] **Tell the world** wherever your audience lives
 
 ---
 
-## Weeks 7-8 — Mobile screens
+## Status dashboard
 
-**Wait for:** week 6 done.
-
-### 👤 You-only
-
-- Use the mobile app daily. File bug reports as you go.
-
-### 🤖 What I'll do
-
-- [ ] Build TodayScreen, CalendarScreen, StatsScreen, SettingsScreen.
-- [ ] Native bottom sheets for day-detail editing.
-- [ ] Reanimated for the task-check spring + ripple.
-- [ ] Expo ImagePicker for the photo task.
-- [ ] Restart banner + completion screen.
-
----
-
-## Week 9 — Production hardening
-
-**Wait for:** week 8 done.
-
-### 👤 You-only
-
-| # | Task | Notes |
-| - | ---- | ----- |
-| 19 | **Create a Sentry project for `web` and one for `mobile`.** | One Sentry account, two projects. |
-| 20 | **(Optional) PostHog account** at <https://posthog.com>. | Skip if you don't want analytics. |
-| 21 | **Pick a "data deletion" email address** like `support@yourdomain.app`. | Required for the Privacy Policy + App Store. |
-
-### 🤖 What I'll do
-
-- [ ] Sentry integration on web + mobile.
-- [ ] Security headers on web (CSP, HSTS).
-- [ ] Rate limiting on write endpoints.
-- [ ] Final account-deletion + data-export polish.
-- [ ] Privacy Policy + Terms of Service published at `/privacy` and `/terms`.
-
----
-
-## Week 10 — Closed beta
-
-**Wait for:** week 9 done.
-
-### 👤 You-only
-
-| # | Task | Notes |
-| - | ---- | ----- |
-| 22 | **TestFlight build:** I'll trigger the build; you accept the App Store Connect agreement and add 5–10 testers by email. | |
-| 23 | **Play Console internal track:** Same as above. | |
-| 24 | **Recruit 5–10 testers.** Friends, your most trusted feedback givers. | The bar is "people who will actually report bugs." |
-
-### 🤖 What I'll do
-
-- [ ] First EAS Build for iOS + Android.
-- [ ] Set up EAS Update channels (staging + production).
-- [ ] Fix bug reports as they come in.
-
----
-
-## Week 11 — Store submission
-
-### 👤 You-only
-
-| # | Task | Notes |
-| - | ---- | ----- |
-| 25 | **App Store Connect metadata.** Description, keywords, support URL, privacy policy URL, screenshots. | I'll prepare drafts; you upload. |
-| 26 | **Play Console metadata + Data Safety form.** Same. | The Data Safety form is long; budget an hour. |
-| 27 | **Submit for review.** | Apple ~24-48h, Google ~1-3d for new apps. |
-
-### 🤖 What I'll do
-
-- [ ] Generate screenshots from the simulator at every required device size.
-- [ ] Final production builds.
-- [ ] Web landing page or sign-in entry polish.
-- [ ] Status page setup.
-
----
-
-## Week 12 — Launch
-
-### 👤 You-only
-
-| # | Task | Notes |
-| - | ---- | ----- |
-| 28 | **Click "Release" on both stores.** | Phased release recommended (10% → 50% → 100% over 5 days). |
-| 29 | **Point your custom domain at the Vercel production deployment.** | DNS A or CNAME record. |
-| 30 | **Tell the world.** Where your audience lives. | |
-| 31 | **Watch Sentry for 72 hours.** | Be ready to push a hotfix. |
-
-### 🤖 What I'll do
-
-- [ ] Be on standby for hotfixes.
-
----
-
-## Decision points where I need your input
-
-These are mini-decisions that I'll ask you about when we reach them:
-
-| When | Decision |
-| ---- | -------- |
-| Week 4 | Brand name on the welcome screen + auth screens. Default `Program` if no answer. |
-| Week 4 | Should new users go through an onboarding flow (program length picker + task customization) or accept defaults silently? Default: silent + welcome modal explains how to customize. |
-| Week 6 | Mobile-only feature: do you want a "Camera (live)" option in addition to "Library" for the photo task? Default: library only for v1. |
-| Week 9 | Analytics opt-in copy. I'll draft; you approve. |
-| Week 9 | Privacy Policy contact email. |
-| Week 11 | Final App Store description and keywords. I'll draft; you tweak. |
-
----
-
-## Status dashboard (update as you go)
-
-Mark these done so we can see progress at a glance.
+Mark as you go — gives both of us a single-glance picture of where we are.
 
 ### Accounts
 - [ ] Apple Developer Program enrolled
@@ -299,7 +123,7 @@ Mark these done so we can see progress at a glance.
 - [ ] Domain name picked
 - [ ] Bundle ID + Android package name picked
 
-### Migration milestones
+### Done so far
 - [x] Monorepo set up
 - [x] SQL migrations staged
 - [x] CI configured
@@ -308,6 +132,9 @@ Mark these done so we can see progress at a glance.
 - [x] Friendly 404 + 500 + structured logger stub
 - [x] Privacy Policy + ToS drafts
 - [x] App Store + Play Store listing drafts
+- [x] Pushed to `origin/production`
+
+### Still to come
 - [ ] Supabase staging project created
 - [ ] SQL migrations applied to staging
 - [ ] Local data imported to staging
@@ -319,4 +146,4 @@ Mark these done so we can see progress at a glance.
 - [ ] Sentry + monitoring live
 - [ ] TestFlight + Play internal live
 - [ ] App Store + Play submitted
-- [ ] Public launch
+- [ ] Public launch 🎉
