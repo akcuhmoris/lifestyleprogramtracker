@@ -7,6 +7,8 @@ You configure the **length** (1–365 days) and the **daily requirements** (any 
 Runs locally on your laptop. No accounts, no servers, no telemetry, no cloud. Your data lives in a single SQLite file in the project root.
 
 > **Status:** Feature-complete and fully configurable. Today view, calendar/heatmap with editable past-day detail modal, stats page, restart-prompt + restart flow, completion celebration, an in-app Settings page, and a welcome / help modal that explains the flow to new users — all live.
+>
+> **Going to production?** See [`plan/`](./plan/README.md) for the full blueprint to take this from a local-only prototype to a deployed web + iOS + Android product with real users.
 
 ---
 
