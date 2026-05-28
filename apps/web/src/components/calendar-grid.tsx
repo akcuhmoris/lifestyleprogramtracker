@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { DayDetailModal } from "./day-detail-modal";
-import type { Task } from "@/lib/tasks";
+import type { Task } from "@program/shared/tasks";
 
 export type DayStatus = {
   date: string;

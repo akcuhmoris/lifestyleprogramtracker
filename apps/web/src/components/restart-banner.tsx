@@ -6,7 +6,7 @@ import { AlertTriangle, RotateCcw, ArrowRight, X } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { formatPretty } from "@/lib/date";
+import { formatPretty } from "@program/shared/date";
 import {
   dismissRestartAction,
   restartChallengeAction,

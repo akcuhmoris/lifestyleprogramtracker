@@ -19,7 +19,7 @@ import {
   type DayRow,
   type TaskInput,
 } from "@/lib/db";
-import { isFuture, todayLocal } from "@/lib/date";
+import { isFuture, todayLocal } from "@program/shared/date";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 

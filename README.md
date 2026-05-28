@@ -8,7 +8,7 @@ Runs locally on your laptop. No accounts, no servers, no telemetry, no cloud. Yo
 
 > **Status:** Feature-complete and fully configurable. Today view, calendar/heatmap with editable past-day detail modal, stats page, restart-prompt + restart flow, completion celebration, an in-app Settings page, and a welcome / help modal that explains the flow to new users — all live.
 >
-> **Going to production?** See [`plan/`](./plan/README.md) for the full blueprint to take this from a local-only prototype to a deployed web + iOS + Android product with real users.
+> **Going to production?** See [`plan/`](./plan/README.md) for the full blueprint. The shortest path is [`plan/USER-TODO.md`](./plan/USER-TODO.md) — a sequenced checklist separating what *you* need to do (accounts, decisions) from what AI can do alongside you.
 
 ---
 
@@ -208,43 +208,38 @@ No tracking. No analytics. Nothing hits the network at runtime.
 
 ```
 .
-├── hardtracker.db              # local SQLite database (gitignored, auto-created)
-├── next.config.mjs
-├── tailwind.config.ts
-├── public/
-│   └── progress-photos/        # uploaded photos (gitignored, auto-created)
-├── src/
-│   ├── app/
-│   │   ├── actions.ts                # Server Actions: all DB writes + file uploads
-│   │   ├── globals.css               # dark theme, ambient blue gradient, scrollbar
-│   │   ├── layout.tsx                # wraps every page with the nav bar
-│   │   ├── page.tsx                  # / route — today view OR completion screen
-│   │   ├── calendar/page.tsx         # /calendar route — heatmap
-│   │   ├── stats/page.tsx            # /stats route — aggregates + weight trend
-│   │   └── settings/page.tsx         # /settings route — task list + length editor
-│   ├── components/
-│   │   ├── calendar-grid.tsx         # heatmap + legend
-│   │   ├── completion-screen.tsx     # final victory layout
-│   │   ├── confetti.tsx              # small-burst + big-celebration helpers
-│   │   ├── day-detail-modal.tsx      # editable modal for any day from the calendar
-│   │   ├── day-progress-bar.tsx      # animated linear "tasks done today" bar
-│   │   ├── journal-modal.tsx         # Journal task dialog
-│   │   ├── nav.tsx                   # top nav (Today / Calendar / Stats / Settings)
-│   │   ├── notes-field.tsx           # autosaving "what did you do today" textarea
-│   │   ├── photo-card.tsx            # photo task upload + thumbnail + preview
-│   │   ├── progress-ring.tsx         # animated SVG ring (overall program progress)
-│   │   ├── restart-banner.tsx        # missed-day prompt + confirm dialog
-│   │   ├── settings-form.tsx         # tasks list editor + length input + icon picker
-│   │   ├── stats-board.tsx           # per-task bars, totals, weight sparkline
-│   │   ├── task-card.tsx             # tappable task cards w/ ripple + confetti
-│   │   ├── today-view.tsx            # composes the today route
-│   │   └── weight-card.tsx           # daily weigh-in + delta-from-previous
-│   └── lib/
-│       ├── date.ts         # local-timezone date math, day number, ISO helpers
-│       ├── db.ts           # better-sqlite3 connection, schema, read/write
-│       ├── icons.ts        # curated Lucide icon registry for the picker
-│       ├── tasks.ts        # shared Task type + journal/photo finders
-│       └── utils.ts        # cn() class merger
+├── package.json                       # monorepo root (npm workspaces)
+├── plan/                              # production blueprint + USER-TODO checklist
+├── apps/
+│   └── web/                           # the Next.js 14 web app
+│       ├── hardtracker.db             # local SQLite (gitignored, auto-created)
+│       ├── next.config.mjs
+│       ├── tailwind.config.ts
+│       ├── package.json
+│       ├── supabase/migrations/       # SQL ready to push once Supabase is set up
+│       ├── public/
+│       │   └── progress-photos/       # uploaded photos (gitignored)
+│       └── src/
+│           ├── app/
+│           │   ├── actions.ts         # Server Actions: all DB writes + file uploads
+│           │   ├── globals.css        # dark theme, ambient blue gradient
+│           │   ├── layout.tsx         # wraps every page with the nav bar
+│           │   ├── page.tsx           # / route — today view OR completion screen
+│           │   ├── calendar/page.tsx  # heatmap
+│           │   ├── stats/page.tsx     # aggregates + weight trend
+│           │   └── settings/page.tsx  # task list + length editor
+│           ├── components/            # task-card, calendar-grid, settings-form, etc.
+│           └── lib/
+│               ├── db.ts              # better-sqlite3 connection, schema, read/write
+│               └── utils.ts           # cn() class merger
+├── packages/
+│   ├── shared/                        # cross-app types + helpers
+│   │   └── src/
+│   │       ├── date.ts                # local-timezone date math
+│   │       ├── tasks.ts               # Task type + journal/photo finders
+│   │       └── icons.ts               # curated Lucide icon registry
+│   └── api/                           # tRPC routers (placeholder until Supabase exists)
+└── .github/workflows/                 # CI: lint + build on every PR
 ```
 
 ---

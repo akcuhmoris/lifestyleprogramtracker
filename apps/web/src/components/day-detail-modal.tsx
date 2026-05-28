@@ -6,9 +6,9 @@ import { Check, ChevronDown, Scale, X, Camera, ImagePlus, Trash2, Loader2, Eye }
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { findPhotoTaskId, type Task } from "@/lib/tasks";
-import { getIcon } from "@/lib/icons";
-import { dayNumber, formatPretty } from "@/lib/date";
+import { findPhotoTaskId, type Task } from "@program/shared/tasks";
+import { getIcon } from "@program/shared/icons";
+import { dayNumber, formatPretty } from "@program/shared/date";
 import { DayProgressBar } from "./day-progress-bar";
 import {
   loadDayAction,

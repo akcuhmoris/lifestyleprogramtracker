@@ -17,8 +17,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { ICON_NAMES, ICONS, getIcon, type IconName } from "@/lib/icons";
-import type { Task } from "@/lib/tasks";
+import { ICON_NAMES, ICONS, getIcon, type IconName } from "@program/shared/icons";
+import type { Task } from "@program/shared/tasks";
 import {
   deleteTaskAction,
   reorderTasksAction,

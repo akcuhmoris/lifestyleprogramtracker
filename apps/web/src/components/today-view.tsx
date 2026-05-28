@@ -2,8 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { findJournalTaskId, findPhotoTaskId, type Task } from "@/lib/tasks";
-import { getIcon } from "@/lib/icons";
+import { findJournalTaskId, findPhotoTaskId, type Task } from "@program/shared/tasks";
+import { getIcon } from "@program/shared/icons";
 import { TaskCard } from "./task-card";
 import { ProgressRing } from "./progress-ring";
 import { NotesField } from "./notes-field";
@@ -12,7 +12,7 @@ import { JournalModal } from "./journal-modal";
 import { PhotoCard } from "./photo-card";
 import { toggleTaskAction, saveJournalAction } from "@/app/actions";
 import { bigCelebration } from "./confetti";
-import { dayNumber, formatPretty } from "@/lib/date";
+import { dayNumber, formatPretty } from "@program/shared/date";
 import { RestartBanner } from "./restart-banner";
 import { DayProgressBar } from "./day-progress-bar";
 

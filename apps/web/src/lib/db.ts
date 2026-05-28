@@ -1,7 +1,7 @@
 import "server-only";
 import Database from "better-sqlite3";
 import path from "node:path";
-import { CHALLENGE_START, TOTAL_DAYS as DEFAULT_TOTAL_DAYS, todayLocal } from "./date";
+import { CHALLENGE_START, TOTAL_DAYS as DEFAULT_TOTAL_DAYS, todayLocal } from "@program/shared/date";
 
 // Re-export the default so callers without DB access still have a fallback.
 export const TOTAL_DAYS = DEFAULT_TOTAL_DAYS;

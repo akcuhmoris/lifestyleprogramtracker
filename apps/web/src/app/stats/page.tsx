@@ -11,9 +11,9 @@ import {
   daysBetween,
   formatPretty,
   todayLocal,
-} from "@/lib/date";
+} from "@program/shared/date";
 import { StatsBoard } from "@/components/stats-board";
-import { findJournalTaskId, findPhotoTaskId } from "@/lib/tasks";
+import { findJournalTaskId, findPhotoTaskId } from "@program/shared/tasks";
 
 export const dynamic = "force-dynamic";
 

@@ -10,8 +10,8 @@ import {
   getTotalDays,
   getWeightSeries,
 } from "@/lib/db";
-import { findJournalTaskId, findPhotoTaskId } from "@/lib/tasks";
-import { CHALLENGE_START, addDays, todayLocal } from "@/lib/date";
+import { findJournalTaskId, findPhotoTaskId } from "@program/shared/tasks";
+import { CHALLENGE_START, addDays, todayLocal } from "@program/shared/date";
 
 export const dynamic = "force-dynamic";
 

@@ -5,7 +5,7 @@ import {
   getTasks,
   getTotalDays,
 } from "@/lib/db";
-import { CHALLENGE_START, formatPretty, todayLocal } from "@/lib/date";
+import { CHALLENGE_START, formatPretty, todayLocal } from "@program/shared/date";
 
 export const dynamic = "force-dynamic";
 

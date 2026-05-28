@@ -17,6 +17,7 @@ dist/
 
 # User-uploaded progress photos (private)
 /public/progress-photos/
+apps/web/public/progress-photos/
 
 # Editor
 .vscode/
