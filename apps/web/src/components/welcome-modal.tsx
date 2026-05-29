@@ -24,7 +24,13 @@ import { cn } from "@/lib/utils";
 
 const SEEN_KEY = "lifestyleprogram_seen_welcome_v1";
 export const OPEN_WELCOME_EVENT = "welcome:open";
-const HIDE_PATHS = ["/login", "/signup", "/auth"];
+const HIDE_PATHS = [
+  "/login",
+  "/signup",
+  "/auth",
+  "/forgot-password",
+  "/reset-password",
+];
 
 export function WelcomeModal() {
   const pathname = usePathname();

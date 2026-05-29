@@ -19,9 +19,42 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
-  title: "Program — Lifestyle tracker",
-  description: "Track any lifestyle program — your tasks, your length, your rules.",
+  metadataBase: new URL(APP_URL),
+  title: {
+    default: "Program — Lifestyle tracker",
+    template: "%s · Program",
+  },
+  description:
+    "Track any lifestyle program — your tasks, your length, your rules. 75 Hard, 100 Hard, or your own routine.",
+  applicationName: "Program",
+  authors: [{ name: "Program" }],
+  keywords: [
+    "habit tracker",
+    "75 hard",
+    "100 hard",
+    "lifestyle program",
+    "accountability",
+    "fitness",
+    "journal",
+  ],
+  openGraph: {
+    type: "website",
+    title: "Program — Track any lifestyle program",
+    description:
+      "75 Hard, 100 Hard, or your own routine — your tasks, your length, your rules.",
+    siteName: "Program",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Program — Track any lifestyle program",
+    description:
+      "75 Hard, 100 Hard, or your own routine — your tasks, your length, your rules.",
+  },
 };
 
 export default async function RootLayout({

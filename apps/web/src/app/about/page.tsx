@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Program — Track any lifestyle program",
+  title: "Track any lifestyle program",
   description:
     "75 Hard, 100 Hard, or your own routine. A no-nonsense habit tracker with the polish to make every check feel earned.",
 };

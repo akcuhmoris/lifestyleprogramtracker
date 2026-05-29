@@ -1,7 +1,7 @@
 import { LegalPage } from "@/components/legal-page";
 
 export const metadata = {
-  title: "Terms of Service · Program",
+  title: "Terms of Service",
 };
 
 export default function TermsPage() {

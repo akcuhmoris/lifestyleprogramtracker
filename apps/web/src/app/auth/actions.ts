@@ -88,6 +88,88 @@ export async function signInWithMagicLinkAction(formData: FormData) {
   redirect(`/auth/check-email?email=${encodeURIComponent(email)}`);
 }
 
+export async function sendPasswordResetAction(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) {
+    return { ok: false as const, error: "Email is required." };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/auth/callback?next=/reset-password`,
+  });
+  if (error) {
+    logger.warn("password-reset send failed", { email, code: error.code });
+    return { ok: false as const, error: error.message };
+  }
+  return { ok: true as const };
+}
+
+export async function setNewPasswordAction(formData: FormData) {
+  const password = String(formData.get("password") ?? "");
+  if (password.length < 8) {
+    return { ok: false as const, error: "Password must be at least 8 characters." };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    logger.warn("password update failed", { code: error.code });
+    return { ok: false as const, error: error.message };
+  }
+  // Force a clean sign-in with the new password — locks out any leftover session.
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/login?reset=1");
+}
+
+export async function updateEmailAction(formData: FormData) {
+  const newEmail = String(formData.get("email") ?? "").trim();
+  if (!newEmail) {
+    return { ok: false as const, error: "Email is required." };
+  }
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { ok: false as const, error: "Not authenticated." };
+  }
+  if (user.email === newEmail) {
+    return { ok: false as const, error: "That's already your email." };
+  }
+  const { error } = await supabase.auth.updateUser({ email: newEmail });
+  if (error) {
+    logger.warn("email update failed", { code: error.code });
+    return { ok: false as const, error: error.message };
+  }
+  return { ok: true as const, message: `Confirmation sent to ${newEmail}` };
+}
+
+export async function updatePasswordAction(formData: FormData) {
+  const currentPassword = String(formData.get("current") ?? "");
+  const newPassword = String(formData.get("password") ?? "");
+  if (newPassword.length < 8) {
+    return { ok: false as const, error: "New password must be at least 8 characters." };
+  }
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) {
+    return { ok: false as const, error: "Not authenticated." };
+  }
+  // Verify the current password by attempting a sign-in.
+  const { error: verifyErr } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+  if (verifyErr) {
+    return { ok: false as const, error: "Current password is incorrect." };
+  }
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) {
+    logger.warn("password update failed", { code: error.code });
+    return { ok: false as const, error: error.message };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true as const, message: "Password updated." };
+}
+
 export async function signOutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();

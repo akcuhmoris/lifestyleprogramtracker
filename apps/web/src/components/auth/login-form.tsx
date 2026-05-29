@@ -47,6 +47,14 @@ export function LoginForm({ next, initialError }: Props) {
             placeholder="••••••••"
             required
           />
+          <div className="text-right">
+            <a
+              href="/forgot-password"
+              className="text-[11.5px] text-text-dim hover:text-accent-glow transition-colors"
+            >
+              Forgot password?
+            </a>
+          </div>
           <SubmitButton pending={isPending} label="Sign in" />
         </form>
       ) : (

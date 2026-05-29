@@ -1,5 +1,6 @@
 import { getTasks, getTotalDays } from "@/lib/db";
 import { SettingsForm } from "@/components/settings-form";
+import { AccountSection } from "@/components/account/account-section";
 import { DangerZone } from "@/components/account/danger-zone";
 import { createClient } from "@/lib/supabase/server";
 
@@ -30,6 +31,7 @@ export default async function SettingsPage() {
 
       <SettingsForm initialTotalDays={totalDays} initialTasks={tasks} />
 
+      <AccountSection email={email} />
       <DangerZone email={email} />
     </main>
   );

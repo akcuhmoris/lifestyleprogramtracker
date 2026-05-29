@@ -22,7 +22,13 @@ const items = [
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
-const HIDE_NAV_PATHS = ["/login", "/signup", "/auth"];
+const HIDE_NAV_PATHS = [
+  "/login",
+  "/signup",
+  "/auth",
+  "/forgot-password",
+  "/reset-password",
+];
 
 export function Nav({ userEmail }: { userEmail: string | null }) {
   const pathname = usePathname();
