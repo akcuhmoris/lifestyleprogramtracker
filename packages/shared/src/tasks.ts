@@ -1,9 +1,9 @@
 /**
  * Task type shared between server and client.
- * The actual task list is stored in the DB and loaded per-request — see lib/db.ts.
+ * Task IDs are Postgres UUIDs rendered as strings.
  */
 export type Task = {
-  id: number;
+  id: string;
   position: number;
   title: string;
   subtitle: string | null;
@@ -14,10 +14,10 @@ export type Task = {
   detailPlaceholder: string | null;
 };
 
-export function findJournalTaskId(tasks: Task[]): number | null {
+export function findJournalTaskId(tasks: Task[]): string | null {
   return tasks.find((t) => t.kind === "journal")?.id ?? null;
 }
 
-export function findPhotoTaskId(tasks: Task[]): number | null {
+export function findPhotoTaskId(tasks: Task[]): string | null {
   return tasks.find((t) => t.kind === "photo")?.id ?? null;
 }

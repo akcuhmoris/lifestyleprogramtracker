@@ -17,16 +17,17 @@ import { findJournalTaskId, findPhotoTaskId } from "@program/shared/tasks";
 
 export const dynamic = "force-dynamic";
 
-export default function StatsPage() {
+export default async function StatsPage() {
   const today = todayLocal();
-  const ch = getActiveChallenge();
+  const [ch, tasks, totalDays, statuses, perTask, weightSeries] = await Promise.all([
+    getActiveChallenge(),
+    getTasks(),
+    getTotalDays(),
+    getAllDayStatuses(),
+    getPerTaskStats(),
+    getWeightSeries(),
+  ]);
   const startDate = ch?.start_date ?? CHALLENGE_START;
-  const tasks = getTasks();
-  const totalDays = getTotalDays();
-
-  const statuses = getAllDayStatuses();
-  const perTask = getPerTaskStats();
-  const weightSeries = getWeightSeries();
 
   const elapsedRaw = daysBetween(startDate, today) + 1;
   const elapsed = Math.max(0, Math.min(elapsedRaw, totalDays));

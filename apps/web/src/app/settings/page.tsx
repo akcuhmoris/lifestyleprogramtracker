@@ -1,11 +1,16 @@
 import { getTasks, getTotalDays } from "@/lib/db";
 import { SettingsForm } from "@/components/settings-form";
+import { DangerZone } from "@/components/account/danger-zone";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export default function SettingsPage() {
-  const tasks = getTasks();
-  const totalDays = getTotalDays();
+export default async function SettingsPage() {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  const email = userData.user?.email ?? "";
+
+  const [tasks, totalDays] = await Promise.all([getTasks(), getTotalDays()]);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10 lg:py-14">
@@ -24,6 +29,8 @@ export default function SettingsPage() {
       </header>
 
       <SettingsForm initialTotalDays={totalDays} initialTasks={tasks} />
+
+      <DangerZone email={email} />
     </main>
   );
 }

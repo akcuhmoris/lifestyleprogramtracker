@@ -92,7 +92,7 @@ export function SettingsForm({ initialTotalDays, initialTasks }: Props) {
     }
   }
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: string) {
     await deleteTaskAction(id);
     setTasks((prev) => prev.filter((t) => t.id !== id));
     router.refresh();
@@ -388,7 +388,7 @@ function TaskEditor({
   onSave,
 }: {
   editing: Editing;
-  existingKinds: { journalId: number | null; photoId: number | null };
+  existingKinds: { journalId: string | null; photoId: string | null };
   onCancel: () => void;
   onSave: (value: TaskFormValue) => void;
 }) {

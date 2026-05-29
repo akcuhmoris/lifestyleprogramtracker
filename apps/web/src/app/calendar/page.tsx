@@ -9,13 +9,15 @@ import { CHALLENGE_START, formatPretty, todayLocal } from "@program/shared/date"
 
 export const dynamic = "force-dynamic";
 
-export default function CalendarPage() {
+export default async function CalendarPage() {
   const today = todayLocal();
-  const statuses = getAllDayStatuses();
-  const ch = getActiveChallenge();
+  const [statuses, ch, totalDays, tasks] = await Promise.all([
+    getAllDayStatuses(),
+    getActiveChallenge(),
+    getTotalDays(),
+    getTasks(),
+  ]);
   const startDate = ch?.start_date ?? CHALLENGE_START;
-  const totalDays = getTotalDays();
-  const tasks = getTasks();
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10 lg:py-14">

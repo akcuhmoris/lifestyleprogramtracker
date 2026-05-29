@@ -19,6 +19,7 @@ import {
   toggleTaskAction,
   uploadProgressPhotoAction,
   deleteProgressPhotoAction,
+  getPhotoUrlAction,
 } from "@/app/actions";
 
 
@@ -34,11 +35,11 @@ type Props = {
 type Loaded = {
   date: string;
   notes: string;
-  completedTaskIds: number[];
+  completedTaskIds: string[];
   journal: string;
   weight: number | null;
   previousWeight: { date: string; weight: number } | null;
-  taskDetails: Record<number, string>;
+  taskDetails: Record<string, string>;
   photo: { filename: string; mime: string | null } | null;
 };
 
@@ -218,10 +219,10 @@ function Body({
 }) {
   const photoId = findPhotoTaskId(tasks);
 
-  const [expandedDetailId, setExpandedDetailId] = useState<number | null>(null);
+  const [expandedDetailId, setExpandedDetailId] = useState<string | null>(null);
   const [detailNudge, setDetailNudge] = useState(0);
 
-  async function toggle(taskId: number, next: boolean) {
+  async function toggle(taskId: string, next: boolean) {
     const def = tasks.find((t) => t.id === taskId);
     if (next && def?.requiresDetail) {
       const existing = (data.taskDetails[taskId] ?? "").trim();
@@ -234,17 +235,17 @@ function Body({
     const nextSet = new Set(data.completedTaskIds);
     if (next) nextSet.add(taskId);
     else nextSet.delete(taskId);
-    onChange({ ...data, completedTaskIds: [...nextSet].sort((a, b) => a - b) });
+    onChange({ ...data, completedTaskIds: [...nextSet].sort() });
     const res = await toggleTaskAction(data.date, taskId, next);
     if (!res.ok) {
       const revertSet = new Set(data.completedTaskIds);
       if (next) revertSet.delete(taskId);
       else revertSet.add(taskId);
-      onChange({ ...data, completedTaskIds: [...revertSet].sort((a, b) => a - b) });
+      onChange({ ...data, completedTaskIds: [...revertSet].sort() });
     }
   }
 
-  function handleDetailContentChange(taskId: number, content: string) {
+  function handleDetailContentChange(taskId: string, content: string) {
     const def = tasks.find((t) => t.id === taskId);
     if (!def?.requiresDetail) {
       onChange({ ...data, taskDetails: { ...data.taskDetails, [taskId]: content } });
@@ -255,7 +256,7 @@ function Body({
     const nextDetails = { ...data.taskDetails, [taskId]: content };
     let nextCompleted = data.completedTaskIds;
     if (hasContent && !wasChecked) {
-      nextCompleted = [...nextCompleted, taskId].sort((a, b) => a - b);
+      nextCompleted = [...nextCompleted, taskId].sort();
       toggleTaskAction(data.date, taskId, true);
     } else if (!hasContent && wasChecked) {
       nextCompleted = nextCompleted.filter((id) => id !== taskId);
@@ -296,7 +297,7 @@ function Body({
                       onChange({
                         ...data,
                         photo: p,
-                        completedTaskIds: [...set].sort((a, b) => a - b),
+                        completedTaskIds: [...set].sort(),
                       });
                     }}
                   />
@@ -427,7 +428,7 @@ function DetailDrawer({
   onContentChange,
 }: {
   date: string;
-  taskId: number;
+  taskId: string;
   label: string;
   placeholder: string;
   initial: string;
@@ -685,6 +686,22 @@ function PhotoRow({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState(false);
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!photo?.filename) {
+      setSignedUrl(null);
+      return;
+    }
+    let cancelled = false;
+    getPhotoUrlAction(photo.filename).then((res) => {
+      if (cancelled) return;
+      if (res.ok) setSignedUrl(res.url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [photo?.filename]);
 
   async function handleFile(file: File) {
     setError(null);
@@ -698,7 +715,7 @@ function PhotoRow({
       setError(res.error ?? "Upload failed.");
       return;
     }
-    onChange({ filename: res.filename, mime: file.type });
+    onChange({ filename: res.key, mime: file.type });
   }
 
   async function handleDelete() {
@@ -828,12 +845,14 @@ function PhotoRow({
                     <Dialog.Title className="sr-only">
                       Progress photo for {date}
                     </Dialog.Title>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`/progress-photos/${photo.filename}`}
-                      alt={`Progress photo for ${date}`}
-                      className="max-h-[88vh] max-w-[88vw] rounded-2xl border border-border bg-bg-card object-contain shadow-card"
-                    />
+                    {signedUrl && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={signedUrl}
+                        alt={`Progress photo for ${date}`}
+                        className="max-h-[88vh] max-w-[88vw] rounded-2xl border border-border bg-bg-card object-contain shadow-card"
+                      />
+                    )}
                   </motion.div>
                 </Dialog.Content>
               </Dialog.Portal>

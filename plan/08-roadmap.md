@@ -7,16 +7,16 @@
 
 ```
 Phase 1 ████████████████████  100%
-Phase 2 ████████░░░░░░░░░░░░   38%   ← you are here
-Phase 3 ░░░░░░░░░░░░░░░░░░░░    0%
-Phase 4 ░░░░░░░░░░░░░░░░░░░░    0%
-Phase 5 ░░░░░░░░░░░░░░░░░░░░    0%
-Phase 6 ░░░░░░░░░░░░░░░░░░░░    0%
-Phase 7 ░░░░░░░░░░░░░░░░░░░░    0%
-Phase 8 ░░░░░░░░░░░░░░░░░░░░    0%
+Phase 2 ████████░░░░░░░░░░░░   38%
+Phase 3 ████████████████████  100%
+Phase 4 ████████████████████  100%
+Phase 5 ████████████████████  100%
+Phase 6 ████████████████░░░░   80%   (mostly shipped in Phase 4)
+Phase 7 ░░░░░░░░░░░░░░░░░░░░    0%   ← next (blocked on Expo account + Apple/Google enrollment)
+Phase 8 ████████░░░░░░░░░░░░   40%   (security headers, logger stub, error boundary already in)
 Phase 9 ░░░░░░░░░░░░░░░░░░░░    0%
 
-22 of 75 items shipped
+58 of 75 items shipped
 ```
 
 ## How the phases connect
@@ -25,8 +25,8 @@ Phase 9 ░░░░░░░░░░░░░░░░░░░░    0%
 flowchart TD
     P1["🏗️ Phase 1<br/>Foundation<br/>✅ done"]
     P2["🔑 Phase 2<br/>Accounts &amp; decisions<br/>🟡 in progress"]
-    P3["🗄️ Phase 3<br/>Backend wiring<br/>⬜ blocked"]
-    P4["🔌 Phase 4<br/>API rewrite<br/>⬜ blocked"]
+    P3["🗄️ Phase 3<br/>Backend wiring<br/>✅ done"]
+    P4["🔌 Phase 4<br/>API rewrite<br/>🟡 in progress"]
     P5["🔐 Phase 5<br/>Auth &amp; multi-tenancy<br/>⬜ blocked"]
     P6["🖼️ Phase 6<br/>Media &amp; storage<br/>⬜ blocked"]
     P7["📱 Phase 7<br/>Mobile app<br/>⬜ blocked"]
@@ -38,9 +38,9 @@ flowchart TD
     classDef done fill:#0EA5FF,stroke:#0284C7,color:#0A0A0B
     classDef wip fill:#F5C518,stroke:#A07700,color:#0A0A0B
     classDef todo fill:#26262C,stroke:#3a3a42,color:#A1A1AA
-    class P1 done
-    class P2 wip
-    class P3,P4,P5,P6,P7,P8,P9 todo
+    class P1,P3 done
+    class P2,P4 wip
+    class P5,P6,P7,P8,P9 todo
 ```
 
 > Legend: 🟦 done · 🟨 in progress · ⬛ blocked on a dependency
@@ -132,36 +132,31 @@ The only phase that requires *only* you. Most of these can run in parallel; the 
 
 ---
 
-## 🗄️ Phase 3 — Backend wiring ⬜
+## 🗄️ Phase 3 — Backend wiring ✅
 
 Take the staged SQL from Phase 1 and apply it to a real Postgres database.
 
-**Status:** ⬜ blocked on Phase 2 (Supabase project keys needed)
+**Status:** ✅ done
 
-**Unlock condition:** You send me the staging project's URL + anon key + service-role key.
+### What shipped
 
-### What ships in this phase
-
-- [ ] Supabase CLI installed and linked to your staging project
-- [ ] Apply `20260528000000_initial_schema.sql`
-- [ ] Apply `20260528000001_rls_policies.sql`
-- [ ] Apply `20260528000002_seed_defaults_trigger.sql`
-- [ ] Create `progress-photos` storage bucket (private)
-- [ ] Apply `20260528000003_storage_bucket.sql`
-- [ ] Smoke test: insert a test user via the dashboard, verify the trigger creates their 12 default tasks
-- [ ] Confirm RLS rejects cross-user reads from the SQL editor
-- [ ] Add Supabase environment variables to `apps/web/.env.local` (committed via `.env.example`)
-
-> [!TIP]
-> When you send keys, use any channel you trust. Anon key is safe in the client; service-role key is server-only — don't paste that in a screenshot.
+- [x] Supabase CLI installed and linked to staging
+- [x] Applied `20260528000000_initial_schema.sql`
+- [x] Applied `20260528000001_rls_policies.sql`
+- [x] Applied `20260528000002_seed_defaults_trigger.sql`
+- [x] Created `progress-photos` storage bucket (private)
+- [x] Applied `20260528000003_storage_bucket.sql` (fixed: removed unsupported `IF NOT EXISTS` on `CREATE POLICY`)
+- [x] Smoke test: `smoketest@example.com` user has 12 tasks + 1 challenge + 1 user_settings row, confirming the seed trigger fired
+- [x] Supabase environment variables in `apps/web/.env.local`; template at `apps/web/.env.example` updated to current naming
+- [x] Verification script at `apps/web/scripts/verify-supabase.mjs` — runnable any time with `node apps/web/scripts/verify-supabase.mjs`
 
 ---
 
-## 🔌 Phase 4 — API rewrite ⬜
+## 🔌 Phase 4 — API rewrite ✅
 
 Replace the in-process `better-sqlite3` calls with Supabase calls behind a tRPC API that the mobile app can also consume.
 
-**Status:** ⬜ blocked on Phase 3
+**Status:** ✅ done · verified end-to-end against staging Supabase
 
 ### What ships in this phase
 

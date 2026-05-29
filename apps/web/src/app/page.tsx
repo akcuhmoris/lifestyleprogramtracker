@@ -15,16 +15,18 @@ import { CHALLENGE_START, addDays, todayLocal } from "@program/shared/date";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
   const today = todayLocal();
-  const day = getDay(today);
-  const ch = getActiveChallenge();
-  const startDate = ch?.start_date ?? CHALLENGE_START;
-  const tasks = getTasks();
-  const totalDays = getTotalDays();
 
-  // Detect full completion: every one of the configured days has all tasks done.
-  const statuses = getAllDayStatuses();
+  const [day, ch, tasks, totalDays, statuses] = await Promise.all([
+    getDay(today),
+    getActiveChallenge(),
+    getTasks(),
+    getTotalDays(),
+    getAllDayStatuses(),
+  ]);
+
+  const startDate = ch?.start_date ?? CHALLENGE_START;
   const taskCount = tasks.length;
   const fullyComplete =
     taskCount > 0 &&
@@ -32,10 +34,11 @@ export default function Home() {
     statuses.every((s) => s.completedCount === taskCount);
 
   if (fullyComplete) {
-    const perTask = getPerTaskStats();
+    const [perTask, weights] = await Promise.all([
+      getPerTaskStats(),
+      getWeightSeries(),
+    ]);
     const perTaskMap = new Map(perTask.map((p) => [p.taskId, p.completedDays]));
-    // Compute totals from any task whose title hints at the metric — fallback to 0.
-    // We bucket by inferred semantics from the seed defaults.
     const find = (re: RegExp) =>
       tasks.find((t) => re.test(t.title) || re.test(t.subtitle ?? ""));
     const water = find(/water|gallon/i);
@@ -51,7 +54,6 @@ export default function Home() {
       journalEntries: journalId ? perTaskMap.get(journalId) ?? 0 : 0,
       photoDays: photoId ? perTaskMap.get(photoId) ?? 0 : 0,
     };
-    const weights = getWeightSeries();
     const weightChange =
       weights.length >= 2 ? weights[weights.length - 1].weight - weights[0].weight : null;
     const endDate = addDays(startDate, totalDays - 1);
@@ -68,7 +70,7 @@ export default function Home() {
     );
   }
 
-  const miss = findMostRecentUnhandledMiss(today);
+  const miss = await findMostRecentUnhandledMiss(today);
 
   return (
     <main className="min-h-screen">

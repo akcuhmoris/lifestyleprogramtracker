@@ -2,11 +2,12 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Camera, Check, ImagePlus, Trash2, Eye, Loader2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
 import {
   deleteProgressPhotoAction,
+  getPhotoUrlAction,
   uploadProgressPhotoAction,
 } from "@/app/actions";
 import { smallBurst } from "./confetti";
@@ -21,12 +22,32 @@ type Props = {
   onChange?: (photo: Photo | null) => void;
 };
 
+function useSignedPhotoUrl(storageKey: string | undefined) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!storageKey) {
+      setUrl(null);
+      return;
+    }
+    let cancelled = false;
+    getPhotoUrlAction(storageKey).then((res) => {
+      if (cancelled) return;
+      if (res.ok) setUrl(res.url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [storageKey]);
+  return url;
+}
+
 export function PhotoCard({ date, completed, photo, disabled, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const signedUrl = useSignedPhotoUrl(photo?.filename);
 
   function pickFile() {
     if (disabled || uploading) return;
@@ -52,7 +73,7 @@ export function PhotoCard({ date, completed, photo, disabled, onChange }: Props)
         (rect.top + rect.height / 2) / window.innerHeight
       );
     }
-    onChange?.({ filename: res.filename, mime: file.type });
+    onChange?.({ filename: res.key, mime: file.type });
   }
 
   async function handleRemove() {
@@ -98,7 +119,7 @@ export function PhotoCard({ date, completed, photo, disabled, onChange }: Props)
         }}
       />
 
-      {hasPhoto && photo ? (
+      {hasPhoto && photo && signedUrl ? (
         <button
           type="button"
           onClick={() => setPreviewOpen(true)}
@@ -108,7 +129,7 @@ export function PhotoCard({ date, completed, photo, disabled, onChange }: Props)
           <div className="relative aspect-[16/10] overflow-hidden bg-bg-elevated">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`/progress-photos/${photo.filename}?t=${date}`}
+              src={signedUrl}
               alt={`Progress photo for ${date}`}
               className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
             />
@@ -125,6 +146,11 @@ export function PhotoCard({ date, completed, photo, disabled, onChange }: Props)
             </div>
           </div>
         </button>
+      ) : hasPhoto && !signedUrl ? (
+        // Loading the signed URL — show a subtle placeholder
+        <div className="relative aspect-[16/10] overflow-hidden bg-bg-elevated flex items-center justify-center">
+          <Loader2 className="h-5 w-5 text-text-muted animate-spin" />
+        </div>
       ) : (
         <button
           type="button"
@@ -194,11 +220,11 @@ export function PhotoCard({ date, completed, photo, disabled, onChange }: Props)
         </div>
       )}
 
-      {hasPhoto && photo && (
+      {hasPhoto && photo && signedUrl && (
         <PreviewDialog
           open={previewOpen}
           onOpenChange={setPreviewOpen}
-          src={`/progress-photos/${photo.filename}`}
+          src={signedUrl}
           date={date}
         />
       )}

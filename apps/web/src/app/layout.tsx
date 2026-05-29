@@ -4,6 +4,8 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Nav } from "@/components/nav";
 import { WelcomeModal } from "@/components/welcome-modal";
+import { TrpcProvider } from "@/lib/trpc/provider";
+import { createClient } from "@/lib/supabase/server";
 
 const sans = Inter({
   subsets: ["latin"],
@@ -22,11 +24,15 @@ export const metadata: Metadata = {
   description: "Track any lifestyle program — your tasks, your length, your rules.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  const userEmail = data.user?.email ?? null;
+
   return (
     <html lang="en" className="dark">
       <body
@@ -36,9 +42,11 @@ export default function RootLayout({
           "min-h-screen bg-bg text-text font-sans antialiased"
         )}
       >
-        <Nav />
-        {children}
-        <WelcomeModal />
+        <TrpcProvider>
+          <Nav userEmail={userEmail} />
+          {children}
+          <WelcomeModal />
+        </TrpcProvider>
       </body>
     </html>
   );

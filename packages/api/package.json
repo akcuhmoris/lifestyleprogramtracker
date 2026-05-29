@@ -9,7 +9,10 @@
     "./router": "./src/router.ts"
   },
   "dependencies": {
-    "@program/shared": "*"
+    "@program/shared": "*",
+    "@trpc/server": "^11.17.0",
+    "superjson": "^2.2.6",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

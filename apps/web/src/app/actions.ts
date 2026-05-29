@@ -16,15 +16,15 @@ import {
   archiveTask as dbArchiveTask,
   reorderTasks as dbReorderTasks,
   getDay as dbGetDay,
+  getTasks as dbGetTasks,
   type DayRow,
   type TaskInput,
 } from "@/lib/db";
+import { createClient } from "@/lib/supabase/server";
 import { isFuture, todayLocal } from "@program/shared/date";
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import { findPhotoTaskId } from "@program/shared/tasks";
 
-const PHOTO_TASK_ID = 8;
-const PHOTOS_DIR = path.join(process.cwd(), "public", "progress-photos");
+const PHOTOS_BUCKET = "progress-photos";
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
 const MAX_BYTES = 12 * 1024 * 1024; // 12 MB
 
@@ -45,32 +45,17 @@ function extFor(mime: string): string {
   }
 }
 
-async function ensurePhotosDir() {
-  await fs.mkdir(PHOTOS_DIR, { recursive: true });
-}
-
-async function removeAnyPhotoFor(date: string) {
-  try {
-    const entries = await fs.readdir(PHOTOS_DIR);
-    await Promise.all(
-      entries
-        .filter((f) => f.startsWith(`${date}.`))
-        .map((f) => fs.unlink(path.join(PHOTOS_DIR, f)).catch(() => {}))
-    );
-  } catch {
-    /* dir may not exist yet */
-  }
-}
+// ---------- Day actions ----------
 
 export async function toggleTaskAction(
   date: string,
-  taskId: number,
+  taskId: string,
   completed: boolean
 ) {
   if (isFuture(date)) {
     return { ok: false as const, error: "Cannot check off future days." };
   }
-  const day = dbToggleTask(date, taskId, completed);
+  const day = await dbToggleTask(date, taskId, completed);
   revalidatePath("/");
   revalidatePath("/calendar");
   return { ok: true as const, day };
@@ -78,13 +63,13 @@ export async function toggleTaskAction(
 
 export async function saveNotesAction(date: string, notes: string) {
   if (isFuture(date)) return { ok: false as const };
-  dbSaveNotes(date, notes);
+  await dbSaveNotes(date, notes);
   return { ok: true as const };
 }
 
 export async function saveJournalAction(date: string, content: string) {
   if (isFuture(date)) return { ok: false as const };
-  dbSaveJournal(date, content);
+  await dbSaveJournal(date, content);
   revalidatePath("/");
   revalidatePath("/calendar");
   return { ok: true as const };
@@ -92,11 +77,11 @@ export async function saveJournalAction(date: string, content: string) {
 
 export async function saveTaskDetailAction(
   date: string,
-  taskId: number,
+  taskId: string,
   content: string
 ) {
   if (isFuture(date)) return { ok: false as const };
-  dbSaveTaskDetail(date, taskId, content);
+  await dbSaveTaskDetail(date, taskId, content);
   return { ok: true as const };
 }
 
@@ -107,7 +92,7 @@ export async function saveWeightAction(date: string, weightLbs: number | null) {
       return { ok: false as const, error: "Weight out of range." };
     }
   }
-  dbSaveWeight(date, weightLbs);
+  await dbSaveWeight(date, weightLbs);
   revalidatePath("/");
   revalidatePath("/calendar");
   return { ok: true as const };
@@ -116,6 +101,8 @@ export async function saveWeightAction(date: string, weightLbs: number | null) {
 export async function loadDayAction(date: string): Promise<DayRow> {
   return dbGetDay(date);
 }
+
+// ---------- Photo actions (Supabase Storage) ----------
 
 export async function uploadProgressPhotoAction(formData: FormData) {
   const date = formData.get("date");
@@ -134,35 +121,99 @@ export async function uploadProgressPhotoAction(formData: FormData) {
     return { ok: false as const, error: "Image is larger than 12 MB." };
   }
 
-  await ensurePhotosDir();
-  await removeAnyPhotoFor(date);
+  const supabase = await createClient();
+  const { data: userResp, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !userResp.user) {
+    return { ok: false as const, error: "Not authenticated." };
+  }
+  const userId = userResp.user.id;
 
+  // Storage key follows `{userId}/{date}.{ext}` so the RLS policy permits it.
   const ext = extFor(file.type);
-  const filename = `${date}.${ext}`;
-  const bytes = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(PHOTOS_DIR, filename), bytes);
+  const key = `${userId}/${date}.${ext}`;
 
-  dbSetProgressPhoto(date, filename, file.type);
-  dbToggleTask(date, PHOTO_TASK_ID, true);
+  // Remove any prior photo for this date under this user (any extension).
+  const { data: existing } = await supabase.storage
+    .from(PHOTOS_BUCKET)
+    .list(userId, { search: date });
+  if (existing && existing.length > 0) {
+    await supabase.storage
+      .from(PHOTOS_BUCKET)
+      .remove(existing.filter((f) => f.name.startsWith(`${date}.`)).map((f) => `${userId}/${f.name}`));
+  }
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const { error: upErr } = await supabase.storage
+    .from(PHOTOS_BUCKET)
+    .upload(key, bytes, {
+      contentType: file.type,
+      upsert: true,
+    });
+  if (upErr) {
+    return { ok: false as const, error: upErr.message };
+  }
+
+  await dbSetProgressPhoto(date, key, file.type);
+
+  // Auto-check the photo task if one exists.
+  const tasks = await dbGetTasks();
+  const photoTaskId = findPhotoTaskId(tasks);
+  if (photoTaskId) {
+    await dbToggleTask(date, photoTaskId, true);
+  }
 
   revalidatePath("/");
   revalidatePath("/calendar");
 
-  return { ok: true as const, filename };
+  return { ok: true as const, key };
 }
 
 export async function deleteProgressPhotoAction(date: string) {
   if (isFuture(date)) return { ok: false as const };
-  await removeAnyPhotoFor(date);
-  dbClearProgressPhoto(date);
-  dbToggleTask(date, PHOTO_TASK_ID, false);
+  const supabase = await createClient();
+  const { data: userResp } = await supabase.auth.getUser();
+  if (!userResp.user) return { ok: false as const };
+  const userId = userResp.user.id;
+
+  const { data: existing } = await supabase.storage
+    .from(PHOTOS_BUCKET)
+    .list(userId, { search: date });
+  if (existing && existing.length > 0) {
+    await supabase.storage
+      .from(PHOTOS_BUCKET)
+      .remove(existing.filter((f) => f.name.startsWith(`${date}.`)).map((f) => `${userId}/${f.name}`));
+  }
+
+  await dbClearProgressPhoto(date);
+
+  const tasks = await dbGetTasks();
+  const photoTaskId = findPhotoTaskId(tasks);
+  if (photoTaskId) {
+    await dbToggleTask(date, photoTaskId, false);
+  }
+
   revalidatePath("/");
   revalidatePath("/calendar");
   return { ok: true as const };
 }
 
+/**
+ * Returns a short-lived signed URL the browser can use to display a photo.
+ * Called from Client Components that need to render the image.
+ */
+export async function getPhotoUrlAction(storageKey: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.storage
+    .from(PHOTOS_BUCKET)
+    .createSignedUrl(storageKey, 60 * 60); // 1 hour
+  if (error) return { ok: false as const, error: error.message };
+  return { ok: true as const, url: data.signedUrl };
+}
+
+// ---------- Restart ----------
+
 export async function dismissRestartAction(date: string) {
-  dbDismissRestart(date);
+  await dbDismissRestart(date);
   revalidatePath("/");
   revalidatePath("/calendar");
   return { ok: true as const };
@@ -170,7 +221,7 @@ export async function dismissRestartAction(date: string) {
 
 export async function restartChallengeAction() {
   const today = todayLocal();
-  dbStartNewChallenge(today);
+  await dbStartNewChallenge(today);
   revalidatePath("/");
   revalidatePath("/calendar");
   revalidatePath("/stats");
@@ -193,7 +244,7 @@ export async function saveTotalDaysAction(days: number) {
   if (days > 365) {
     return { ok: false as const, error: "Cap is 365." };
   }
-  dbSetTotalDays(Math.floor(days));
+  await dbSetTotalDays(Math.floor(days));
   revalidateAll();
   return { ok: true as const };
 }
@@ -202,7 +253,7 @@ export async function saveTaskAction(input: TaskInput) {
   if (!input.title.trim()) {
     return { ok: false as const, error: "Title is required." };
   }
-  const id = dbUpsertTask({
+  const id = await dbUpsertTask({
     ...input,
     title: input.title.trim(),
     subtitle: input.subtitle?.trim() || null,
@@ -213,14 +264,14 @@ export async function saveTaskAction(input: TaskInput) {
   return { ok: true as const, id };
 }
 
-export async function deleteTaskAction(id: number) {
-  dbArchiveTask(id);
+export async function deleteTaskAction(id: string) {
+  await dbArchiveTask(id);
   revalidateAll();
   return { ok: true as const };
 }
 
-export async function reorderTasksAction(orderedIds: number[]) {
-  dbReorderTasks(orderedIds);
+export async function reorderTasksAction(orderedIds: string[]) {
+  await dbReorderTasks(orderedIds);
   revalidateAll();
   return { ok: true as const };
 }

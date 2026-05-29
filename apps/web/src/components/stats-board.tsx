@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 
 type PerTaskRecord = {
-  id: number;
+  id: string;
   title: string;
   completedDays: number;
   elapsed: number;

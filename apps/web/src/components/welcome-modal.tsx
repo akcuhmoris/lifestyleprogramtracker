@@ -18,16 +18,24 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const SEEN_KEY = "lifestyleprogram_seen_welcome_v1";
 export const OPEN_WELCOME_EVENT = "welcome:open";
+const HIDE_PATHS = ["/login", "/signup", "/auth"];
 
 export function WelcomeModal() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  const onAuthPath = HIDE_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+
   useEffect(() => {
+    if (onAuthPath) return;
     try {
       if (localStorage.getItem(SEEN_KEY) !== "1") {
         setOpen(true);
@@ -37,11 +45,12 @@ export function WelcomeModal() {
     }
 
     function handler() {
+      if (onAuthPath) return;
       setOpen(true);
     }
     window.addEventListener(OPEN_WELCOME_EVENT, handler);
     return () => window.removeEventListener(OPEN_WELCOME_EVENT, handler);
-  }, []);
+  }, [onAuthPath]);
 
   function handleClose() {
     try {

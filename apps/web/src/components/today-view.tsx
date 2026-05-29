@@ -21,12 +21,12 @@ type Props = {
   startDate: string;
   totalDays: number;
   tasks: Task[];
-  initialCompleted: number[];
+  initialCompleted: string[];
   initialNotes: string;
   initialJournal: string;
   initialWeight: number | null;
   previousWeight: { date: string; weight: number } | null;
-  initialTaskDetails: Record<number, string>;
+  initialTaskDetails: Record<string, string>;
   initialPhoto: { filename: string; mime: string | null } | null;
   unhandledMiss: { date: string; count: number } | null;
 };
@@ -48,7 +48,7 @@ export function TodayView({
   const JOURNAL_TASK_ID = findJournalTaskId(tasks);
   const PHOTO_TASK_ID = findPhotoTaskId(tasks);
 
-  const [completed, setCompleted] = useState<Set<number>>(new Set(initialCompleted));
+  const [completed, setCompleted] = useState<Set<string>>(new Set(initialCompleted));
   const [journal, setJournal] = useState(initialJournal);
   const [journalOpen, setJournalOpen] = useState(false);
   const [photo, setPhoto] = useState(initialPhoto);
@@ -69,7 +69,7 @@ export function TodayView({
     }
   }, [allDone, celebrated]);
 
-  async function handleToggle(taskId: number, next: boolean) {
+  async function handleToggle(taskId: string, next: boolean) {
     setCompleted((prev) => {
       const n = new Set(prev);
       if (next) n.add(taskId);

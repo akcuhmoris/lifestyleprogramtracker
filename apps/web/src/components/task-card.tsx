@@ -8,7 +8,7 @@ import { smallBurst } from "./confetti";
 import { saveTaskDetailAction } from "@/app/actions";
 
 type Props = {
-  id: number;
+  id: string;
   title: string;
   subtitle?: string;
   icon: LucideIcon;
@@ -295,7 +295,7 @@ function TaskDetailInput({
   nudge,
 }: {
   date: string;
-  taskId: number;
+  taskId: string;
   initial: string;
   placeholder: string;
   disabled?: boolean;
