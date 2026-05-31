@@ -53,7 +53,9 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/reset-password") ||
     path.startsWith("/about") ||
     path.startsWith("/privacy") ||
-    path.startsWith("/terms");
+    path.startsWith("/terms") ||
+    path.startsWith("/help") ||
+    path.startsWith("/changelog");
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

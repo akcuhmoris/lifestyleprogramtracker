@@ -34,17 +34,20 @@ export function LegalPage({ title, updated, children }: Props) {
       <article className="legal-prose mt-10 text-text">{children}</article>
 
       <footer className="mt-16 flex items-center justify-between border-t border-border-subtle pt-6 text-[12px] text-text-dim">
+        <Link href="/about" className="hover:text-accent-glow transition-colors">
+          About
+        </Link>
+        <Link href="/help" className="hover:text-accent-glow transition-colors">
+          Help
+        </Link>
+        <Link href="/changelog" className="hover:text-accent-glow transition-colors">
+          Changelog
+        </Link>
         <Link href="/privacy" className="hover:text-accent-glow transition-colors">
           Privacy
         </Link>
         <Link href="/terms" className="hover:text-accent-glow transition-colors">
           Terms
-        </Link>
-        <Link href="/about" className="hover:text-accent-glow transition-colors">
-          About
-        </Link>
-        <Link href="/" className="hover:text-accent-glow transition-colors">
-          Program
         </Link>
       </footer>
     </main>

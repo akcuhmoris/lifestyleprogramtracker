@@ -222,9 +222,17 @@ function CtaFooter() {
             <ArrowRight className="h-4 w-4" strokeWidth={2.8} />
           </Link>
         </div>
-        <footer className="mt-16 border-t border-border-subtle pt-6 text-[12px] text-text-dim flex items-center justify-center gap-4">
+        <footer className="mt-16 border-t border-border-subtle pt-6 text-[12px] text-text-dim flex items-center justify-center gap-4 flex-wrap">
           <Link href="/about" className="hover:text-accent-glow transition-colors">
             About
+          </Link>
+          <span>·</span>
+          <Link href="/help" className="hover:text-accent-glow transition-colors">
+            Help
+          </Link>
+          <span>·</span>
+          <Link href="/changelog" className="hover:text-accent-glow transition-colors">
+            Changelog
           </Link>
           <span>·</span>
           <Link href="/privacy" className="hover:text-accent-glow transition-colors">
