@@ -8,6 +8,7 @@ export default function CheckEmailPage({
 }: {
   searchParams: { email?: string };
 }) {
+  const email = searchParams.email;
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <Link
@@ -30,7 +31,7 @@ export default function CheckEmailPage({
         <p className="mt-3 text-sm text-text-muted leading-relaxed">
           We sent a sign-in link to{" "}
           <span className="text-text font-medium">
-            {searchParams.email ?? "your inbox"}
+            {email ?? "your inbox"}
           </span>
           . Click it to continue. The link expires in one hour.
         </p>

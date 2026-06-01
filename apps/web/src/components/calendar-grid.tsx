@@ -121,7 +121,7 @@ export function CalendarGrid({
         startDate={startDate}
         tasks={tasks}
         totalDays={totalDays}
-        onOpenChange={(o) => {
+        onOpenChange={(o: boolean) => {
           if (!o) setOpenDate(null);
         }}
       />

@@ -84,7 +84,7 @@ export function DayDetailModal({
     allDone ? "complete" : completedCount === 0 ? "miss" : "partial";
 
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => (o ? onOpenChange(true) : handleClose())}>
+    <Dialog.Root open={open} onOpenChange={(o: boolean) => (o ? onOpenChange(true) : handleClose())}>
       <AnimatePresence>
         {open && (
           <Dialog.Portal forceMount>
@@ -100,7 +100,7 @@ export function DayDetailModal({
             <Dialog.Content
               forceMount
               className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none focus:outline-none"
-              onOpenAutoFocus={(e) => e.preventDefault()}
+              onOpenAutoFocus={(e: Event) => e.preventDefault()}
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -508,7 +508,7 @@ function DetailDrawer({
                 ref={textareaRef}
                 rows={2}
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
                 placeholder={placeholder}
                 animate={shake > 0 ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
                 transition={{ duration: 0.35 }}
@@ -833,7 +833,7 @@ function PhotoRow({
                 <Dialog.Content
                   forceMount
                   className="fixed inset-0 z-[60] flex items-center justify-center p-6 pointer-events-none focus:outline-none"
-                  onOpenAutoFocus={(e) => e.preventDefault()}
+                  onOpenAutoFocus={(e: Event) => e.preventDefault()}
                 >
                   <motion.div
                     initial={{ opacity: 0, scale: 0.96 }}

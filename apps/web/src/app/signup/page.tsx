@@ -5,7 +5,7 @@ import { SignupForm } from "@/components/auth/signup-form";
 export const dynamic = "force-dynamic";
 
 export default function SignupPage({
-  searchParams,
+  searchParams: params,
 }: {
   searchParams: { next?: string; error?: string };
 }) {
@@ -30,13 +30,13 @@ export default function SignupPage({
         </p>
 
         <div className="mt-8">
-          <SignupForm next={searchParams.next} initialError={searchParams.error} />
+          <SignupForm next={params.next} initialError={params.error} />
         </div>
 
         <p className="mt-6 text-center text-xs text-text-dim">
           Already have an account?{" "}
           <Link
-            href={`/login${searchParams.next ? `?next=${encodeURIComponent(searchParams.next)}` : ""}`}
+            href={`/login${params.next ? `?next=${encodeURIComponent(params.next)}` : ""}`}
             className="text-accent-glow hover:underline"
           >
             Sign in

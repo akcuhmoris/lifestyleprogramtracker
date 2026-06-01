@@ -158,7 +158,7 @@ function ApplyDialog({
   }
 
   return (
-    <Dialog.Root open={template !== null} onOpenChange={(o) => !o && onClose()}>
+    <Dialog.Root open={template !== null} onOpenChange={(o: boolean) => !o && onClose()}>
       <AnimatePresence>
         {template && (
           <Dialog.Portal forceMount>
@@ -174,7 +174,7 @@ function ApplyDialog({
             <Dialog.Content
               forceMount
               className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none focus:outline-none"
-              onOpenAutoFocus={(e) => e.preventDefault()}
+              onOpenAutoFocus={(e: Event) => e.preventDefault()}
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.96, y: 8 }}

@@ -5,7 +5,7 @@ import { LoginForm } from "@/components/auth/login-form";
 export const dynamic = "force-dynamic";
 
 export default function LoginPage({
-  searchParams,
+  searchParams: params,
 }: {
   searchParams: { next?: string; error?: string; deleted?: string; reset?: string };
 }) {
@@ -29,14 +29,14 @@ export default function LoginPage({
           Sign in to continue your program.
         </p>
 
-        {searchParams.deleted === "1" && (
+        {params.deleted === "1" && (
           <FlashBanner
             tone="info"
             title="Account deleted."
             body="Your account and all associated data have been removed. Thanks for trying Program."
           />
         )}
-        {searchParams.reset === "1" && (
+        {params.reset === "1" && (
           <FlashBanner
             tone="success"
             title="Password updated."
@@ -45,13 +45,13 @@ export default function LoginPage({
         )}
 
         <div className="mt-8">
-          <LoginForm next={searchParams.next} initialError={searchParams.error} />
+          <LoginForm next={params.next} initialError={params.error} />
         </div>
 
         <p className="mt-6 text-center text-xs text-text-dim">
           Don&apos;t have an account?{" "}
           <Link
-            href={`/signup${searchParams.next ? `?next=${encodeURIComponent(searchParams.next)}` : ""}`}
+            href={`/signup${params.next ? `?next=${encodeURIComponent(params.next)}` : ""}`}
             className="text-accent-glow hover:underline"
           >
             Sign up

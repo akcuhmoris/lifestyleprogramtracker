@@ -30,6 +30,7 @@ const HIDE_PATHS = [
   "/auth",
   "/forgot-password",
   "/reset-password",
+  "/onboarding",
 ];
 
 export function WelcomeModal() {
@@ -68,7 +69,7 @@ export function WelcomeModal() {
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => (o ? setOpen(true) : handleClose())}>
+    <Dialog.Root open={open} onOpenChange={(o: boolean) => (o ? setOpen(true) : handleClose())}>
       <AnimatePresence>
         {open && (
           <Dialog.Portal forceMount>
@@ -84,7 +85,7 @@ export function WelcomeModal() {
             <Dialog.Content
               forceMount
               className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none focus:outline-none"
-              onOpenAutoFocus={(e) => e.preventDefault()}
+              onOpenAutoFocus={(e: Event) => e.preventDefault()}
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.96, y: 10 }}

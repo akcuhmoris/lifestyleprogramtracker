@@ -5,7 +5,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 export const dynamic = "force-dynamic";
 
 export default function ForgotPasswordPage({
-  searchParams,
+  searchParams: params,
 }: {
   searchParams: { error?: string };
 }) {
@@ -30,7 +30,7 @@ export default function ForgotPasswordPage({
         </p>
 
         <div className="mt-8">
-          <ForgotPasswordForm initialError={searchParams.error} />
+          <ForgotPasswordForm initialError={params.error} />
         </div>
 
         <p className="mt-6 text-center text-xs text-text-dim">

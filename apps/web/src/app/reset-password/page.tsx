@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  * password.
  */
 export default function ResetPasswordPage({
-  searchParams,
+  searchParams: params,
 }: {
   searchParams: { error?: string };
 }) {
@@ -35,7 +35,7 @@ export default function ResetPasswordPage({
         </p>
 
         <div className="mt-8">
-          <ResetPasswordForm initialError={searchParams.error} />
+          <ResetPasswordForm initialError={params.error} />
         </div>
       </div>
     </main>

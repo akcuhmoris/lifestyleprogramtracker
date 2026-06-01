@@ -28,6 +28,7 @@ const HIDE_NAV_PATHS = [
   "/auth",
   "/forgot-password",
   "/reset-password",
+  "/onboarding",
 ];
 
 export function Nav({ userEmail }: { userEmail: string | null }) {

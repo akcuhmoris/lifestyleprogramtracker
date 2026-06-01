@@ -57,7 +57,7 @@ export function JournalModal({
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => (o ? onOpenChange(true) : handleClose())}>
+    <Dialog.Root open={open} onOpenChange={(o: boolean) => (o ? onOpenChange(true) : handleClose())}>
       <AnimatePresence>
         {open && (
           <Dialog.Portal forceMount>
@@ -73,7 +73,7 @@ export function JournalModal({
             <Dialog.Content
               forceMount
               className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none focus:outline-none"
-              onOpenAutoFocus={(e) => e.preventDefault()}
+              onOpenAutoFocus={(e: Event) => e.preventDefault()}
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.96, y: 8 }}

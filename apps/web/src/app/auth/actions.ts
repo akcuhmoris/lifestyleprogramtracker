@@ -35,7 +35,11 @@ export async function signInWithPasswordAction(formData: FormData) {
 export async function signUpAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const next = safeNext(String(formData.get("next") ?? "/"));
+  // If the signup form didn't carry an explicit `next`, send freshly confirmed
+  // users to /onboarding so they can pick a program template before they hit
+  // the Today view.
+  const rawNext = String(formData.get("next") ?? "").trim();
+  const next = rawNext ? safeNext(rawNext) : "/onboarding";
 
   if (!email || !password) {
     redirect(`/signup?error=${encodeURIComponent("Email and password are required.")}`);
