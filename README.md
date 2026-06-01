@@ -2,36 +2,31 @@
 
 [![CI](https://github.com/akcuhmoris/lifestyleprogramtracker/actions/workflows/ci.yml/badge.svg?branch=production)](https://github.com/akcuhmoris/lifestyleprogramtracker/actions/workflows/ci.yml)
 
-A local-first habit tracker for any lifestyle program — 75 Hard, 100 Hard, a 30-day reset, a custom routine you invented yourself, whatever you want to commit to.
+A habit tracker for any lifestyle program — 75 Hard, 100 Hard, a 30-day reset, a custom routine you invented yourself, whatever you want to commit to.
 
 You configure the **length** (1–365 days) and the **daily requirements** (any number of tasks, each with its own icon, optional text-entry requirement, and special "Journal" / "Photo" behaviors). The app tracks completion per day, your weight over time, free-text notes, journal entries, workout / reading detail, and progress photos.
 
-Runs locally on your laptop. No accounts, no servers, no telemetry, no cloud. Your data lives in a single SQLite file in the project root.
-
-> **Status:** Feature-complete and fully configurable. Today view, calendar/heatmap with editable past-day detail modal, stats page, restart-prompt + restart flow, completion celebration, an in-app Settings page, and a welcome / help modal that explains the flow to new users — all live.
+> **Status:** Web app feature-complete and live against Supabase. Email + magic-link auth, account management (change email/password, delete account, download data), 6 program templates with a signup picker, calendar/heatmap with editable past-day detail, stats page with weight trend, restart-prompt flow, and a completion celebration. Mobile app is next (blocked on Expo + Apple Developer enrollment).
 >
-> **Going to production?** See [`plan/`](./plan/README.md) for the full blueprint. The shortest path is [`plan/USER-TODO.md`](./plan/USER-TODO.md) — a sequenced checklist separating what *you* need to do (accounts, decisions) from what AI can do alongside you.
+> For where this is going next, see [`plan/`](./plan/README.md) — especially [`plan/08-roadmap.md`](./plan/08-roadmap.md) (live phase status) and [`plan/USER-TODO.md`](./plan/USER-TODO.md) (what only the human-side can do).
 
 ---
 
 ## App flow
 
-A high-level look at the journey from clone to celebration.
-
 ```
 ┌───────────────────────────────────────────────────────────────────┐
-│  FIRST LAUNCH                                                     │
-│  • npm install && npm run dev                                     │
-│  • SQLite DB created with default 100-day program seeded          │
-│  • Welcome modal auto-opens, walks you through every screen       │
+│  SIGN UP                                                          │
+│  • /signup → email confirmation link                              │
+│  • Supabase trigger seeds 12 default tasks + a 100-day program    │
 └───────────────────────────────────────────────────────────────────┘
               │
               ▼
 ┌───────────────────────────────────────────────────────────────────┐
-│  CUSTOMIZE (optional)  /settings                                  │
-│  • Edit program length (1–365 days)                               │
-│  • Add / remove / reorder tasks, pick icons                       │
-│  • Mark a task as Journal / Photo / requires-text                 │
+│  ONBOARDING  /onboarding                                          │
+│  • Pick one of 6 program templates (100 Hard, 75 Hard, 75 Soft,   │
+│    Movement Streak, Reset Week, or a blank slate)                 │
+│  • Or skip and customize from Settings                            │
 └───────────────────────────────────────────────────────────────────┘
               │
               ▼
@@ -47,6 +42,7 @@ A high-level look at the journey from clone to celebration.
 │  │  Log weight + daily notes       │    │
 │  └─────────────────────────────────┘    │
 │         Progress bar fills              │
+│             │                           │
 │             │                           │
 │   all done? │ yes → 🎉 celebration      │
 │             │ no                        │
@@ -79,15 +75,16 @@ A high-level look at the journey from clone to celebration.
 
 ### Step-by-step
 
-1. **Clone and install.** `npm install` builds `better-sqlite3` natively; `npm run dev` boots the server on <http://localhost:3000>.
-2. **Welcome modal.** Auto-opens on first visit. Re-open any time from the **?** button in the top nav.
-3. **(Optional) customize.** Hit **Settings** in the nav to change program length, edit the task list, change icons, mark a task as Journal/Photo, or require text on any task.
-4. **Daily check-in.** Open **Today**. Each task is a card you tap to check off. Workout cards require you to write what you did; the Journal card opens a modal; the Photo card opens a file picker. Notes and weight live below the task grid.
-5. **Watch the bars.** The progress ring shows where you are in the program; the linear bar shows where you are in today. Both glow brighter as you near completion.
-6. **Calendar.** Open **Calendar** anytime. Each cell is colored by completion (dim / red / yellow / blue). Tap any past or current day to open a full editor.
-7. **Stats.** Open **Stats** for per-task completion percentages, totals (water, workouts, pages, journal, photos), and a weight trend sparkline.
-8. **Miss a day?** A banner appears on Today next time you open it: pick **Restart from Day 1** (archives the current attempt, starts a fresh program with today as Day 1) or **Keep going (modified rules)** (the miss stays in your history, counter advances).
-9. **Finish strong.** When every day in your program is `N/N`, the Today page replaces itself with a celebration screen: trophy, totals, dates, confetti, and links back to Calendar / Stats.
+1. **Clone, install, and seed your `.env.local`** (see [Quick start](#quick-start) below).
+2. **Sign up.** Visit `/signup`, enter email + password. The confirmation email lands in your inbox; clicking it logs you in and sends you to `/onboarding`.
+3. **Pick a template.** Six starter programs are available — or skip and start with the seeded 100-day default.
+4. **(Optional) customize further.** Hit **Settings** in the nav to change program length, edit the task list, change icons, mark a task as Journal/Photo, or require text on any task.
+5. **Daily check-in.** Open **Today**. Each task is a card you tap to check off. Workout cards require you to write what you did; the Journal card opens a modal; the Photo card opens a file picker. Notes and weight live below the task grid.
+6. **Watch the bars.** The progress ring shows where you are in the program; the linear bar shows where you are in today.
+7. **Calendar.** Open **Calendar** anytime. Each cell is colored by completion (dim / red / yellow / blue). Tap any past or current day to open a full editor.
+8. **Stats.** Open **Stats** for per-task completion percentages, totals (water, workouts, pages, journal, photos), and a weight trend sparkline.
+9. **Miss a day?** A banner appears on Today next time you open it: pick **Restart from Day 1** (archives the current attempt, starts a fresh program with today as Day 1) or **Keep going (modified rules)** (the miss stays in your history, counter advances).
+10. **Finish strong.** When every day in your program is `N/N`, the Today page replaces itself with a celebration screen: trophy, totals, dates, confetti, and links back to Calendar / Stats.
 
 ---
 
@@ -104,9 +101,9 @@ And on top of that, you define your own **daily requirements** — a configurabl
 - A **Checkbox** — the standard tap-to-complete card
 - **Requires text** — like a workout — the user must write what they did (e.g. "Push day · bench, OHP, dips, triceps") before the checkbox flips
 - A **Journal** entry — opens a modal with a write-anything textarea; saving non-empty text marks the task complete
-- A **Photo** upload — opens a file picker, stores the image locally, shows a thumbnail with a full-size preview
+- A **Photo** upload — opens a file picker, stores the image in Supabase Storage, shows a thumbnail with a full-size preview
 
-The defaults seeded on first run are the 100 Hard task list — a common starting point — but you can replace them entirely in Settings.
+The defaults seeded on first sign-up are the 100 Hard task list, but you can replace them entirely via the onboarding picker or from Settings.
 
 ---
 
@@ -119,29 +116,26 @@ Visit `/settings` (the **Settings** tab in the nav) and you can:
 - Pick from a curated set of ~30 icons for each task.
 - Mark any task as **Journal** or **Photo** (at most one of each — these get the special UI described above).
 - Toggle **"Requires text to mark complete"** on any task.
+- Apply a different starter template — archives your current tasks and replaces them.
 
 Changes apply immediately to the today view, calendar, and stats.
 
 ---
 
-## Default starter template (the 100 Hard challenge)
+## Built-in templates
 
-If you don't touch Settings, the app seeds your program with these 12 daily tasks:
+The signup picker (and the Settings → Templates section) offers these out of the box:
 
-1. Followed structured diet (no cheat meals)
-2. No alcohol
-3. No processed food
-4. Workout 1 (45 min · requires you to log what you did)
-5. Workout 2 (45 min outdoors · requires you to log what you did)
-6. Drank 1 gallon of water
-7. Read 10 pages of nonfiction (optional text entry for the book/chapter)
-8. Took progress photo (upload an image — stored locally)
-9. Self-care block (20–30 min)
-10. Slept 7+ hours
-11. No social media before morning task is complete
-12. Wrote journal entry
+| Template          | Days | Vibe                                                                 |
+| ----------------- | ---- | -------------------------------------------------------------------- |
+| 100 Hard          | 100  | Strict 12-task default — two workouts, gallon of water, 10 pages, journal, photo. |
+| 75 Hard           | 75   | Classic Andy Frisella protocol.                                      |
+| 75 Soft           | 75   | Gentler version — one workout, no diet restriction.                  |
+| Movement Streak   | 30   | One workout + step goal, no diet rules.                              |
+| Reset Week        | 7    | Short, gentle reset — sleep, water, walk, journal.                   |
+| Build your own    | 30   | Blank slate — every task you add comes from you.                     |
 
-Replace, edit, or delete any of these from Settings.
+Each template is editable from Settings the moment it's applied.
 
 ---
 
@@ -151,14 +145,9 @@ Replace, edit, or delete any of these from Settings.
 | ---------- | ---------------- | -------------------------------- |
 | **Node**   | 18.18+ or 20+    | Required by Next.js 14           |
 | **npm**    | 9+               | Ships with Node                  |
-| **Python** | 3.x (build only) | `better-sqlite3` native bindings |
-| **make / C compiler** | Apple Command Line Tools (macOS) or `build-essential` (Linux) | Same — for SQLite native build |
+| **Supabase** project | any        | The Postgres + Auth + Storage backend |
 
-If `npm install` fails on `better-sqlite3`, install the build prerequisites for your platform:
-
-- **macOS:** `xcode-select --install`
-- **Debian/Ubuntu:** `sudo apt install -y build-essential python3`
-- **Windows:** install [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools) or use WSL
+You'll also want the [Supabase CLI](https://supabase.com/docs/guides/cli) if you plan to run / write migrations locally.
 
 ---
 
@@ -168,41 +157,37 @@ If `npm install` fails on `better-sqlite3`, install the build prerequisites for 
 git clone https://github.com/akcuhmoris/lifestyleprogramtracker.git program
 cd program
 npm install
+cp apps/web/.env.example apps/web/.env.local
+# fill in NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+# SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_APP_URL
 npm run dev
 ```
 
-Open <http://localhost:3000> in any browser.
+Open <http://localhost:3000>. You'll be redirected to `/login` — sign up with any email to get rolling.
 
-On first launch, the SQLite database (`hardtracker.db`) is created in the project root and seeded with a default program (100 days, the 12 tasks above). Head to **Settings** to customize.
+**Verify your Supabase wiring** any time with:
 
----
-
-## Setting your start date
-
-The default start date is in `src/lib/date.ts`:
-
-```ts
-export const CHALLENGE_START = "2026-05-26"; // first-run seed
+```bash
+node apps/web/scripts/verify-supabase.mjs
 ```
 
-This value is **only used the first time** the database is created. After that, the start date is stored in the `challenges` table and changes only via the in-app **Restart** flow.
-
-If you haven't logged anything yet and want a different start date: edit `CHALLENGE_START`, delete `hardtracker.db` (and the `-shm`/`-wal` sidecars), then `npm run dev`. Otherwise, when you're ready to start over, use the **Restart from Day 1** button on the today view (appears any time you have an unhandled missed day, or via the restart-banner flow).
+It probes auth, RLS, the seed trigger, and storage in one shot.
 
 ---
 
 ## Tech stack
 
-- **[Next.js 14](https://nextjs.org)** — App Router, Server Actions for all writes
+- **[Next.js 14](https://nextjs.org)** — App Router, Server Actions, middleware-driven auth
 - **TypeScript** — strict mode
-- **[Tailwind CSS](https://tailwindcss.com)** — utility styling
+- **[Tailwind CSS](https://tailwindcss.com)** — utility styling with a custom dark palette
 - **[Radix UI](https://www.radix-ui.com)** — accessible primitives (dialog, etc.)
 - **[Framer Motion](https://www.framer.com/motion/)** — spring animations and transitions
 - **[Lucide](https://lucide.dev)** — icon set
 - **[canvas-confetti](https://github.com/catdad/canvas-confetti)** — celebration bursts
-- **[better-sqlite3](https://github.com/WiseLibs/better-sqlite3)** — synchronous local SQLite
-
-No tracking. No analytics. Nothing hits the network at runtime.
+- **[Supabase](https://supabase.com)** — Postgres (RLS-scoped per user), Auth (email + magic link + OAuth), Storage (signed URLs for progress photos)
+- **[tRPC](https://trpc.io)** — typed API procedures in `packages/api/` (shared with the upcoming mobile client)
+- **[TanStack Query](https://tanstack.com/query)** — server-state cache on the web client
+- **[Vitest](https://vitest.dev)** — 41 unit tests across `packages/shared`
 
 ---
 
@@ -214,58 +199,72 @@ No tracking. No analytics. Nothing hits the network at runtime.
 ├── plan/                              # production blueprint + USER-TODO checklist
 ├── apps/
 │   └── web/                           # the Next.js 14 web app
-│       ├── hardtracker.db             # local SQLite (gitignored, auto-created)
 │       ├── next.config.mjs
 │       ├── tailwind.config.ts
 │       ├── package.json
-│       ├── supabase/migrations/       # SQL ready to push once Supabase is set up
-│       ├── public/
-│       │   └── progress-photos/       # uploaded photos (gitignored)
+│       ├── supabase/
+│       │   ├── migrations/            # SQL applied via `supabase db push`
+│       │   ├── email-templates/       # branded HTML for Supabase Auth
+│       │   └── config.toml
+│       ├── scripts/verify-supabase.mjs
+│       ├── .env.example
 │       └── src/
 │           ├── app/
-│           │   ├── actions.ts         # Server Actions: all DB writes + file uploads
-│           │   ├── globals.css        # dark theme, ambient blue gradient
-│           │   ├── layout.tsx         # wraps every page with the nav bar
-│           │   ├── page.tsx           # / route — today view OR completion screen
-│           │   ├── calendar/page.tsx  # heatmap
-│           │   ├── stats/page.tsx     # aggregates + weight trend
-│           │   └── settings/page.tsx  # task list + length editor
-│           ├── components/            # task-card, calendar-grid, settings-form, etc.
-│           └── lib/
-│               ├── db.ts              # better-sqlite3 connection, schema, read/write
-│               └── utils.ts           # cn() class merger
+│           │   ├── actions.ts         # Server Actions: writes + uploads
+│           │   ├── api/trpc/[trpc]/   # tRPC HTTP endpoint
+│           │   ├── auth/              # Sign in/up/out + callback
+│           │   ├── account/           # Change email/password, delete, export
+│           │   ├── onboarding/        # Signup template picker
+│           │   ├── login, signup, forgot-password, reset-password
+│           │   ├── about, privacy, terms, help, changelog
+│           │   ├── settings, stats, calendar
+│           │   ├── layout.tsx
+│           │   └── page.tsx           # / route — today view OR completion screen
+│           ├── components/            # task-card, calendar-grid, etc.
+│           ├── lib/
+│           │   ├── supabase/          # server, client, middleware clients
+│           │   ├── trpc/              # client provider + react hooks
+│           │   ├── db.ts              # Supabase-backed DB helpers
+│           │   └── logger.ts          # newline-JSON logger (Sentry-swappable)
+│           └── middleware.ts          # Session refresh + auth redirect
 ├── packages/
-│   ├── shared/                        # cross-app types + helpers
+│   ├── shared/                        # cross-app types + helpers (tested with Vitest)
 │   │   └── src/
 │   │       ├── date.ts                # local-timezone date math
 │   │       ├── tasks.ts               # Task type + journal/photo finders
-│   │       └── icons.ts               # curated Lucide icon registry
-│   └── api/                           # tRPC routers (placeholder until Supabase exists)
-└── .github/workflows/                 # CI: lint + build on every PR
+│   │       ├── icons.ts               # curated Lucide icon registry
+│   │       └── templates.ts           # 6 program templates
+│   └── api/                           # tRPC routers (web + future mobile)
+│       └── src/routers/{tasks,entries,settings,challenges,media,stats}.ts
+├── tools/
+│   └── import-from-sqlite.mjs         # Migrate old local SQLite data to Supabase
+└── .github/workflows/ci.yml           # 7-job CI pipeline
 ```
 
 ---
 
 ## How the data is stored
 
-All writes go through Server Actions in `src/app/actions.ts`, which call helpers in `src/lib/db.ts`. The schema:
+Tables in your Supabase Postgres (all RLS-scoped to `auth.uid()`):
 
-| Table              | Columns                                                                       | Purpose                                       |
-| ------------------ | ----------------------------------------------------------------------------- | --------------------------------------------- |
-| `challenges`       | `id`, `start_date`, `status`, `created_at`                                    | Tracks the active program + historical attempts |
-| `days`             | `date` (PK), `challenge_id`, `notes`, `updated_at`                            | Per-day "what did you do" notes               |
-| `task_completions` | `(date, task_id)` (PK), `completed_at`                                        | One row per checked task                      |
-| `journal_entries`  | `date` (PK), `content`, timestamps                                            | Journal-kind reflective entry                 |
-| `weights`          | `date` (PK), `weight_lbs`, timestamps                                         | Daily weigh-in                                |
-| `task_details`     | `(date, task_id)` (PK), `content`                                             | Per-day text entry for any task (e.g. workout) |
-| `progress_photos`  | `date` (PK), `filename`, `mime`                                               | Filenames of uploaded photos                  |
-| `tasks`            | `id`, `position`, `title`, `subtitle`, `icon`, `kind`, `requires_detail`, ... | Configurable daily-task definitions           |
-| `settings`         | `key` (PK), `value`                                                           | Configurable settings (e.g. `total_days`)     |
-| `app_state`        | `key` (PK), `value`                                                           | Misc state (dismissed prompts, etc.)          |
+| Table              | Purpose                                            |
+| ------------------ | -------------------------------------------------- |
+| `challenges`       | Active program + historical attempts               |
+| `days`             | Per-day notes                                      |
+| `task_completions` | One row per checked task                           |
+| `journal_entries`  | Journal-kind entries                               |
+| `weights`          | Daily weigh-ins                                    |
+| `task_details`     | Per-day text entry for any task (e.g. workouts)    |
+| `progress_photos`  | Storage keys for uploaded photos                   |
+| `tasks`            | Configurable daily-task definitions                |
+| `user_settings`    | Per-user knobs (e.g. `total_days`)                 |
+| `app_state`        | Misc per-user flags (dismissed prompts, etc.)      |
 
-Uploaded photos live at `public/progress-photos/{date}.{ext}` (gitignored). Back them up by copying that folder.
+A `handle_new_user()` trigger fires on `auth.users INSERT` and auto-seeds the 12 default tasks + a 100-day challenge + a `user_settings` row, so a fresh signup lands on a working program from the first click.
 
-The DB file lives in the project root. To back it up, copy `hardtracker.db`.
+Progress photos live in the private `progress-photos` Supabase Storage bucket, keyed by `{user_id}/{date}.{ext}`. The web client hands out signed PUT URLs for upload and signed GET URLs for preview.
+
+To **back up** your account: hit **Account → Download my data** in the app — you get a JSON dump of every check, weight, note, journal entry, and photo metadata. Or copy the entire Supabase project via Supabase's own export tools.
 
 ---
 
@@ -333,50 +332,54 @@ When every day in your program is fully complete, the today route renders a vict
 
 ### Change the accent color
 
-Edit the `accent` palette in `tailwind.config.ts`. The default is electric blue `#0EA5FF`.
+Edit the `accent` palette in `apps/web/tailwind.config.ts`. The default is electric blue `#0EA5FF`.
 
 ### Use kilograms instead of pounds
 
-The `weights` table column is named `weight_lbs` but stores any numeric value. Change the unit label in `src/components/weight-card.tsx` and `src/components/stats-board.tsx` (search for `lbs`).
+The `weights` table column is named `weight_lbs` but stores any numeric value. Change the unit label in `apps/web/src/components/weight-card.tsx` and `apps/web/src/components/stats-board.tsx` (search for `lbs`).
 
 ### Add more icons to the picker
 
-Edit `src/lib/icons.ts` and add the desired Lucide icon to the `ICONS` map. It'll show up in the picker immediately.
+Edit `packages/shared/src/icons.ts` and add the desired Lucide icon to the `ICONS` map. It'll show up in the picker immediately.
 
-### Change the seed defaults
+### Add a new template
 
-If you want a different starter template (so cloners see your program instead of 100 Hard), edit the `DEFAULT_TASKS` array in `src/lib/db.ts`. Only runs when the `tasks` table is empty on first open.
+Append to the `TEMPLATES` array in `packages/shared/src/templates.ts`. No DB migration needed — it'll appear in both the onboarding picker and the Settings template section automatically.
 
 ---
 
 ## Troubleshooting
 
-**`npm install` fails compiling `better-sqlite3`.** Install your platform's C toolchain (see Requirements). On macOS that's `xcode-select --install`.
-
-**Day counter shows "Starts on ..."** You're before your configured start date. Either wait, or edit `CHALLENGE_START` in `src/lib/date.ts` (only effective on first DB creation).
-
-**Day counter shows "Challenge complete".** You're past the configured length. Congrats — that's the intended end state.
+**Sign-in loops back to `/login`.** Your `apps/web/.env.local` is probably missing or malformed. Re-run `node apps/web/scripts/verify-supabase.mjs` — it surfaces auth / RLS / storage / trigger problems in one shot.
 
 **Animations feel sluggish.** If your OS has *Reduce Motion* enabled, the app respects it and disables transitions/confetti.
 
-**Port 3000 in use.** Run `npm run dev -- -p 3001`.
+**Port 3000 in use.** Run `PORT=3001 npm run dev`.
+
+**`npm ci` fails with "lockfile out of sync".** Delete `node_modules` and `package-lock.json` and run `npm install` to regenerate.
 
 ---
 
 ## Scripts
 
-| Command         | What it does                |
-| --------------- | --------------------------- |
-| `npm run dev`   | Start the dev server        |
-| `npm run build` | Production build            |
-| `npm run start` | Run the production build    |
-| `npm run lint`  | Run ESLint                  |
+| Command            | What it does                                                  |
+| ------------------ | ------------------------------------------------------------- |
+| `npm run dev`      | Start the dev server                                          |
+| `npm run build`    | Production build (type-check, lint, bundle)                   |
+| `npm run start`    | Run the production build                                      |
+| `npm run lint`     | Run ESLint                                                    |
+| `npm test`         | Run Vitest unit tests                                         |
+| `node apps/web/scripts/verify-supabase.mjs` | End-to-end Supabase smoke test                |
+
+CI runs all of the above on every push to `production` plus a typecheck pass across every workspace, a SQL migrations sanity check, and a security audit. See `.github/workflows/ci.yml`.
 
 ---
 
 ## Privacy
 
-Everything is local. The only network requests during normal use are for Google Fonts (Inter + JetBrains Mono) at build time. If you want a fully offline build, swap those imports in `src/app/layout.tsx` for a self-hosted font or system stack.
+The web app is multi-user via Supabase — your data sits in a Postgres database scoped to your account by Row-Level Security and progress photos live in a private Storage bucket. You can delete your account (and all associated data) from **Account → Danger zone** at any time, and export everything as JSON from **Account → Download my data**.
+
+The drafts of the user-facing Privacy Policy and Terms of Service live at `/privacy` and `/terms`. Both are real drafts — they need a lawyer's eye before any public launch.
 
 ---
 
