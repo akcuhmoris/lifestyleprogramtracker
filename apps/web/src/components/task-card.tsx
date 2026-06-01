@@ -301,7 +301,7 @@ function TaskDetailInput({
   disabled?: boolean;
   required?: boolean;
   onContentChange?: (content: string) => void;
-  textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
+  textareaRef?: React.RefObject<HTMLTextAreaElement>;
   nudge?: number;
 }) {
   const [value, setValue] = useState(initial);
