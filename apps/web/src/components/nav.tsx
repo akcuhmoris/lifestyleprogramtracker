@@ -43,11 +43,14 @@ export function Nav({ userEmail }: { userEmail: string | null }) {
         <Link
           href="/"
           className="flex items-center gap-2.5 text-sm font-semibold tracking-tight"
+          aria-label="Lifestyle Program Tracker — home"
         >
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-bg shadow-glow">
             <Target className="h-4 w-4" strokeWidth={2.5} />
           </span>
-          <span className="text-text">Program</span>
+          {/* Full name on desktop, icon-only on phones — the three-word
+              brand pushes the tab pills off-screen below ~sm. */}
+          <span className="hidden sm:inline text-text">Lifestyle Program Tracker</span>
         </Link>
 
         <div className="flex items-center gap-2">

@@ -4,11 +4,11 @@
 
 | Field | Value |
 | ----- | ----- |
-| **App name** | Program: Lifestyle Tracker |
+| **App name** | Lifestyle Program Tracker |
 | **Default language** | English (United States) |
 | **App or Game** | App |
 | **Free or Paid** | Free |
-| **Package name** | `[com.YOURNAME.program]` |
+| **Package name** | `[com.YOURNAME.lifestyleprogram]` |
 | **Category** | Health & Fitness |
 | **Tags** | habit tracking, journaling, weight tracking |
 
@@ -25,10 +25,10 @@ Track 75 Hard, 100 Hard, or any program you build — your tasks, your way.
 ## Full description (4000 chars max)
 
 ```
-Program is a no-nonsense habit tracker for the disciplined.
+Lifestyle Program Tracker is a no-nonsense habit tracker for the disciplined.
 
 Whether you're running the 75 Hard challenge, the 100 Hard challenge, your own
-30-day reset, or a custom routine you invented yourself, Program gives you the
+30-day reset, or a custom routine you invented yourself, this app gives you the
 structure to commit and the satisfaction of watching each day fill in electric
 blue.
 
@@ -70,8 +70,9 @@ blue.
 
 ━━━ NO COACHING. NO BS. ━━━
 
-Program doesn't tell you what your program should be. You decide. Program
-just keeps the score, with the visual polish to make every check feel earned.
+Lifestyle Program Tracker doesn't tell you what your program should be. You
+decide. The app just keeps the score, with the visual polish to make every
+check feel earned.
 
 Web companion at https://[YOURDOMAIN].app
 Privacy policy: https://[YOURDOMAIN].app/privacy

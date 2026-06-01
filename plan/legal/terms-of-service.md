@@ -2,7 +2,7 @@
 
 **Last updated: [DATE]**
 
-These Terms of Service (the “Terms”) govern your use of the Program lifestyle-tracker web and mobile applications (the “Service”), operated by **[COMPANY NAME]** (“we”, “us”, “our”).
+These Terms of Service (the “Terms”) govern your use of the **Lifestyle Program Tracker** web and mobile applications (the “Service”), operated by **[COMPANY NAME]** (“we”, “us”, “our”).
 
 By creating an account or otherwise using the Service, you agree to these Terms.
 

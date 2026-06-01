@@ -21,7 +21,7 @@ export function LegalPage({ title, updated, children }: Props) {
         <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-bg shadow-glow">
           <Target className="h-4 w-4" strokeWidth={2.5} />
         </span>
-        <span className="text-text">Program</span>
+        <span className="text-text">Lifestyle Program Tracker</span>
       </Link>
 
       <header className="mt-10">

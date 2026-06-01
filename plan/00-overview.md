@@ -56,7 +56,7 @@ These are the calls we'll make in every doc that follows.
 These ride on what you want, not on best practices. Each is called out where it matters in the rest of the plan.
 
 - **Domain name.** Will affect branding, App Store identity, and the cost of a privacy policy template.
-- **Brand name.** Currently "Program." That's neutral; "Lifestyle," "Routine," and "Track" are all available.
+- **Brand name.** Settled on **Lifestyle Program Tracker** (2026-06-01, post Apple Developer enrollment). Internal package slugs keep the older `@program/*` form.
 - **Free vs paid.** v1 ships free. If you decide it's a paid product later, we'll add Stripe or RevenueCat (mobile).
 - **Geography.** US-only or worldwide? Affects whether we need GDPR rigor upfront (we should anyway, but it changes some defaults).
 - **Account deletion mechanics.** Hard delete vs soft delete with a 30-day grace window. We'll default to grace-window with one-click reactivate.

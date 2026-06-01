@@ -1,4 +1,4 @@
-# Program — Lifestyle Program Tracker
+# Lifestyle Program Tracker
 
 [![CI](https://github.com/akcuhmoris/lifestyleprogramtracker/actions/workflows/ci.yml/badge.svg?branch=production)](https://github.com/akcuhmoris/lifestyleprogramtracker/actions/workflows/ci.yml)
 

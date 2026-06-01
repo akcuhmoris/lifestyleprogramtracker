@@ -18,7 +18,7 @@ import {
 export const metadata = {
   title: "Help",
   description:
-    "Common questions about Program — how to restart, edit past days, delete your account, and where your data lives.",
+    "Common questions about Lifestyle Program Tracker — how to restart, edit past days, delete your account, and where your data lives.",
 };
 
 type Question = {
@@ -211,7 +211,7 @@ export default function HelpPage() {
         <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-bg shadow-glow">
           <Target className="h-4 w-4" strokeWidth={2.5} />
         </span>
-        <span className="text-text">Program</span>
+        <span className="text-text">Lifestyle Program Tracker</span>
       </Link>
 
       <header className="mt-10">
@@ -280,7 +280,7 @@ export default function HelpPage() {
           Changelog
         </Link>
         <Link href="/" className="hover:text-accent-glow transition-colors">
-          Program
+          Home
         </Link>
       </footer>
     </main>

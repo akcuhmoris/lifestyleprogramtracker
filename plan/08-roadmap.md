@@ -103,7 +103,7 @@ The only phase that requires *only* you. Most of these can run in parallel; the 
 
 ### 🤖 What I already shipped here
 
-- [x] Brand naming + nav badge updated to **Program**
+- [x] Brand naming + nav badge updated to **Lifestyle Program Tracker** (was "Program" — renamed 2026-06-01 after Apple Developer enrollment approval)
 - [x] Domain placeholder used consistently in legal + store drafts
 - [x] Plan docs: 00-overview, 01-architecture, 02-backend, 03-mobile, 04-sync, 05-deployment, 06-distribution, 07-production-readiness, 08-roadmap
 - [x] Push the `production` branch to GitHub
@@ -112,7 +112,7 @@ The only phase that requires *only* you. Most of these can run in parallel; the 
 
 | Status | Item | Cost | Notes |
 | ------ | ---- | ---- | ----- |
-| ⬜ | [Apple Developer Program](https://developer.apple.com/programs/enroll/) | $99/yr | 24–72 h to activate. **Start first.** |
+| ✅ | [Apple Developer Program](https://developer.apple.com/programs/enroll/) | $99/yr | Approved 2026-06-01. Bundle ID + Team ID still pending. |
 | ⬜ | [Google Play Console](https://play.google.com/console) | $25 one-time | ~48 h to activate. |
 | ⬜ | [Supabase](https://supabase.com) account + `program-staging` project | Free | **Unlocks Phase 3.** |
 | ⬜ | [Vercel](https://vercel.com) account (link GitHub) | Free | |
@@ -125,7 +125,7 @@ The only phase that requires *only* you. Most of these can run in parallel; the 
 
 | Status | Decision | Default if no answer |
 | ------ | -------- | -------------------- |
-| ⬜ | Final brand name | `Program` |
+| ✅ | Final brand name | **Lifestyle Program Tracker** |
 | ⬜ | Free or paid v1 | Free |
 | ⬜ | US-only or worldwide | Worldwide (GDPR-aware) |
 | ⬜ | Anonymous accounts allowed | No (force sign-in) |

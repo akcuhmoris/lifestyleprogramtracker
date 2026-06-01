@@ -23,7 +23,7 @@ export default function ResetPasswordPage({
         <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-bg shadow-glow">
           <Target className="h-5 w-5" strokeWidth={2.5} />
         </span>
-        <span className="text-text text-base">Program</span>
+        <span className="text-text text-base">Lifestyle Program Tracker</span>
       </Link>
 
       <div className="w-full max-w-sm">

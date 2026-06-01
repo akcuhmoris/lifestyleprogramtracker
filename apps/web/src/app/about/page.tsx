@@ -40,7 +40,7 @@ function Hero() {
         <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-bg shadow-glow">
           <Target className="h-4 w-4" strokeWidth={2.5} />
         </span>
-        <span className="text-text">Program</span>
+        <span className="text-text">Lifestyle Program Tracker</span>
       </Link>
 
       <span className="mt-10 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-accent-glow shadow-[0_0_18px_-4px_rgba(14,165,255,0.5)]">
@@ -56,8 +56,8 @@ function Hero() {
 
       <p className="mx-auto mt-6 max-w-xl text-base text-text-muted leading-relaxed sm:text-lg">
         75 Hard, 100 Hard, a 30-day reset, or a custom routine you invented
-        yourself. Program gives you the structure to commit and the polish to
-        make every check feel earned.
+        yourself. Lifestyle Program Tracker gives you the structure to commit
+        and the polish to make every check feel earned.
       </p>
 
       <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">

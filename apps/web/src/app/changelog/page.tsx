@@ -3,7 +3,7 @@ import { Sparkles, Target } from "lucide-react";
 
 export const metadata = {
   title: "Changelog",
-  description: "What's new in Program.",
+  description: "What's new in Lifestyle Program Tracker.",
 };
 
 type Entry = {
@@ -15,8 +15,20 @@ type Entry = {
 
 const entries: Entry[] = [
   {
-    version: "v0.6",
+    version: "v0.7",
     date: "2026-06-01",
+    headline: "Lifestyle Program Tracker",
+    bullets: [
+      'Renamed product from "Program" to "Lifestyle Program Tracker" — same app, longer name, clearer in App Store search.',
+      "Signup onboarding picker at /onboarding — choose one of the 6 templates (or skip) before landing on Today.",
+      "Stats page shows a friendly Day-1 banner instead of a wall of zeros for brand-new users.",
+      "Comprehensive CI pipeline: 7 jobs covering lint, typecheck × 3 workspaces, tests, migrations sanity, audit, and build with bundle-size check.",
+      "Claude Code GitHub Action: tag @claude in issues or PRs for review + Q&A.",
+    ],
+  },
+  {
+    version: "v0.6",
+    date: "2026-05-31",
     headline: "Program templates",
     bullets: [
       "6 preset templates in Settings: 100 Hard, 75 Hard, Strength Builder, 30-Day Reset, Sober 30, Custom.",
@@ -103,7 +115,7 @@ export default function ChangelogPage() {
         <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-bg shadow-glow">
           <Target className="h-4 w-4" strokeWidth={2.5} />
         </span>
-        <span className="text-text">Program</span>
+        <span className="text-text">Lifestyle Program Tracker</span>
       </Link>
 
       <header className="mt-10">
@@ -157,7 +169,7 @@ export default function ChangelogPage() {
           Terms
         </Link>
         <Link href="/" className="hover:text-accent-glow transition-colors">
-          Program
+          Home
         </Link>
       </footer>
     </main>

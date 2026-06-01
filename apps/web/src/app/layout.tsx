@@ -26,12 +26,12 @@ const APP_URL =
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "Program — Lifestyle tracker",
-    template: "%s · Program",
+    default: "Lifestyle Program Tracker",
+    template: "%s · Lifestyle Program Tracker",
   },
   description:
     "Track any lifestyle program — your tasks, your length, your rules. 75 Hard, 100 Hard, or your own routine.",
-  applicationName: "Program",
+  applicationName: "Lifestyle Program Tracker",
   keywords: [
     "habit tracker",
     "75 hard",
@@ -43,14 +43,14 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    title: "Program — Track any lifestyle program",
+    title: "Lifestyle Program Tracker — your tasks, your length, your rules",
     description:
       "75 Hard, 100 Hard, or your own routine — your tasks, your length, your rules.",
-    siteName: "Program",
+    siteName: "Lifestyle Program Tracker",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Program — Track any lifestyle program",
+    title: "Lifestyle Program Tracker — your tasks, your length, your rules",
     description:
       "75 Hard, 100 Hard, or your own routine — your tasks, your length, your rules.",
   },

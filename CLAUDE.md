@@ -4,7 +4,9 @@ Orientation for an AI session landing in this repo. Read once at session start.
 
 ## What this project is
 
-**Program** is a lifestyle program / habit tracker. Day-by-day check-offs against a configurable task list, with calendar heatmap, weight log, photos, stats, and restart logic. The product is positioned as "track 75 Hard / 100 Hard / your own routine, your way."
+**Lifestyle Program Tracker** is a habit tracker for any structured program. Day-by-day check-offs against a configurable task list, with calendar heatmap, weight log, photos, stats, and restart logic. The product is positioned as "track 75 Hard / 100 Hard / your own routine, your way."
+
+Internal code identifiers (npm packages `@program/web`, `@program/api`, `@program/shared`; Tailwind tokens; localStorage keys; file paths) keep the old `program` slug — only user-facing copy uses the full name "Lifestyle Program Tracker". Renaming those internals adds churn with no user benefit.
 
 The repo holds **two production targets**: the web app (live) and a mobile app (not yet started). They share types and the API.
 

@@ -2,7 +2,7 @@
 
 **Last updated: [DATE]**
 
-This Privacy Policy describes how **[COMPANY NAME]** (“we”, “us”, “our”) collects, uses, and shares information when you use the Program lifestyle-tracker mobile and web applications (the “Service”).
+This Privacy Policy describes how **[COMPANY NAME]** (“we”, “us”, “our”) collects, uses, and shares information when you use the **Lifestyle Program Tracker** mobile and web applications (the “Service”).
 
 If you have any questions, contact us at **[privacy@yourdomain.app]**.
 

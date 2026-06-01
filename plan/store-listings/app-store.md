@@ -4,10 +4,10 @@
 
 | Field | Value |
 | ----- | ----- |
-| **Name** | Program: Lifestyle Tracker |
+| **Name** | Lifestyle Program Tracker |
 | **Subtitle** (30 chars max) | Track any program, your way |
-| **Bundle ID** | `[com.YOURNAME.program]` |
-| **SKU** | `program-ios-001` |
+| **Bundle ID** | `[com.YOURNAME.lifestyleprogram]` |
+| **SKU** | `lifestyleprogram-ios-001` |
 | **Primary category** | Health & Fitness |
 | **Secondary category** | Productivity |
 | **Default language** | English (U.S.) |
@@ -16,17 +16,17 @@
 
 ## Promotional text (170 chars, can change without re-review)
 
-> Build the habits that make you. 75 Hard, 100 Hard, or any program you design — Program tracks every day, every task, every photo.
+> Build the habits that make you. 75 Hard, 100 Hard, or any program you design — Lifestyle Program Tracker logs every day, every task, every photo.
 
 ---
 
 ## Description (4000 chars max)
 
 ```
-Program is a no-nonsense habit tracker for the disciplined.
+Lifestyle Program Tracker is a no-nonsense habit tracker for the disciplined.
 
 Whether you're running the 75 Hard challenge, the 100 Hard challenge, your own
-30-day reset, or a custom routine you invented yourself, Program gives you the
+30-day reset, or a custom routine you invented yourself, this app gives you the
 structure to commit and the satisfaction of watching each day fill in electric
 blue.
 
@@ -61,8 +61,9 @@ PRIVATE BY DESIGN
 • Delete your account and all your data with one tap
 
 NO COACHING. NO BS.
-Program doesn't tell you what your program should be. You decide. Program just
-keeps the score, with the visual polish to make every check feel earned.
+Lifestyle Program Tracker doesn't tell you what your program should be. You
+decide. The app just keeps the score, with the visual polish to make every
+check feel earned.
 ```
 
 (approx. 1,500 chars — well under the 4,000-char limit. Pad with more feature

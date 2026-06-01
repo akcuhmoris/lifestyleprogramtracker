@@ -8,11 +8,11 @@ export default function PrivacyPage() {
   return (
     <LegalPage title="Privacy Policy" updated="May 29, 2026">
       <p>
-        This Privacy Policy describes how <strong>Program</strong> (&ldquo;we,&rdquo;
-        &ldquo;us,&rdquo; &ldquo;our&rdquo;) collects, uses, and shares information
-        when you use the Program lifestyle-tracker mobile and web applications
-        (the &ldquo;Service&rdquo;). If you have any questions, contact us at{" "}
-        <strong>privacy@program.app</strong>.
+        This Privacy Policy describes how <strong>Lifestyle Program Tracker</strong>{" "}
+        (&ldquo;we,&rdquo; &ldquo;us,&rdquo; &ldquo;our&rdquo;) collects, uses, and
+        shares information when you use the Lifestyle Program Tracker mobile and
+        web applications (the &ldquo;Service&rdquo;). If you have any questions,
+        contact us at <strong>privacy@lifestyleprogramtracker.app</strong>.
       </p>
 
       <blockquote>
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
       </ul>
       <p>
         Use the in-app <strong>Settings → Account & data</strong> buttons, or email{" "}
-        <strong>privacy@program.app</strong>. We will respond within 30 days.
+        <strong>privacy@lifestyleprogramtracker.app</strong>. We will respond within 30 days.
       </p>
 
       <h2>6. Children</h2>
@@ -158,7 +158,7 @@ export default function PrivacyPage() {
       <h2>11. Contact</h2>
       <p>
         Questions, requests, or complaints:{" "}
-        <strong>privacy@program.app</strong>
+        <strong>privacy@lifestyleprogramtracker.app</strong>
       </p>
     </LegalPage>
   );

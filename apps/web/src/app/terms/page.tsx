@@ -8,11 +8,11 @@ export default function TermsPage() {
   return (
     <LegalPage title="Terms of Service" updated="May 29, 2026">
       <p>
-        These Terms of Service (the &ldquo;Terms&rdquo;) govern your use of the
-        Program lifestyle-tracker web and mobile applications (the
-        &ldquo;Service&rdquo;). By creating an account or otherwise using the
-        Service, you agree to these Terms. If you do not agree, do not use the
-        Service.
+        These Terms of Service (the &ldquo;Terms&rdquo;) govern your use of
+        the <strong>Lifestyle Program Tracker</strong> web and mobile
+        applications (the &ldquo;Service&rdquo;). By creating an account or
+        otherwise using the Service, you agree to these Terms. If you do not
+        agree, do not use the Service.
       </p>
 
       <blockquote>
@@ -23,7 +23,7 @@ export default function TermsPage() {
 
       <h2>1. The Service</h2>
       <p>
-        Program is a personal habit tracker for lifestyle programs. It allows
+        Lifestyle Program Tracker is a personal habit tracker for lifestyle programs. It allows
         you to define daily tasks, check them off, log notes and weight, upload
         progress photos, and review your history.
       </p>

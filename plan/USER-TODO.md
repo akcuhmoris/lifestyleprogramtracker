@@ -27,7 +27,7 @@ All of these are independent and can run in parallel. The slow ones (Apple, Goog
 
 ### Accounts to create
 
-- [ ] **Apple Developer Program** — <https://developer.apple.com/programs/enroll/> · $99/yr · **24–72 h to activate, start first**
+- [x] **Apple Developer Program** — approved 2026-06-01. Next: register an App ID for `com.<yourname>.lifestyleprogram`, enable Sign in with Apple capability, send Team ID + bundle ID back.
 - [ ] **Google Play Console** — <https://play.google.com/console> · $25 one-time · ~48 h to activate
 - [ ] **Supabase** — <https://supabase.com> · free · then create a project named `program-staging`, pick a region near you, save the DB password in a password manager
 - [ ] **Vercel** — <https://vercel.com> · free · link your GitHub account
@@ -37,7 +37,7 @@ All of these are independent and can run in parallel. The slow ones (Apple, Goog
 
 ### Decisions to make
 
-- [ ] **Brand name** — current default `Program`
+- [x] **Brand name** — picked **Lifestyle Program Tracker** (2026-06-01)
 - [ ] **Free or paid for v1** — current default Free
 - [ ] **US-only or worldwide** — current default Worldwide w/ GDPR-aware policies
 - [ ] **Domain name** — feeds into the App Store + Play listings
@@ -107,7 +107,7 @@ These configurations live inside Supabase's dashboard. They need real OAuth app 
 Mark as you go — gives both of us a single-glance picture of where we are.
 
 ### Accounts
-- [ ] Apple Developer Program enrolled
+- [x] Apple Developer Program enrolled (approved 2026-06-01)
 - [ ] Google Play Console enrolled
 - [ ] Supabase account
 - [ ] Vercel account
