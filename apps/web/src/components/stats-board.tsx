@@ -54,9 +54,23 @@ export function StatsBoard({
 }: Props) {
   const remaining = Math.max(0, total - elapsed);
   const fullPct = elapsed > 0 ? Math.round((full / elapsed) * 100) : 0;
+  const completedSomething =
+    full + partial > 0 ||
+    perTask.some((t) => t.completedDays > 0) ||
+    weightSeries.length > 0;
 
   return (
     <div className="space-y-6">
+      {!completedSomething && (
+        <div className="rounded-2xl border border-dashed border-border-subtle bg-bg-elevated px-5 py-6 text-center">
+          <p className="text-sm text-text-muted leading-relaxed mx-auto max-w-md">
+            <span className="text-text font-medium">Day {Math.max(1, elapsed)} of {total}.</span>{" "}
+            Your numbers will fill in here as you check tasks off,
+            log weight, and write journal entries.
+          </p>
+        </div>
+      )}
+
       {/* Overview row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Stat label="Full days" value={`${full}`} sub={`${fullPct}% of elapsed`} accent />
