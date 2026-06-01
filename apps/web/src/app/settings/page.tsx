@@ -1,5 +1,6 @@
 import { getTasks, getTotalDays } from "@/lib/db";
 import { SettingsForm } from "@/components/settings-form";
+import { TemplatesSection } from "@/components/templates-section";
 import { AccountSection } from "@/components/account/account-section";
 import { DangerZone } from "@/components/account/danger-zone";
 import { createClient } from "@/lib/supabase/server";
@@ -28,6 +29,8 @@ export default async function SettingsPage() {
           field and per-day weight log are always available.
         </p>
       </header>
+
+      <TemplatesSection currentTaskCount={tasks.length} />
 
       <SettingsForm initialTotalDays={totalDays} initialTasks={tasks} />
 

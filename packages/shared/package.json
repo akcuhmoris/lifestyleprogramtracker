@@ -12,7 +12,8 @@
     ".": "./src/index.ts",
     "./date": "./src/date.ts",
     "./tasks": "./src/tasks.ts",
-    "./icons": "./src/icons.ts"
+    "./icons": "./src/icons.ts",
+    "./templates": "./src/templates.ts"
   },
   "dependencies": {
     "lucide-react": "^0.460.0"

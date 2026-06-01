@@ -23,6 +23,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { isFuture, todayLocal } from "@program/shared/date";
 import { findPhotoTaskId } from "@program/shared/tasks";
+import { findTemplate } from "@program/shared/templates";
 
 const PHOTOS_BUCKET = "progress-photos";
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
@@ -274,4 +275,62 @@ export async function reorderTasksAction(orderedIds: string[]) {
   await dbReorderTasks(orderedIds);
   revalidateAll();
   return { ok: true as const };
+}
+
+/**
+ * Apply a preset program template:
+ *   1. Archive every current non-archived task (past completions preserved)
+ *   2. Insert the template's tasks in order
+ *   3. Update total_days
+ *
+ * Past completion rows still point at the archived task IDs — the calendar
+ * counts them, but they don't appear in the today view or stats anymore.
+ */
+export async function applyTemplateAction(templateId: string) {
+  const template = findTemplate(templateId);
+  if (!template) {
+    return { ok: false as const, error: "Template not found." };
+  }
+
+  const supabase = await createClient();
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !userData.user) {
+    return { ok: false as const, error: "Not authenticated." };
+  }
+  const userId = userData.user.id;
+
+  // Archive every current non-archived task.
+  const { error: archErr } = await supabase
+    .from("tasks")
+    .update({ archived: true })
+    .eq("user_id", userId)
+    .eq("archived", false);
+  if (archErr) {
+    return { ok: false as const, error: archErr.message };
+  }
+
+  // Insert template tasks.
+  if (template.tasks.length > 0) {
+    const rows = template.tasks.map((t, position) => ({
+      user_id: userId,
+      position,
+      title: t.title,
+      subtitle: t.subtitle,
+      icon: t.icon,
+      kind: t.kind,
+      requires_detail: t.requiresDetail,
+      detail_label: t.detailLabel,
+      detail_placeholder: t.detailPlaceholder,
+    }));
+    const { error: insErr } = await supabase.from("tasks").insert(rows);
+    if (insErr) {
+      return { ok: false as const, error: insErr.message };
+    }
+  }
+
+  // Update length.
+  await dbSetTotalDays(template.totalDays);
+
+  revalidateAll();
+  return { ok: true as const, templateId, name: template.name };
 }

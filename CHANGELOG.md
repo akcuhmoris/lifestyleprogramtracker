@@ -2,6 +2,12 @@
 
 The user-facing release notes. Keep entries terse and concrete — what changed for someone who uses the app.
 
+## v0.6 — 2026-06-01 — Program templates
+
+- 6 preset templates available from Settings: 100 Hard, 75 Hard, Strength Builder, 30-Day Reset, Sober 30, Custom (blank).
+- One-click apply — archives current tasks (past completions stay on the calendar), inserts the template's tasks, sets the program length.
+- Confirmation dialog previews the full task list, length, and kinds (journal / photo / requires-text) before you commit.
+
 ## v0.5 — 2026-05-30 — Auth polish
 
 - "Forgot password?" flow added (request reset email → set new password → forced sign-in).

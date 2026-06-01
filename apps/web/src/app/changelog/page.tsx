@@ -15,6 +15,16 @@ type Entry = {
 
 const entries: Entry[] = [
   {
+    version: "v0.6",
+    date: "2026-06-01",
+    headline: "Program templates",
+    bullets: [
+      "6 preset templates in Settings: 100 Hard, 75 Hard, Strength Builder, 30-Day Reset, Sober 30, Custom.",
+      "One-click apply: archives current tasks (past completions preserved), inserts new tasks, sets length.",
+      "Confirmation dialog previews the full task list with kinds (journal / photo / requires-text) before you commit.",
+    ],
+  },
+  {
     version: "v0.5",
     date: "2026-05-30",
     headline: "Auth polish",
