@@ -22,8 +22,18 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-const SEEN_KEY = "lifestyleprogram_seen_welcome_v1";
+export const WELCOME_SEEN_KEY = "lifestyleprogram_seen_welcome_v1";
+const SEEN_KEY = WELCOME_SEEN_KEY;
 export const OPEN_WELCOME_EVENT = "welcome:open";
+
+/** Suppress the welcome modal's auto-pop on the next page load. */
+export function markWelcomeSeen() {
+  try {
+    localStorage.setItem(WELCOME_SEEN_KEY, "1");
+  } catch {
+    /* storage disabled — no-op */
+  }
+}
 const HIDE_PATHS = [
   "/login",
   "/signup",

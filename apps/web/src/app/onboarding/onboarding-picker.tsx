@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { TEMPLATES, type ProgramTemplate } from "@program/shared/templates";
 import { getIcon } from "@program/shared/icons";
 import { applyTemplateAction } from "@/app/actions";
+import { markWelcomeSeen } from "@/components/welcome-modal";
 
 export function OnboardingPicker() {
   const [selectedId, setSelectedId] = useState<string>("100-hard");
@@ -31,6 +32,7 @@ export function OnboardingPicker() {
         setError(res.error ?? "Couldn't apply that template.");
         return;
       }
+      markWelcomeSeen();
       router.push("/");
       router.refresh();
     });
