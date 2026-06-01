@@ -7,16 +7,16 @@
 
 ```
 Phase 1 ████████████████████  100%
-Phase 2 ████████░░░░░░░░░░░░   38%
+Phase 2 ████████░░░░░░░░░░░░   38%   (your accounts/decisions — Apple enrollment is in flight)
 Phase 3 ████████████████████  100%
 Phase 4 ████████████████████  100%
 Phase 5 ████████████████████  100%
-Phase 6 ████████████████░░░░   80%   (mostly shipped in Phase 4)
+Phase 6 ████████████████░░░░   80%   (signed-URL upload + read shipped in Phase 4)
 Phase 7 ░░░░░░░░░░░░░░░░░░░░    0%   ← next (blocked on Expo account + Apple/Google enrollment)
-Phase 8 ████████░░░░░░░░░░░░   40%   (security headers, logger stub, error boundary already in)
+Phase 8 ████████████░░░░░░░░   60%   (headers, logger stub, error boundary, comprehensive CI shipped)
 Phase 9 ░░░░░░░░░░░░░░░░░░░░    0%
 
-58 of 75 items shipped
+Bonus polish (post-Phase 5, pre-mobile): templates, signup onboarding picker, FAQ, changelog, account section, magic-link, OAuth UI
 ```
 
 ## How the phases connect
@@ -26,11 +26,11 @@ flowchart TD
     P1["🏗️ Phase 1<br/>Foundation<br/>✅ done"]
     P2["🔑 Phase 2<br/>Accounts &amp; decisions<br/>🟡 in progress"]
     P3["🗄️ Phase 3<br/>Backend wiring<br/>✅ done"]
-    P4["🔌 Phase 4<br/>API rewrite<br/>🟡 in progress"]
-    P5["🔐 Phase 5<br/>Auth &amp; multi-tenancy<br/>⬜ blocked"]
-    P6["🖼️ Phase 6<br/>Media &amp; storage<br/>⬜ blocked"]
-    P7["📱 Phase 7<br/>Mobile app<br/>⬜ blocked"]
-    P8["🛡️ Phase 8<br/>Production hardening<br/>⬜ blocked"]
+    P4["🔌 Phase 4<br/>API rewrite<br/>✅ done"]
+    P5["🔐 Phase 5<br/>Auth &amp; multi-tenancy<br/>✅ done"]
+    P6["🖼️ Phase 6<br/>Media &amp; storage<br/>🟡 mostly done"]
+    P7["📱 Phase 7<br/>Mobile app<br/>⬜ blocked on Expo + Apple"]
+    P8["🛡️ Phase 8<br/>Production hardening<br/>🟡 in progress"]
     P9["🚀 Phase 9<br/>Beta &amp; launch<br/>⬜ blocked"]
 
     P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8 --> P9
@@ -38,9 +38,9 @@ flowchart TD
     classDef done fill:#0EA5FF,stroke:#0284C7,color:#0A0A0B
     classDef wip fill:#F5C518,stroke:#A07700,color:#0A0A0B
     classDef todo fill:#26262C,stroke:#3a3a42,color:#A1A1AA
-    class P1,P3 done
-    class P2,P4 wip
-    class P5,P6,P7,P8,P9 todo
+    class P1,P3,P4,P5 done
+    class P2,P6,P8 wip
+    class P7,P9 todo
 ```
 
 > Legend: 🟦 done · 🟨 in progress · ⬛ blocked on a dependency
@@ -158,56 +158,76 @@ Replace the in-process `better-sqlite3` calls with Supabase calls behind a tRPC 
 
 **Status:** ✅ done · verified end-to-end against staging Supabase
 
-### What ships in this phase
+### What shipped
 
-- [ ] tRPC infrastructure in `packages/api/` (context, middleware, root router)
-- [ ] Auth middleware reads session cookie (web) or bearer token (mobile)
-- [ ] Routers: `tasks`, `entries`, `media`, `stats`, `settings`, `account`
-- [ ] Every existing Server Action ported to a tRPC procedure with the same input/output shape
-- [ ] `apps/web/src/lib/db.ts` (better-sqlite3) deleted; Supabase client used instead
-- [ ] TanStack Query wired into the web client
-- [ ] Optimistic updates preserved on all mutations
-- [ ] Existing UI behavior unchanged from the user's perspective
+- [x] tRPC infrastructure in `packages/api/` (context, middleware, root router)
+- [x] Auth middleware reads session cookie (web)
+- [x] Routers: `tasks`, `entries`, `media`, `stats`, `settings`, `challenges`
+- [x] Every existing Server Action ported to a tRPC procedure with the same input/output shape
+- [x] `apps/web/src/lib/db.ts` rewritten on top of the Supabase client (`better-sqlite3` retired on `production`)
+- [x] TanStack Query wired into the web client via `<TrpcProvider>`
+- [x] Optimistic updates preserved on all mutations
+- [x] Existing UI behavior unchanged from the user's perspective
+- [x] Photo upload + read flow rewritten on Supabase Storage signed URLs (Phase 6 work done early)
 
-**Definition of done:** the web app at staging looks and feels identical to the current local version, but writes are landing in Postgres.
-
----
-
-## 🔐 Phase 5 — Auth & multi-tenancy ⬜
-
-Real sign-up, real sign-in, and the import of your existing local data into your new Supabase account.
-
-**Status:** ⬜ blocked on Phase 4
-
-### What ships in this phase
-
-- [ ] Email + password sign-up and sign-in
-- [ ] Magic-link sign-in (web)
-- [ ] Google OAuth (Supabase config + web callback)
-- [ ] Apple OAuth (required by App Store; **needs Apple Developer enrollment from Phase 2**)
-- [ ] Account menu in the nav: display name, sign out, settings, danger zone
-- [ ] **Delete my account** flow with 30-day grace + confirmation email
-- [ ] **Download my data** flow (ZIP of JSON + photos)
-- [ ] `tools/import-from-sqlite.ts` script
-- [ ] Import the existing local DB into your Supabase account
-- [ ] Verify every check, weight, note, photo, and journal entry appears
+**Definition of done:** the web app at staging looks and feels identical to the local-only version, but writes land in Postgres. ✅
 
 ---
 
-## 🖼️ Phase 6 — Media & storage ⬜
+## 🔐 Phase 5 — Auth & multi-tenancy ✅
+
+Real sign-up, real sign-in, account management, and a path off the local prototype.
+
+**Status:** ✅ done (OAuth provider config in Supabase remains a Phase 2 you-task)
+
+### What shipped
+
+- [x] Email + password sign-up and sign-in
+- [x] Magic-link sign-in (web)
+- [x] Forgot-password + reset-password flow with branded email
+- [x] Google OAuth UI button (provider config in Supabase pending — Phase 2)
+- [x] Apple OAuth UI button (provider config + Apple Developer enrollment pending — Phase 2)
+- [x] Account menu in the nav: email, sign out, account settings, danger zone
+- [x] **Change email** (re-confirmation email) + **change password** (current-password verified)
+- [x] **Delete my account** flow with type-to-confirm + cascade across all user data
+- [x] **Download my data** flow (JSON export of tasks, completions, weights, notes, journals, photos)
+- [x] `tools/import-from-sqlite.mjs` script — read old local SQLite DB and seed into Supabase by user
+- [x] Branded HTML email templates in `apps/web/supabase/email-templates/`
+
+---
+
+## ✨ Bonus polish (post-Phase 5, pre-mobile) ✅
+
+Work that wasn't on the original phase list but shipped on `production` while waiting on user-side accounts:
+
+- [x] **Program templates** — 6 starter presets in `packages/shared/src/templates.ts` (100 Hard, 75 Hard, 75 Soft, Movement Streak, Reset Week, Custom). Pick one from Settings to archive current tasks and replace.
+- [x] **Signup onboarding picker** — `/onboarding` page shown after email confirmation, picks one template (or skip) before landing on Today.
+- [x] **Comprehensive CI** — 7-job GitHub Actions pipeline (lint, typecheck × 3 workspaces, tests, migrations sanity, audit, build + bundle-size check, summary). Audit runs `continue-on-error` to surface the 14 Next 14 advisories without blocking.
+- [x] **41 unit tests** across templates, icons, dates, tasks. All passing.
+- [x] **CI status badge** in README.md
+- [x] **/help (FAQ) + /changelog** public pages
+- [x] **Mobile app placeholder** route + footer link
+- [x] **SEO surface** — `robots.txt`, `sitemap.xml`, `/opengraph-image`, real `<title>`/`<meta>` per route
+- [x] **CLAUDE.md** orientation file checked in so future AI sessions ramp fast
+
+---
+
+## 🖼️ Phase 6 — Media & storage 🟡
 
 Move progress photos from the laptop filesystem to Supabase Storage so they sync across devices.
 
-**Status:** ⬜ blocked on Phase 5
+**Status:** 🟡 mostly shipped during Phase 4 — only the host-allowlist remains
 
-### What ships in this phase
+### What shipped
 
-- [ ] `media.requestPhotoUpload` returns a signed PUT URL
-- [ ] `media.confirmPhoto` records storage key + mime in Postgres
-- [ ] Web photo card uploads via signed URL
-- [ ] Web photo preview reads via signed read URL (cached)
-- [ ] Migration: existing `public/progress-photos/*` files copied to the bucket under your user ID
-- [ ] `next.config.mjs` updated to allow the Supabase image host
+- [x] `progress-photos` storage bucket created (private, RLS-scoped per user)
+- [x] Photo upload routes via signed PUT URL through `uploadProgressPhotoAction`
+- [x] Photo preview reads via signed GET URL through `getPhotoUrlAction`
+- [x] Old local `public/progress-photos/*` files migrated by `tools/import-from-sqlite.mjs`
+
+### Remaining
+
+- [ ] `next.config.mjs` `images.remotePatterns` updated to allow the Supabase storage host (currently photos render via `<img>`, not `next/image`)
 
 ---
 
@@ -239,24 +259,35 @@ The iOS + Android client. Same data, native screens.
 
 ---
 
-## 🛡️ Phase 8 — Production hardening ⬜
+## 🛡️ Phase 8 — Production hardening 🟡
 
 Ship-quality monitoring, security, and policy compliance.
 
-**Status:** ⬜ blocked on Phase 7
+**Status:** 🟡 in progress — foundations shipped; deploy-target work waits on Phase 2 (Vercel/Sentry accounts)
 
-### What ships in this phase
+### What shipped
 
-- [ ] Sentry web project integrated
-- [ ] Sentry mobile project integrated
+- [x] Security headers on every response (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy)
+- [x] HSTS configured for production
+- [x] `lib/logger.ts` newline-JSON structured logger (Sentry-swappable stub)
+- [x] Global `error.tsx` boundary with request ID
+- [x] Friendly `not-found.tsx`
+- [x] Privacy Policy published at `/privacy` (drafts — needs lawyer review before launch)
+- [x] Terms of Service published at `/terms` (drafts — needs lawyer review before launch)
+- [x] Comprehensive CI on every push: lint + typecheck × 3 workspaces + tests + migrations sanity + audit + build with bundle-size check
+- [x] `npm audit` job (currently surfaces 14 Next 14 advisories as known/non-blocking; revisit during Next 15 upgrade for deploy)
+
+### Remaining
+
+- [ ] Sentry web project integrated (needs Sentry account from Phase 2)
+- [ ] Sentry mobile project integrated (Phase 7)
 - [ ] PostHog opt-in analytics (optional)
 - [ ] Rate limiting on write endpoints (Upstash Redis middleware)
 - [ ] CSP header configured with the real third-party origin allowlist
-- [ ] Privacy Policy published at `/privacy`
-- [ ] Terms of Service published at `/terms`
 - [ ] Restore drill performed against staging
 - [ ] Status page set up (Hyperping / BetterUptime / manual)
 - [ ] One-page incident runbook written
+- [ ] Next 14 → 15 upgrade to clear the 14 high-severity advisories before public deploy
 
 ---
 

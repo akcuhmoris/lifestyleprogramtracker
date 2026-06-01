@@ -10,14 +10,14 @@ For the full picture of where we are and what's next, see [`08-roadmap.md`](./08
 | Phase | Your work | AI work | Status |
 | ----- | --------- | ------- | ------ |
 | 🏗️ Phase 1 — Foundation | none | scaffolding, hardening, tests, drafts | ✅ done |
-| 🔑 Phase 2 — Accounts & decisions | **this is you, right now** | drafts already in | 🟡 in progress |
-| 🗄️ Phase 3 — Backend wiring | send me Supabase keys | apply migrations | ⬜ waits on you |
-| 🔌 Phase 4 — API rewrite | nothing | port to tRPC | ⬜ waits on Phase 3 |
-| 🔐 Phase 5 — Auth | enable OAuth providers | UI + import script | ⬜ waits on Phase 4 |
-| 🖼️ Phase 6 — Media & storage | nothing | bucket + signed URLs | ⬜ waits on Phase 5 |
-| 📱 Phase 7 — Mobile app | install Xcode, reserve bundle IDs | build the app | ⬜ waits on Phase 6 |
-| 🛡️ Phase 8 — Production hardening | create Sentry projects | wire it all in | ⬜ waits on Phase 7 |
-| 🚀 Phase 9 — Beta & launch | recruit testers, click "Release" | upload builds, fix bugs | ⬜ waits on Phase 8 |
+| 🔑 Phase 2 — Accounts & decisions | **this is you, right now** | drafts already in | 🟡 Apple enrollment in flight |
+| 🗄️ Phase 3 — Backend wiring | (done — Supabase keys sent) | migrations applied | ✅ done |
+| 🔌 Phase 4 — API rewrite | nothing | tRPC ported, Supabase live | ✅ done |
+| 🔐 Phase 5 — Auth | enable OAuth providers when ready | UI + import script + account section | ✅ done (OAuth provider config pending) |
+| 🖼️ Phase 6 — Media & storage | nothing | bucket + signed URLs | ✅ mostly shipped in Phase 4 |
+| 📱 Phase 7 — Mobile app | install Xcode, reserve bundle IDs, **finish Apple enrollment** | build the app | ⬜ blocked on you |
+| 🛡️ Phase 8 — Production hardening | create Sentry projects, deploy to Vercel | wire it all in | 🟡 foundations done |
+| 🚀 Phase 9 — Beta & launch | recruit testers, click "Release" | upload builds, fix bugs | ⬜ blocked on Phase 7 |
 
 ---
 
@@ -126,24 +126,31 @@ Mark as you go — gives both of us a single-glance picture of where we are.
 ### Done so far
 - [x] Monorepo set up
 - [x] SQL migrations staged
-- [x] CI configured
-- [x] Production build green + 25 tests passing
+- [x] CI configured (7-job pipeline: lint, typecheck × 3 workspaces, tests, migrations, audit, build)
+- [x] Production build green + 41 tests passing
 - [x] Security headers + health endpoint
 - [x] Friendly 404 + 500 + structured logger stub
-- [x] Privacy Policy + ToS drafts
+- [x] Privacy Policy + ToS drafts (real pages at `/privacy` and `/terms`)
 - [x] App Store + Play Store listing drafts
 - [x] Pushed to `origin/production`
+- [x] **Supabase staging applied** — schema, RLS, seed trigger, storage bucket all live
+- [x] **Local data imported to Supabase** via `tools/import-from-sqlite.mjs`
+- [x] **tRPC API live** — routers in `packages/api/`
+- [x] **Auth flows working** — email/password sign-up, magic link, forgot/reset password
+- [x] **Account section** — change email, change password, delete account, download data
+- [x] **Photos in Supabase Storage** via signed URLs
+- [x] **Program templates + signup onboarding picker** — pick a starter preset from `/onboarding` or `/settings`
+- [x] **FAQ + changelog pages** at `/help` and `/changelog`
 
 ### Still to come
-- [ ] Supabase staging project created
-- [ ] SQL migrations applied to staging
-- [ ] Local data imported to staging
-- [ ] tRPC API live
-- [ ] Auth flows working
-- [ ] Photos in Supabase Storage
-- [ ] Mobile app scaffolded
+- [ ] Supabase OAuth providers (Google + Apple) configured in dashboard — you-task
+- [ ] Vercel project linked to GitHub — you-task
+- [ ] Custom domain — you-task
+- [ ] Mobile app scaffolded — blocked on your Expo account
 - [ ] Mobile feature parity with web
-- [ ] Sentry + monitoring live
+- [ ] Sentry projects created + DSN swapped in — you-task
+- [ ] Rate limiting on write endpoints
+- [ ] Restore drill performed against staging
 - [ ] TestFlight + Play internal live
 - [ ] App Store + Play submitted
 - [ ] Public launch 🎉
