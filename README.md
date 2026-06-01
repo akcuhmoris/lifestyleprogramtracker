@@ -1,5 +1,7 @@
 # Program — Lifestyle Program Tracker
 
+[![CI](https://github.com/akcuhmoris/lifestyleprogramtracker/actions/workflows/ci.yml/badge.svg?branch=production)](https://github.com/akcuhmoris/lifestyleprogramtracker/actions/workflows/ci.yml)
+
 A local-first habit tracker for any lifestyle program — 75 Hard, 100 Hard, a 30-day reset, a custom routine you invented yourself, whatever you want to commit to.
 
 You configure the **length** (1–365 days) and the **daily requirements** (any number of tasks, each with its own icon, optional text-entry requirement, and special "Journal" / "Photo" behaviors). The app tracks completion per day, your weight over time, free-text notes, journal entries, workout / reading detail, and progress photos.

@@ -5,32 +5,170 @@ on:
     branches: [main, production]
   push:
     branches: [main, production]
+  workflow_dispatch:
+
+# Cancel an older run if a newer commit lands on the same branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
 
 jobs:
-  build:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Fast checks run in parallel so a single failure doesn't block diagnostics
+  # from the others. The slower build job (below) waits for all of them.
+  # ─────────────────────────────────────────────────────────────────────────
+
+  lint:
+    name: 🧹 Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
 
-      - name: Install
-        run: npm ci
+  typecheck:
+    name: 🔎 Type check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: ["@program/web", "@program/shared", "@program/api"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci --no-audit --no-fund
+      - name: Type-check ${{ matrix.workspace }}
+        run: npx --workspace=${{ matrix.workspace }} tsc --noEmit
 
-      - name: Lint
-        run: npm run lint
-        # The web app's eslint config flags type errors too via next/core-web-vitals.
-
-      - name: Test
+  test:
+    name: 🧪 Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci --no-audit --no-fund
+      - name: Run vitest across workspaces
         run: npm test
 
-      - name: Build (web)
+  migrations:
+    name: 🗄️ SQL migrations sanity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify every migration has content + valid patterns
+        run: |
+          set -e
+          shopt -s nullglob
+          ISSUES=0
+          for f in apps/web/supabase/migrations/*.sql; do
+            echo "→ $f"
+            if [ ! -s "$f" ]; then
+              echo "::error file=$f::empty migration"
+              ISSUES=$((ISSUES+1))
+              continue
+            fi
+            # Reject CREATE POLICY IF NOT EXISTS — Postgres doesn't support it.
+            if grep -iqE "create[[:space:]]+policy[[:space:]]+if[[:space:]]+not[[:space:]]+exists" "$f"; then
+              echo "::error file=$f::CREATE POLICY does not support IF NOT EXISTS — use DROP POLICY IF EXISTS first"
+              ISSUES=$((ISSUES+1))
+            fi
+          done
+          if [ "$ISSUES" -gt 0 ]; then
+            echo "::error::$ISSUES migration issue(s) detected"
+            exit 1
+          fi
+          echo "All migrations OK."
+
+  audit:
+    name: 🛡️ Security audit
+    runs-on: ubuntu-latest
+    # Surface advisories without failing the pipeline on transitive dev-dep noise.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci --no-audit --no-fund
+      - name: npm audit (high+ only, production deps)
+        run: npm audit --omit=dev --audit-level=high
+
+  build:
+    name: 🏗️ Build (web)
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, migrations]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+      - run: npm ci --no-audit --no-fund
+      - name: Build with placeholder env
         run: npm run build
         env:
-          # CI uses dummy values where real ones don't exist yet.
-          # Replace these with real secrets once Supabase is set up.
+          # CI uses harmless placeholders — real values live in Vercel/Supabase.
           NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "placeholder"
+          NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      - name: Bundle size sanity
+        run: |
+          set -e
+          # Warn at 1 MB largest chunk, fail at 2 MB.
+          LARGEST=$(find apps/web/.next/static/chunks -type f -name "*.js" -print0 \
+            | xargs -0 wc -c 2>/dev/null | grep -v ' total' \
+            | sort -rn | head -1 | awk '{print $1}')
+          echo "Largest chunk: $LARGEST bytes"
+          if [ -n "$LARGEST" ] && [ "$LARGEST" -gt 2097152 ]; then
+            echo "::error::Largest chunk is over 2 MB"
+            exit 1
+          fi
+          if [ -n "$LARGEST" ] && [ "$LARGEST" -gt 1048576 ]; then
+            echo "::warning::Largest chunk is over 1 MB ($LARGEST bytes)"
+          fi
+      - name: Upload .next as artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: apps/web/.next
+          retention-days: 7
+
+  # Single job that reports overall pass/fail. Set as the required check on the
+  # protected branch so PRs only need this one to be green.
+  ci-summary:
+    name: ✅ CI summary
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, migrations, build]
+    if: always()
+    steps:
+      - name: Aggregate
+        run: |
+          echo "Lint:        ${{ needs.lint.result }}"
+          echo "Typecheck:   ${{ needs.typecheck.result }}"
+          echo "Tests:       ${{ needs.test.result }}"
+          echo "Migrations:  ${{ needs.migrations.result }}"
+          echo "Build:       ${{ needs.build.result }}"
+          if [ "${{ needs.lint.result }}" != "success" ] \
+            || [ "${{ needs.typecheck.result }}" != "success" ] \
+            || [ "${{ needs.test.result }}" != "success" ] \
+            || [ "${{ needs.migrations.result }}" != "success" ] \
+            || [ "${{ needs.build.result }}" != "success" ]; then
+            echo "::error::One or more required CI jobs failed."
+            exit 1
+          fi
+          echo "All required jobs green."
