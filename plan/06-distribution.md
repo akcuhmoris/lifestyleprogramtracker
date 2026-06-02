@@ -17,9 +17,9 @@ How the apps reach users. App Store, Play Store, and the web's "soft launch" flo
 
 ### Pre-submission setup
 
-1. **Bundle identifier.** Choose now and don't change it: e.g. `com.program.lifestyle`. Register it in the Apple Developer portal.
+1. **Bundle identifier.** Locked in: `com.akhilmorisetty.lifestyleprogramtracker` (registered with the Apple Developer portal on 2026-06-01, Team ID `S593UGVPW3`). Reuse the same identifier as the Android package name on Play Console.
 2. **App Store Connect.** Create a new app:
-   - Name: `Program` (or your chosen brand).
+   - Name: `Lifestyle Program Tracker`.
    - Primary language: English (US).
    - SKU: anything internal, e.g. `program-ios-001`.
    - Bundle ID: from step 1.

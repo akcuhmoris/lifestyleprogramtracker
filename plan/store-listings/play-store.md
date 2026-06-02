@@ -8,7 +8,7 @@
 | **Default language** | English (United States) |
 | **App or Game** | App |
 | **Free or Paid** | Free |
-| **Package name** | `[com.YOURNAME.lifestyleprogram]` |
+| **Package name** | `com.akhilmorisetty.lifestyleprogramtracker` (same identifier across iOS + Android, by convention) |
 | **Category** | Health & Fitness |
 | **Tags** | habit tracking, journaling, weight tracking |
 

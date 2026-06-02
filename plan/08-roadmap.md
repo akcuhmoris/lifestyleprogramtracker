@@ -112,14 +112,14 @@ The only phase that requires *only* you. Most of these can run in parallel; the 
 
 | Status | Item | Cost | Notes |
 | ------ | ---- | ---- | ----- |
-| ✅ | [Apple Developer Program](https://developer.apple.com/programs/enroll/) | $99/yr | Approved 2026-06-01. Bundle ID + Team ID still pending. |
+| ✅ | [Apple Developer Program](https://developer.apple.com/programs/enroll/) | $99/yr | Approved + App ID `com.akhilmorisetty.lifestyleprogramtracker` registered (Sign in with Apple enabled). Team ID `S593UGVPW3`. |
 | ⬜ | [Google Play Console](https://play.google.com/console) | $25 one-time | ~48 h to activate. |
 | ⬜ | [Supabase](https://supabase.com) account + `program-staging` project | Free | **Unlocks Phase 3.** |
 | ⬜ | [Vercel](https://vercel.com) account (link GitHub) | Free | |
 | ⬜ | [Sentry](https://sentry.io) account | Free | |
 | ⬜ | [Expo](https://expo.dev) account | Free | Needed for Phase 7. |
 | ⬜ | Buy a domain | ~$12/yr | Locks the brand. |
-| ⬜ | Reserve App Store + Play bundle / package IDs | Free | e.g. `com.yourname.program` |
+| ✅ | Reserve App Store + Play bundle / package IDs | Free | `com.akhilmorisetty.lifestyleprogramtracker` (registered on Apple 2026-06-01; will reuse identifier on Play Console) |
 
 ### 🧭 Decisions (no signup needed, just thought)
 

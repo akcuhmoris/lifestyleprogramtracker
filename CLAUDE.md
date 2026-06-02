@@ -16,7 +16,7 @@ The repo holds **two production targets**: the web app (live) and a mobile app (
 - **`production` branch**: current work — Supabase-backed multi-user web app at parity with the original prototype, plus auth, account management, marketing surface, legal pages.
 - Phase 4 (API rewrite to Supabase + tRPC) is complete and verified.
 - Phase 5 (auth + multi-tenancy) is almost done — account menu, delete-account, data-export, OAuth UI, forgot-password all shipped.
-- Mobile app (Phase 7) hasn't started. Blocked on the user's Expo + Apple Developer accounts.
+- Mobile app (Phase 7) hasn't started. Apple side is ready (App ID `com.akhilmorisetty.lifestyleprogramtracker`, Team ID `S593UGVPW3`, Sign in with Apple enabled). Still blocked on the user's Expo account before EAS builds can run.
 
 See `plan/08-roadmap.md` for the live phase status.
 
@@ -145,7 +145,7 @@ See `plan/08-roadmap.md` for the live phase status.
 
 ## What's NOT done
 
-- Mobile app (`apps/mobile/`) — not scaffolded. Blocked on user's Expo + Apple Dev accounts.
+- Mobile app (`apps/mobile/`) — not scaffolded. Apple side ready (see above). Blocked on user's Expo account before EAS Build can run.
 - Vercel deployment — needs user to connect GitHub.
 - Sentry capture — DSN required; logger stub is ready to swap.
 - Apple + Google OAuth provider config in Supabase dashboard — UI is ready.

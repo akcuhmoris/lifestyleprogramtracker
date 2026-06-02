@@ -6,8 +6,9 @@
 | ----- | ----- |
 | **Name** | Lifestyle Program Tracker |
 | **Subtitle** (30 chars max) | Track any program, your way |
-| **Bundle ID** | `[com.YOURNAME.lifestyleprogram]` |
-| **SKU** | `lifestyleprogram-ios-001` |
+| **Bundle ID** | `com.akhilmorisetty.lifestyleprogramtracker` |
+| **Team ID** | `S593UGVPW3` |
+| **SKU** | `lifestyleprogramtracker-ios-001` |
 | **Primary category** | Health & Fitness |
 | **Secondary category** | Productivity |
 | **Default language** | English (U.S.) |

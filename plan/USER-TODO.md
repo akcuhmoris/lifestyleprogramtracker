@@ -15,7 +15,7 @@ For the full picture of where we are and what's next, see [`08-roadmap.md`](./08
 | 🔌 Phase 4 — API rewrite | nothing | tRPC ported, Supabase live | ✅ done |
 | 🔐 Phase 5 — Auth | enable OAuth providers when ready | UI + import script + account section | ✅ done (OAuth provider config pending) |
 | 🖼️ Phase 6 — Media & storage | nothing | bucket + signed URLs | ✅ mostly shipped in Phase 4 |
-| 📱 Phase 7 — Mobile app | install Xcode, reserve bundle IDs, **finish Apple enrollment** | build the app | ⬜ blocked on you |
+| 📱 Phase 7 — Mobile app | install Xcode, create Expo account | build the app | 🟢 unblocked — Apple done |
 | 🛡️ Phase 8 — Production hardening | create Sentry projects, deploy to Vercel | wire it all in | 🟡 foundations done |
 | 🚀 Phase 9 — Beta & launch | recruit testers, click "Release" | upload builds, fix bugs | ⬜ blocked on Phase 7 |
 
@@ -27,7 +27,7 @@ All of these are independent and can run in parallel. The slow ones (Apple, Goog
 
 ### Accounts to create
 
-- [x] **Apple Developer Program** — approved 2026-06-01. Next: register an App ID for `com.<yourname>.lifestyleprogram`, enable Sign in with Apple capability, send Team ID + bundle ID back.
+- [x] **Apple Developer Program** — approved + App ID registered as `com.akhilmorisetty.lifestyleprogramtracker` with Sign in with Apple capability. Team ID `S593UGVPW3`.
 - [ ] **Google Play Console** — <https://play.google.com/console> · $25 one-time · ~48 h to activate
 - [ ] **Supabase** — <https://supabase.com> · free · then create a project named `program-staging`, pick a region near you, save the DB password in a password manager
 - [ ] **Vercel** — <https://vercel.com> · free · link your GitHub account
@@ -41,7 +41,7 @@ All of these are independent and can run in parallel. The slow ones (Apple, Goog
 - [ ] **Free or paid for v1** — current default Free
 - [ ] **US-only or worldwide** — current default Worldwide w/ GDPR-aware policies
 - [ ] **Domain name** — feeds into the App Store + Play listings
-- [ ] **iOS bundle ID + Android package name** — e.g. `com.yourname.program` (lock once, never change)
+- [x] **iOS bundle ID + Android package name** — `com.akhilmorisetty.lifestyleprogramtracker` (registered on Apple, will reuse on Play Console)
 
 > [!IMPORTANT]
 > The single most important hand-off: when your **Supabase staging project** exists, send me **Project URL**, **anon public key**, and **service role key** (the last one is sensitive — share over a channel you trust). That single message unlocks Phases 3 → 6 and I can run with it for a long stretch.
@@ -62,7 +62,7 @@ These configurations live inside Supabase's dashboard. They need real OAuth app 
 
 - [ ] **Install Xcode** from the Mac App Store (~10 GB) — needed for the iOS simulator
 - [ ] **Install Android Studio** (only if you want to test on the Android emulator locally; EAS Build can produce production builds without it)
-- [ ] **Reserve a bundle ID** in App Store Connect, e.g. `com.yourname.program`
+- [x] **Reserve a bundle ID** in App Store Connect — `com.akhilmorisetty.lifestyleprogramtracker` (registered 2026-06-01)
 - [ ] **Reserve a package name** in Play Console (same identifier by convention)
 - [ ] **Add at least one test device** to your Apple Developer profile for TestFlight
 
@@ -121,7 +121,7 @@ Mark as you go — gives both of us a single-glance picture of where we are.
 - [ ] Free vs paid decided (default: free)
 - [ ] US-only vs worldwide decided (default: worldwide w/ GDPR)
 - [ ] Domain name picked
-- [ ] Bundle ID + Android package name picked
+- [x] Bundle ID + Android package name picked — `com.akhilmorisetty.lifestyleprogramtracker`
 
 ### Done so far
 - [x] Monorepo set up
