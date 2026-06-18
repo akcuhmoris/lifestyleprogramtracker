@@ -33,7 +33,19 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "Inter", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        mono: [
+          "var(--font-mono)",
+          "var(--font-geist-mono)",
+          "ui-monospace",
+          "monospace",
+        ],
+        display: [
+          "var(--font-display)",
+          "var(--font-geist-sans)",
+          "Inter",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       boxShadow: {
         glow: "0 0 24px rgba(14, 165, 255, 0.35)",
@@ -53,10 +65,26 @@ const config: Config = {
           "0%, 100%": { transform: "scale(1)", opacity: "0.6" },
           "50%": { transform: "scale(1.08)", opacity: "0.2" },
         },
+        "hud-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 0 0 var(--accent-glow)",
+            opacity: "0.85",
+          },
+          "50%": {
+            boxShadow: "0 0 24px 4px var(--accent-glow)",
+            opacity: "1",
+          },
+        },
+        "hud-grid-drift": {
+          "0%": { backgroundPosition: "0px 0px" },
+          "100%": { backgroundPosition: "60px 60px" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.5s ease-out",
         "ring-pulse": "ring-pulse 2s ease-in-out infinite",
+        "hud-pulse": "hud-pulse 3.4s ease-in-out infinite",
+        "hud-grid-drift": "hud-grid-drift 30s linear infinite",
       },
     },
   },

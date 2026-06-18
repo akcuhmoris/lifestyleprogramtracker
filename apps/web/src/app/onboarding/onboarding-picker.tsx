@@ -1,12 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Check,
-  Loader2,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -15,211 +10,244 @@ import { TEMPLATES, type ProgramTemplate } from "@program/shared/templates";
 import { getIcon } from "@program/shared/icons";
 import { applyTemplateAction } from "@/app/actions";
 import { markWelcomeSeen } from "@/components/welcome-modal";
+import { HudPanel } from "@/components/hud/hud-panel";
+import { HudButton } from "@/components/hud/hud-button";
 
 export function OnboardingPicker() {
-  const [selectedId, setSelectedId] = useState<string>("100-hard");
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const selected = TEMPLATES.find((t) => t.id === selectedId) ?? TEMPLATES[0];
-
-  function handleContinue() {
+  function handleBegin(template: ProgramTemplate) {
+    if (pending) return;
     setError(null);
+    setPendingId(template.id);
     startTransition(async () => {
-      const res = await applyTemplateAction(selected.id);
+      const res = await applyTemplateAction(template.id);
       if (!res.ok) {
         setError(res.error ?? "Couldn't apply that template.");
+        setPendingId(null);
         return;
       }
       markWelcomeSeen();
-      router.push("/");
+      router.push("/today");
       router.refresh();
     });
   }
 
   return (
     <>
-      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
         {TEMPLATES.map((t) => (
-          <TemplateOption
+          <TemplateCard
             key={t.id}
             template={t}
-            selected={t.id === selected.id}
-            onSelect={() => setSelectedId(t.id)}
+            onBegin={() => handleBegin(t)}
+            pending={pendingId === t.id && pending}
+            anyPending={pending}
           />
         ))}
       </div>
 
-      <SelectedPreview template={selected} />
-
       {error && (
-        <div className="mt-4 rounded-xl border border-state-miss/40 bg-state-miss/10 px-3 py-2 text-[12px] text-state-miss">
+        <div
+          className="mt-6 rounded-md border px-4 py-3 text-[12px]"
+          style={{
+            borderColor: "rgba(244, 63, 94, 0.4)",
+            background: "rgba(244, 63, 94, 0.1)",
+            color: "rgb(252, 165, 165)",
+          }}
+        >
           {error}
         </div>
       )}
 
-      <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-8 flex justify-center">
         <Link
-          href="/"
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-bg-card px-3.5 py-2 text-[13px] font-medium text-text hover:border-accent/40 hover:text-accent-glow transition-colors"
-        >
-          Skip — I&apos;ll set it up myself
-        </Link>
-        <button
-          type="button"
-          disabled={pending}
-          onClick={handleContinue}
+          href="/today"
           className={cn(
-            "inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-[13px] font-semibold transition-all",
-            "bg-accent text-bg shadow-glow hover:brightness-110 disabled:opacity-60"
+            "inline-flex items-center gap-2",
+            "text-sm font-medium",
+            "text-[color:var(--text-muted)] hover:text-[color:var(--accent)]",
+            "transition-colors",
           )}
         >
-          {pending ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Check className="h-3.5 w-3.5" strokeWidth={2.8} />
-          )}
-          {pending ? "Setting up…" : `Start ${selected.name}`}
+          Skip — I&apos;ll build my own
           <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
-        </button>
+        </Link>
       </div>
     </>
   );
 }
 
-function TemplateOption({
+function TemplateCard({
   template,
-  selected,
-  onSelect,
+  onBegin,
+  pending,
+  anyPending,
 }: {
   template: ProgramTemplate;
-  selected: boolean;
-  onSelect: () => void;
+  onBegin: () => void;
+  pending: boolean;
+  anyPending: boolean;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(
-        "group relative text-left rounded-xl border bg-bg-elevated p-4 transition-all",
-        selected
-          ? "border-accent/60 bg-accent/5 ring-1 ring-accent/40"
-          : "border-border-subtle hover:border-accent/30"
-      )}
+    <motion.div
+      whileHover={
+        anyPending
+          ? undefined
+          : { y: -4, transition: { type: "spring", stiffness: 320, damping: 24 } }
+      }
+      className="h-full"
     >
-      {template.badge && (
-        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.16em] text-accent-glow">
-          {template.badge === "Popular" && <Sparkles className="h-2.5 w-2.5" />}
-          {template.badge}
-        </span>
-      )}
-
-      <div className="flex items-baseline gap-2">
-        <h3 className="text-[15px] font-semibold tracking-tight text-text">
-          {template.name}
-        </h3>
-        <span className="text-[11px] uppercase tracking-[0.16em] text-text-dim font-medium tabular-nums">
-          {template.totalDays}d
-        </span>
-      </div>
-      <p className="mt-1 text-[12.5px] text-text-muted leading-relaxed">
-        {template.tagline}
-      </p>
-
-      {template.tasks.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {template.tasks.slice(0, 8).map((t, i) => {
-            const Icon = getIcon(t.icon);
-            return (
-              <span
-                key={i}
-                title={t.title}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-border-subtle bg-bg-card text-text-muted"
-              >
-                <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-              </span>
-            );
-          })}
-          {template.tasks.length > 8 && (
-            <span className="inline-flex h-7 items-center justify-center rounded-lg border border-border-subtle bg-bg-card px-2 text-[11px] text-text-dim tabular-nums">
-              +{template.tasks.length - 8}
+      <HudPanel className="flex h-full flex-col gap-4 p-5">
+        {/* Header: meta + badge */}
+        <div className="flex items-start justify-between gap-2">
+          <span className="text-xs font-medium text-[color:var(--text-muted)]">
+            {template.totalDays} days
+          </span>
+          {template.badge && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+              style={{
+                borderColor: "color-mix(in srgb, var(--accent) 35%, transparent)",
+                background: "color-mix(in srgb, var(--accent) 10%, transparent)",
+                color: "var(--accent)",
+              }}
+            >
+              {template.badge === "Popular" && (
+                <Sparkles className="h-2.5 w-2.5" />
+              )}
+              {template.badge}
             </span>
           )}
         </div>
-      ) : (
-        <div className="mt-3 text-[11.5px] text-text-dim italic">
-          Blank — add your own tasks
-        </div>
-      )}
 
-      {selected && (
-        <motion.span
-          layoutId="onboarding-selected-check"
-          className="absolute -top-2 -right-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-accent text-bg shadow-glow"
-          transition={{ type: "spring", stiffness: 320, damping: 26 }}
-        >
-          <Check className="h-3.5 w-3.5" strokeWidth={3} />
-        </motion.span>
-      )}
-    </button>
-  );
-}
+        {/* Title */}
+        <div>
+          <h3 className="text-xl font-bold tracking-tight text-[color:var(--text)]">
+            {template.name}
+          </h3>
+          <p className="mt-2 text-[13px] leading-relaxed text-[color:var(--text-muted)]">
+            {template.tagline}
+          </p>
+        </div>
 
-function SelectedPreview({ template }: { template: ProgramTemplate }) {
-  if (template.tasks.length === 0) {
-    return (
-      <div className="mt-5 rounded-xl border border-border-subtle bg-bg-elevated p-4 text-center">
-        <p className="text-[13px] text-text-muted">
-          You&apos;ll land on an empty task list. Head to Settings to add your
-          own — or come back here later.
-        </p>
-      </div>
-    );
-  }
-  return (
-    <motion.div
-      key={template.id}
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-      className="mt-5 rounded-xl border border-border-subtle bg-bg-elevated p-4"
-    >
-      <div className="flex items-baseline justify-between gap-2">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-text-dim font-medium">
-          Daily tasks · {template.name}
-        </div>
-        <div className="text-[11px] text-text-dim tabular-nums">
-          {template.tasks.length} tasks
-        </div>
-      </div>
-      <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
-        {template.tasks.map((t, i) => {
-          const Icon = getIcon(t.icon);
-          return (
-            <li
-              key={i}
-              className="flex items-center gap-2 text-[12.5px] text-text"
-            >
-              <Icon
-                className="h-3.5 w-3.5 text-text-muted flex-shrink-0"
-                strokeWidth={2}
-              />
-              <span className="flex-1 truncate">{t.title}</span>
-              {t.kind === "journal" && (
-                <span className="text-[9.5px] uppercase tracking-[0.14em] text-accent-glow">
-                  journal
+        {/* Task icons */}
+        {template.tasks.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {template.tasks.slice(0, 8).map((t, i) => {
+              const Icon = getIcon(t.icon);
+              return (
+                <span
+                  key={i}
+                  title={t.title}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border text-[color:var(--text-muted)]"
+                  style={{
+                    borderColor: "var(--hud-border)",
+                    background:
+                      "color-mix(in srgb, var(--surface) 60%, transparent)",
+                  }}
+                >
+                  <Icon className="h-3.5 w-3.5" strokeWidth={2} />
                 </span>
+              );
+            })}
+            {template.tasks.length > 8 && (
+              <span
+                className="inline-flex h-8 items-center justify-center rounded-lg border px-2 font-mono text-[11px] tabular-nums text-[color:var(--text-muted)]"
+                style={{
+                  borderColor: "var(--hud-border)",
+                  background:
+                    "color-mix(in srgb, var(--surface) 60%, transparent)",
+                }}
+              >
+                +{template.tasks.length - 8}
+              </span>
+            )}
+          </div>
+        ) : (
+          <div
+            className="rounded-lg border px-3 py-2 text-xs text-[color:var(--text-muted)]"
+            style={{
+              borderColor: "var(--hud-border)",
+              background:
+                "color-mix(in srgb, var(--surface) 60%, transparent)",
+            }}
+          >
+            Blank slate — build your own.
+          </div>
+        )}
+
+        {/* Task preview list */}
+        {template.tasks.length > 0 && (
+          <div
+            className="rounded-lg border px-3 py-2.5"
+            style={{
+              borderColor: "var(--hud-border)",
+              background:
+                "color-mix(in srgb, var(--surface) 40%, transparent)",
+            }}
+          >
+            <div className="mb-2 text-[11px] font-semibold text-[color:var(--text-muted)]">
+              Daily tasks · {template.tasks.length}
+            </div>
+            <ul className="space-y-1">
+              {template.tasks.slice(0, 4).map((t, i) => {
+                const Icon = getIcon(t.icon);
+                return (
+                  <li
+                    key={i}
+                    className="flex items-center gap-2 text-[12px] text-[color:var(--text)]"
+                  >
+                    <Icon
+                      className="h-3 w-3 text-[color:var(--text-muted)] flex-shrink-0"
+                      strokeWidth={2}
+                    />
+                    <span className="flex-1 truncate">{t.title}</span>
+                    {t.kind === "journal" && (
+                      <span className="text-[10px] font-semibold text-[color:var(--accent)]">
+                        log
+                      </span>
+                    )}
+                    {t.kind === "photo" && (
+                      <span className="text-[10px] font-semibold text-[color:var(--accent)]">
+                        proof
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+              {template.tasks.length > 4 && (
+                <li className="pt-0.5 text-[11px] text-[color:var(--text-muted)]">
+                  + {template.tasks.length - 4} more
+                </li>
               )}
-              {t.kind === "photo" && (
-                <span className="text-[9.5px] uppercase tracking-[0.14em] text-accent-glow">
-                  photo
-                </span>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+            </ul>
+          </div>
+        )}
+
+        {/* CTA */}
+        <div className="mt-auto pt-2">
+          <HudButton
+            variant="primary"
+            onClick={onBegin}
+            loading={pending}
+            disabled={anyPending && !pending}
+            className="w-full"
+          >
+            {pending ? (
+              "Setting up…"
+            ) : (
+              <>
+                Start
+                <ArrowRight className="ml-1 inline h-3.5 w-3.5" strokeWidth={2.5} />
+              </>
+            )}
+          </HudButton>
+        </div>
+      </HudPanel>
     </motion.div>
   );
 }

@@ -7,14 +7,15 @@ import { logger } from "@/lib/logger";
 
 function safeNext(next: string | undefined): string {
   // Only allow same-origin paths to avoid open-redirect.
-  if (!next || !next.startsWith("/") || next.startsWith("//")) return "/";
+  // Default to /today since "/" is now the public marketing landing.
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return "/today";
   return next;
 }
 
 export async function signInWithPasswordAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const next = safeNext(String(formData.get("next") ?? "/"));
+  const next = safeNext(String(formData.get("next") ?? "/today"));
 
   if (!email || !password) {
     redirect(`/login?error=${encodeURIComponent("Email and password are required.")}`);
@@ -70,7 +71,7 @@ export async function signUpAction(formData: FormData) {
 
 export async function signInWithMagicLinkAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
-  const next = safeNext(String(formData.get("next") ?? "/"));
+  const next = safeNext(String(formData.get("next") ?? "/today"));
 
   if (!email) {
     redirect(`/login?error=${encodeURIComponent("Email is required.")}`);

@@ -2,6 +2,12 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { TOTAL_DAYS as DEFAULT_TOTAL_DAYS, todayLocal } from "@program/shared/date";
 import type { Task } from "@program/shared/tasks";
+import {
+  isArchetype,
+  levelForXp,
+  type Archetype,
+} from "@program/shared/gamification";
+import { isThemeId, type ThemeId, DEFAULT_THEME } from "@program/shared/themes";
 
 export const TOTAL_DAYS = DEFAULT_TOTAL_DAYS;
 
@@ -607,4 +613,104 @@ export async function dismissRestartFor(date: string) {
       },
       { onConflict: "user_id,key" }
     );
+}
+
+// ---------- Hero Mode (character profile) ----------
+
+export type CharacterProfileRow = {
+  archetype: Archetype;
+  xp: number;
+  level: number;
+  theme: ThemeId;
+};
+
+const DEFAULT_PROFILE: CharacterProfileRow = {
+  archetype: "warrior",
+  xp: 0,
+  level: 1,
+  theme: DEFAULT_THEME,
+};
+
+/**
+ * Fetch the current user's Hero Mode profile. If no row exists yet (existing
+ * accounts created before the seed trigger / backfill ran), returns sensible
+ * defaults so the UI never has to special-case "no row".
+ *
+ * Unauthenticated calls (e.g. from the root layout on public pages) return
+ * defaults instead of throwing.
+ */
+export async function getCharacterProfile(): Promise<CharacterProfileRow> {
+  const supabase = await createClient();
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr || !userData.user) {
+    return { ...DEFAULT_PROFILE };
+  }
+
+  const { data, error } = await supabase
+    .from("character_profiles")
+    .select("archetype, xp, level, theme")
+    .maybeSingle();
+  if (error) {
+    console.error("getCharacterProfile", error);
+    return { ...DEFAULT_PROFILE };
+  }
+  if (!data) {
+    return { ...DEFAULT_PROFILE };
+  }
+
+  const archetype = isArchetype(String(data.archetype))
+    ? (data.archetype as Archetype)
+    : DEFAULT_PROFILE.archetype;
+  const theme = isThemeId(String(data.theme))
+    ? (data.theme as ThemeId)
+    : DEFAULT_PROFILE.theme;
+  const xpRaw = typeof data.xp === "number" ? data.xp : Number(data.xp ?? 0);
+  const xp = Number.isFinite(xpRaw) && xpRaw >= 0 ? Math.floor(xpRaw) : 0;
+  const levelRaw =
+    typeof data.level === "number" ? data.level : Number(data.level ?? 1);
+  const level =
+    Number.isFinite(levelRaw) && levelRaw >= 1 ? Math.floor(levelRaw) : 1;
+
+  return { archetype, xp, level, theme };
+}
+
+/**
+ * Upsert a single field on the current user's character profile. Used by the
+ * archetype and theme picker server actions. Returns the latest profile after
+ * the write so callers can re-render without an extra round trip.
+ */
+export async function upsertCharacterProfile(
+  patch: Partial<Pick<CharacterProfileRow, "archetype" | "theme" | "xp" | "level">>
+): Promise<CharacterProfileRow> {
+  const userId = await requireUserId();
+  const supabase = await createClient();
+  await supabase.from("character_profiles").upsert(
+    {
+      user_id: userId,
+      ...patch,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
+  return getCharacterProfile();
+}
+
+/**
+ * Increment a user's XP by `amount` and recompute level. Returns the new
+ * totals plus whether they leveled up. `amount` may be 0 (no-op) but never
+ * negative — callers shouldn't take XP away.
+ */
+export async function awardCharacterXp(
+  amount: number
+): Promise<{ xp: number; level: number; leveledUp: boolean }> {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    const cur = await getCharacterProfile();
+    return { xp: cur.xp, level: cur.level, leveledUp: false };
+  }
+  const current = await getCharacterProfile();
+  const prevLevel = current.level;
+  const xp = current.xp + Math.floor(amount);
+  const level = levelForXp(xp);
+  await upsertCharacterProfile({ xp, level });
+  return { xp, level, leveledUp: level > prevLevel };
 }

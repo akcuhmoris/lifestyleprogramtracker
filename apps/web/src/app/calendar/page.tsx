@@ -6,6 +6,8 @@ import {
   getTotalDays,
 } from "@/lib/db";
 import { CHALLENGE_START, formatPretty, todayLocal } from "@program/shared/date";
+import { HudHeader } from "@/components/hud/hud-header";
+import { HudPanel } from "@/components/hud/hud-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -21,27 +23,33 @@ export default async function CalendarPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10 lg:py-14">
-      <header className="mb-8">
-        <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-accent-glow shadow-[0_0_18px_-4px_rgba(14,165,255,0.5)]">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-          Calendar
-        </span>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-          <span className="text-gradient-accent">Your program</span>{" "}
-          <span className="text-text-dim">at a glance</span>
-        </h1>
-        <p className="mt-3 text-sm text-text-muted">
-          Started {formatPretty(startDate)} · {totalDays} days total · tap any past day to edit
-        </p>
-      </header>
+      <HudHeader
+        subtitle={`Started ${formatPretty(startDate)} · ${totalDays} days total · tap any past day to edit.`}
+        className="mb-8"
+      >
+        Calendar
+      </HudHeader>
 
-      <CalendarGrid
-        today={today}
-        startDate={startDate}
-        totalDays={totalDays}
-        tasks={tasks}
-        statuses={statuses}
-      />
+      <HudPanel className="p-5 md:p-7">
+        <div className="mb-5 flex items-center gap-3">
+          <h2 className="text-sm font-semibold text-[color:var(--text)]">
+            Timeline
+          </h2>
+          <span
+            aria-hidden="true"
+            className="h-px flex-1"
+            style={{ background: "var(--hud-border)" }}
+          />
+        </div>
+
+        <CalendarGrid
+          today={today}
+          startDate={startDate}
+          totalDays={totalDays}
+          tasks={tasks}
+          statuses={statuses}
+        />
+      </HudPanel>
     </main>
   );
 }

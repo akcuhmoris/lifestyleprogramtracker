@@ -161,3 +161,124 @@ body {
   color: #a1a1aa;
   font-style: italic;
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   Hero Mode themes
+   Six palettes recolor the whole app via CSS custom properties.
+   Toggle by setting `document.documentElement.dataset.theme = "<id>"`.
+   The `:root` block matches the "electric" theme so unthemed pages
+   render with sensible defaults.
+   ───────────────────────────────────────────────────────────────── */
+
+:root {
+  --bg: #0a0a0f;
+  --surface: #14141f;
+  --accent: #00d4ff;
+  --accent-glow: rgba(0, 212, 255, 0.45);
+  --text: #f5f5f7;
+  --text-muted: #9ca3af;
+}
+
+[data-theme="electric"] {
+  --bg: #0a0a0f;
+  --surface: #14141f;
+  --accent: #00d4ff;
+  --accent-glow: rgba(0, 212, 255, 0.45);
+  --text: #f5f5f7;
+  --text-muted: #9ca3af;
+}
+
+[data-theme="forest"] {
+  --bg: #0a1410;
+  --surface: #122019;
+  --accent: #2dd4bf;
+  --accent-glow: rgba(45, 212, 191, 0.45);
+  --text: #ecfdf5;
+  --text-muted: #6ee7b7;
+}
+
+[data-theme="sunset"] {
+  --bg: #1a0f1f;
+  --surface: #261a2e;
+  --accent: #f97316;
+  --accent-glow: rgba(249, 115, 22, 0.45);
+  --text: #fef3c7;
+  --text-muted: #fcd34d;
+}
+
+[data-theme="cyber"] {
+  --bg: #0d0a1f;
+  --surface: #1a1430;
+  --accent: #d946ef;
+  --accent-glow: rgba(217, 70, 239, 0.45);
+  --text: #f5f3ff;
+  --text-muted: #c4b5fd;
+}
+
+[data-theme="monochrome"] {
+  --bg: #0a0a0a;
+  --surface: #1a1a1a;
+  --accent: #fafafa;
+  --accent-glow: rgba(250, 250, 250, 0.3);
+  --text: #fafafa;
+  --text-muted: #a3a3a3;
+}
+
+[data-theme="ember"] {
+  --bg: #140a05;
+  --surface: #1f1209;
+  --accent: #f59e0b;
+  --accent-glow: rgba(245, 158, 11, 0.45);
+  --text: #fef3c7;
+  --text-muted: #fdba74;
+}
+
+[data-theme="midnight"] {
+  --bg: #14141d;
+  --surface: #1f1f2c;
+  --accent: #a5b4fc;
+  --accent-glow: rgba(165, 180, 252, 0.4);
+  --text: #f5f5f7;
+  --text-muted: #8b8b95;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   FORGE HUD — derived theme tokens, keyframes, and base type.
+   Appended at the end so it always wins over the legacy theme blocks
+   above and stays additive — nothing earlier is rewritten.
+   ───────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Translucent accent borders + glow used by every HUD primitive. */
+  --hud-border: color-mix(in srgb, var(--accent) 30%, transparent);
+  --hud-border-strong: color-mix(in srgb, var(--accent) 60%, transparent);
+  --hud-glow-soft: color-mix(in srgb, var(--accent) 8%, transparent);
+  --hud-panel-bg: color-mix(in srgb, var(--surface) 85%, black);
+}
+
+@keyframes hud-grid-drift {
+  0% {
+    background-position: 0px 0px;
+  }
+  100% {
+    background-position: 60px 60px;
+  }
+}
+
+@keyframes hud-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-glow);
+    opacity: 0.85;
+  }
+  50% {
+    box-shadow: 0 0 24px 4px var(--accent-glow);
+    opacity: 1;
+  }
+}
+
+/* Base body font — fall through to Inter / system fonts if the variable
+   font hasn't loaded yet. Existing body background rules above keep working. */
+body {
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+}

@@ -46,6 +46,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   const isPublic =
+    path === "/" ||
     path.startsWith("/login") ||
     path.startsWith("/signup") ||
     path.startsWith("/auth") ||
@@ -55,7 +56,12 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/privacy") ||
     path.startsWith("/terms") ||
     path.startsWith("/help") ||
-    path.startsWith("/changelog");
+    path.startsWith("/changelog") ||
+    path === "/robots.txt" ||
+    path === "/sitemap.xml" ||
+    path.startsWith("/opengraph-image") ||
+    path.startsWith("/icon") ||
+    path === "/favicon.ico";
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
@@ -64,9 +70,16 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && (path.startsWith("/login") || path.startsWith("/signup"))) {
+  // Signed-in users shouldn't see the marketing landing or auth screens —
+  // bounce them straight into the app.
+  if (
+    user &&
+    (path === "/" ||
+      path.startsWith("/login") ||
+      path.startsWith("/signup"))
+  ) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/today";
     return NextResponse.redirect(url);
   }
 

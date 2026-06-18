@@ -17,6 +17,8 @@ import {
   reorderTasks as dbReorderTasks,
   getDay as dbGetDay,
   getTasks as dbGetTasks,
+  upsertCharacterProfile as dbUpsertCharacterProfile,
+  awardCharacterXp as dbAwardCharacterXp,
   type DayRow,
   type TaskInput,
 } from "@/lib/db";
@@ -24,6 +26,12 @@ import { createClient } from "@/lib/supabase/server";
 import { isFuture, todayLocal } from "@program/shared/date";
 import { findPhotoTaskId } from "@program/shared/tasks";
 import { findTemplate } from "@program/shared/templates";
+import {
+  XP_RULES,
+  isArchetype,
+  type Archetype,
+} from "@program/shared/gamification";
+import { isThemeId, type ThemeId } from "@program/shared/themes";
 
 const PHOTOS_BUCKET = "progress-photos";
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
@@ -57,6 +65,21 @@ export async function toggleTaskAction(
     return { ok: false as const, error: "Cannot check off future days." };
   }
   const day = await dbToggleTask(date, taskId, completed);
+
+  // Hero Mode: award XP per task completion (toggle ON only — un-toggling
+  // doesn't refund XP). Keep this simple for now: just the per-task amount.
+  // TODO(hero): also award FULL_DAY_BONUS when every task is checked.
+  // TODO(hero): also award streak bonus (min(streak, STREAK_CAP)) on full day.
+  // TODO(hero): also award MILESTONE_BONUS on milestone day numbers.
+  if (completed) {
+    try {
+      await dbAwardCharacterXp(XP_RULES.TASK);
+    } catch (err) {
+      // XP is non-essential — never fail a task toggle on it.
+      console.error("awardCharacterXp", err);
+    }
+  }
+
   revalidatePath("/");
   revalidatePath("/calendar");
   return { ok: true as const, day };
@@ -333,4 +356,54 @@ export async function applyTemplateAction(templateId: string) {
 
   revalidateAll();
   return { ok: true as const, templateId, name: template.name };
+}
+
+// ---------- Hero Mode ----------
+
+export async function pickArchetypeAction(archetype: Archetype) {
+  if (!isArchetype(archetype)) {
+    return { ok: false as const, error: "Unknown archetype." };
+  }
+  try {
+    await dbUpsertCharacterProfile({ archetype });
+  } catch (err) {
+    return {
+      ok: false as const,
+      error: err instanceof Error ? err.message : "Could not save archetype.",
+    };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true as const };
+}
+
+export async function setThemeAction(theme: ThemeId) {
+  if (!isThemeId(theme)) {
+    return { ok: false as const, error: "Unknown theme." };
+  }
+  try {
+    await dbUpsertCharacterProfile({ theme });
+  } catch (err) {
+    return {
+      ok: false as const,
+      error: err instanceof Error ? err.message : "Could not save theme.",
+    };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true as const };
+}
+
+export async function awardXpAction(amount: number) {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { ok: false as const, error: "XP amount must be positive." };
+  }
+  try {
+    const result = await dbAwardCharacterXp(Math.floor(amount));
+    revalidatePath("/", "layout");
+    return { ok: true as const, ...result };
+  } catch (err) {
+    return {
+      ok: false as const,
+      error: err instanceof Error ? err.message : "Could not award XP.",
+    };
+  }
 }
