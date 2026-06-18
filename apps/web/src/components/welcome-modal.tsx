@@ -34,6 +34,8 @@ export function markWelcomeSeen() {
     /* storage disabled — no-op */
   }
 }
+// Hide the welcome modal on auth/onboarding flows AND on every public-facing
+// marketing/legal surface — visitors shouldn't see an app-tour popup.
 const HIDE_PATHS = [
   "/login",
   "/signup",
@@ -41,15 +43,24 @@ const HIDE_PATHS = [
   "/forgot-password",
   "/reset-password",
   "/onboarding",
+  "/about",
+  "/privacy",
+  "/terms",
+  "/help",
+  "/changelog",
 ];
+
+const PUBLIC_ROOTS = new Set(["/"]); // exact matches only — '/' shouldn't shadow '/today' etc.
 
 export function WelcomeModal() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const onAuthPath = HIDE_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
+  const onAuthPath =
+    PUBLIC_ROOTS.has(pathname) ||
+    HIDE_PATHS.some(
+      (p) => pathname === p || pathname.startsWith(p + "/")
+    );
 
   useEffect(() => {
     if (onAuthPath) return;
