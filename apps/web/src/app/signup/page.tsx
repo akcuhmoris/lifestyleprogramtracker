@@ -1,18 +1,19 @@
 "use client";
 
 /**
- * Signup page — Forge HUD treatment.
+ * Signup page — Midnight cinematic treatment, unified with the landing.
  *
- * Centered HudPanel with bracket corners + HUD typography. Preserves the
- * existing server action exactly:
+ * Forces the Midnight palette via `data-theme="midnight"` on the wrapper so the
+ * auth flow always feels cinematic regardless of the user's saved theme cookie.
+ * Reuses landing primitives (AnimatedHeading, MagneticButton).
+ *
+ * Preserves the existing server action exactly:
  *
  *   - signUpAction (email, password, next)
  *
  * OAuth (Google, Apple) keeps the same supabase client wiring used elsewhere:
  *   redirectTo = ${origin}/auth/callback?next=${next}
- *   on error -> /login?error=<msg>  (matches the original OAuthButtons.)
- *
- * Visual-only rewrite of the previous /signup page; no auth wiring touched.
+ *   on error -> /login?error=<msg>
  */
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -21,9 +22,9 @@ import { AlertCircle, Target } from "lucide-react";
 import { useState, useTransition } from "react";
 
 import { signUpAction } from "@/app/auth/actions";
+import { AnimatedHeading } from "@/components/landing/animated-heading";
+import { MagneticButton } from "@/components/landing/magnetic-button";
 import { BackgroundFx } from "@/components/hud/background-fx";
-import { HudButton } from "@/components/hud/hud-button";
-import { HudHeader } from "@/components/hud/hud-header";
 import { HudInput } from "@/components/hud/hud-input";
 import { HudPanel } from "@/components/hud/hud-panel";
 import { createClient } from "@/lib/supabase/client";
@@ -38,107 +39,122 @@ export default function SignupPage({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center px-6 py-12">
-      <BackgroundFx />
+    <div
+      data-theme="midnight"
+      className="relative min-h-screen bg-[#14141d] text-[#f5f5f7]"
+    >
+      <main className="relative min-h-screen flex flex-col items-center px-6 py-12">
+        <BackgroundFx />
 
-      <Link
-        href="/"
-        className="mt-2 flex items-center gap-2.5 text-sm font-semibold tracking-tight text-[color:var(--text)]"
-      >
-        <span
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl"
-          style={{
-            background: "var(--accent)",
-            color: "var(--bg)",
-          }}
+        <Link
+          href="/"
+          className="mt-2 flex items-center gap-2.5 text-sm font-semibold tracking-tight text-[color:var(--text)]"
         >
-          <Target className="h-5 w-5" strokeWidth={2.5} />
-        </span>
-        <span>Lifestyle Program Tracker</span>
-      </Link>
+          <span
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl"
+            style={{
+              background: "var(--accent)",
+              color: "var(--bg)",
+            }}
+          >
+            <Target className="h-5 w-5" strokeWidth={2.5} />
+          </span>
+          <span>Lifestyle Program Tracker</span>
+        </Link>
 
-      <div className="mx-auto mt-16 w-full max-w-md">
-        <HudPanel className="p-7 sm:p-8">
-          <HudHeader subtitle="Track any structured program — your way.">
-            Create your account
-          </HudHeader>
-
-          <div className="mt-6 space-y-3">
-            {params.error && <ErrorBanner message={params.error} />}
+        <div className="mx-auto mt-14 w-full max-w-md">
+          <div className="mb-8 text-center">
+            <AnimatedHeading
+              as="h1"
+              className="font-sans text-4xl sm:text-5xl font-extrabold tracking-tight text-balance text-white"
+            >
+              Begin your journey
+            </AnimatedHeading>
+            <p className="mt-3 font-sans text-base font-normal text-white/60">
+              Track any structured program — your way.
+            </p>
           </div>
 
-          <form
-            action={(fd) => startTransition(() => signUpAction(fd))}
-            className="mt-6 space-y-4"
-          >
-            {params.next && (
-              <input type="hidden" name="next" value={params.next} />
-            )}
+          <HudPanel className="p-7 sm:p-8">
+            <div className="space-y-3">
+              {params.error && <ErrorBanner message={params.error} />}
+            </div>
 
-            <HudInput
-              label="Email"
-              type="email"
-              name="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              required
-            />
-            <HudInput
-              label="Password"
-              type="password"
-              name="password"
-              autoComplete="new-password"
-              placeholder="At least 8 characters"
-              minLength={8}
-              required
-            />
-
-            <HudButton
-              type="submit"
-              variant="primary"
-              loading={isPending}
-              className="w-full"
+            <form
+              action={(fd) => startTransition(() => signUpAction(fd))}
+              className={params.error ? "mt-6 space-y-4" : "space-y-4"}
             >
-              Create account
-            </HudButton>
-          </form>
+              {params.next && (
+                <input type="hidden" name="next" value={params.next} />
+              )}
 
-          <OrDivider />
+              <HudInput
+                label="Email"
+                type="email"
+                name="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                required
+              />
+              <HudInput
+                label="Password"
+                type="password"
+                name="password"
+                autoComplete="new-password"
+                placeholder="At least 8 characters"
+                minLength={8}
+                required
+              />
 
-          <OAuthRow next={params.next} />
+              <div className="flex justify-center pt-1">
+                <MagneticButton
+                  variant="primary"
+                  type="submit"
+                  disabled={isPending}
+                  className="w-full text-sm"
+                >
+                  {isPending ? "Creating account…" : "Create account"}
+                </MagneticButton>
+              </div>
+            </form>
 
-          <p className="mt-6 text-[13px] leading-relaxed text-[color:var(--text-muted)]">
-            By creating an account you agree to our{" "}
+            <OrDivider />
+
+            <OAuthRow next={params.next} />
+
+            <p className="mt-6 text-[13px] leading-relaxed text-white/60">
+              By creating an account you agree to our{" "}
+              <Link
+                href="/terms"
+                className="text-[color:var(--accent)] hover:underline"
+              >
+                Terms
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/privacy"
+                className="text-[color:var(--accent)] hover:underline"
+              >
+                Privacy Policy
+              </Link>
+              .
+            </p>
+          </HudPanel>
+
+          <p className="mt-8 text-center font-sans text-sm font-medium text-white/60">
+            Already have an account?{" "}
             <Link
-              href="/terms"
+              href={`/login${
+                params.next ? `?next=${encodeURIComponent(params.next)}` : ""
+              }`}
               className="text-[color:var(--accent)] hover:underline"
             >
-              Terms
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/privacy"
-              className="text-[color:var(--accent)] hover:underline"
-            >
-              Privacy Policy
+              Sign in
             </Link>
-            .
           </p>
-        </HudPanel>
-
-        <p className="mt-8 text-center text-sm font-medium text-[color:var(--text-muted)]">
-          Already have an account?{" "}
-          <Link
-            href={`/login${
-              params.next ? `?next=${encodeURIComponent(params.next)}` : ""
-            }`}
-            className="text-[color:var(--accent)] hover:underline"
-          >
-            Sign in
-          </Link>
-        </p>
-      </div>
-    </main>
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -149,11 +165,17 @@ export default function SignupPage({
 function OrDivider() {
   return (
     <div className="relative my-6 flex items-center gap-3">
-      <span className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
-      <span className="text-xs font-medium text-[color:var(--text-muted)]">
+      <span
+        className="h-px flex-1"
+        style={{ background: "rgba(255,255,255,0.08)" }}
+      />
+      <span className="text-xs font-medium text-white/50">
         or continue with
       </span>
-      <span className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
+      <span
+        className="h-px flex-1"
+        style={{ background: "rgba(255,255,255,0.08)" }}
+      />
     </div>
   );
 }
@@ -183,28 +205,30 @@ function OAuthRow({ next }: { next?: string }) {
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <HudButton
+      <MagneticButton
         variant="ghost"
         type="button"
         onClick={() => signInWith("google")}
         disabled={busy !== null}
-        loading={busy === "google"}
-        className="w-full"
+        className="w-full gap-2 text-sm"
       >
         <GoogleIcon />
-        <span>Continue with Google</span>
-      </HudButton>
-      <HudButton
+        <span>
+          {busy === "google" ? "Connecting…" : "Continue with Google"}
+        </span>
+      </MagneticButton>
+      <MagneticButton
         variant="ghost"
         type="button"
         onClick={() => signInWith("apple")}
         disabled={busy !== null}
-        loading={busy === "apple"}
-        className="w-full"
+        className="w-full gap-2 text-sm"
       >
         <AppleIcon />
-        <span>Continue with Apple</span>
-      </HudButton>
+        <span>
+          {busy === "apple" ? "Connecting…" : "Continue with Apple"}
+        </span>
+      </MagneticButton>
     </div>
   );
 }
@@ -246,7 +270,7 @@ function AppleIcon() {
 }
 
 // ---------------------------------------------------------------------------
-// Error banner (HUD-skinned)
+// Error banner
 // ---------------------------------------------------------------------------
 
 function ErrorBanner({ message }: { message: string }) {

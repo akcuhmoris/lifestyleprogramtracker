@@ -1,17 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { cn } from "@/lib/utils";
 import { TEMPLATES, type ProgramTemplate } from "@program/shared/templates";
 import { getIcon } from "@program/shared/icons";
 import { applyTemplateAction } from "@/app/actions";
 import { markWelcomeSeen } from "@/components/welcome-modal";
 import { HudPanel } from "@/components/hud/hud-panel";
-import { HudButton } from "@/components/hud/hud-button";
+import { MagneticButton } from "@/components/landing/magnetic-button";
+
+const interFont = "Inter, ui-sans-serif, system-ui, sans-serif";
 
 export function OnboardingPicker() {
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export function OnboardingPicker() {
 
   return (
     <>
-      <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="mt-12 grid grid-cols-1 gap-6 sm:mt-14 sm:grid-cols-2">
         {TEMPLATES.map((t) => (
           <TemplateCard
             key={t.id}
@@ -52,26 +53,23 @@ export function OnboardingPicker() {
 
       {error && (
         <div
-          className="mt-6 rounded-md border px-4 py-3 text-[12px]"
+          className="mt-6 rounded-xl border px-4 py-3 text-[13px]"
           style={{
             borderColor: "rgba(244, 63, 94, 0.4)",
-            background: "rgba(244, 63, 94, 0.1)",
+            background: "rgba(244, 63, 94, 0.08)",
             color: "rgb(252, 165, 165)",
+            fontFamily: interFont,
           }}
         >
           {error}
         </div>
       )}
 
-      <div className="mt-8 flex justify-center">
+      <div className="mt-10 flex justify-center sm:mt-12">
         <Link
           href="/today"
-          className={cn(
-            "inline-flex items-center gap-2",
-            "text-sm font-medium",
-            "text-[color:var(--text-muted)] hover:text-[color:var(--accent)]",
-            "transition-colors",
-          )}
+          className="inline-flex items-center gap-2 text-sm font-medium text-white/60 transition-colors hover:text-white"
+          style={{ fontFamily: interFont, fontWeight: 500 }}
         >
           Skip — I&apos;ll build my own
           <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -97,23 +95,28 @@ function TemplateCard({
       whileHover={
         anyPending
           ? undefined
-          : { y: -4, transition: { type: "spring", stiffness: 320, damping: 24 } }
+          : { y: -6, transition: { type: "spring", stiffness: 320, damping: 24 } }
       }
       className="h-full"
     >
-      <HudPanel className="flex h-full flex-col gap-4 p-5">
+      <HudPanel className="flex h-full flex-col gap-5 p-6 sm:p-7">
         {/* Header: meta + badge */}
         <div className="flex items-start justify-between gap-2">
-          <span className="text-xs font-medium text-[color:var(--text-muted)]">
-            {template.totalDays} days
+          <span
+            className="text-xs font-medium text-white/50"
+            style={{ fontFamily: interFont }}
+          >
+            {template.totalDays} days · {template.tasks.length} task
+            {template.tasks.length === 1 ? "" : "s"}
           </span>
           {template.badge && (
             <span
               className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold"
               style={{
-                borderColor: "color-mix(in srgb, var(--accent) 35%, transparent)",
-                background: "color-mix(in srgb, var(--accent) 10%, transparent)",
-                color: "var(--accent)",
+                borderColor: "rgba(165, 180, 252, 0.35)",
+                background: "rgba(165, 180, 252, 0.1)",
+                color: "#a5b4fc",
+                fontFamily: interFont,
               }}
             >
               {template.badge === "Popular" && (
@@ -124,12 +127,18 @@ function TemplateCard({
           )}
         </div>
 
-        {/* Title */}
+        {/* Title + description */}
         <div>
-          <h3 className="text-xl font-bold tracking-tight text-[color:var(--text)]">
+          <h3
+            className="text-2xl tracking-tight text-white"
+            style={{ fontFamily: interFont, fontWeight: 700 }}
+          >
             {template.name}
           </h3>
-          <p className="mt-2 text-[13px] leading-relaxed text-[color:var(--text-muted)]">
+          <p
+            className="mt-2 text-[14px] leading-relaxed text-white/60"
+            style={{ fontFamily: interFont, fontWeight: 400 }}
+          >
             {template.tagline}
           </p>
         </div>
@@ -143,12 +152,7 @@ function TemplateCard({
                 <span
                   key={i}
                   title={t.title}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border text-[color:var(--text-muted)]"
-                  style={{
-                    borderColor: "var(--hud-border)",
-                    background:
-                      "color-mix(in srgb, var(--surface) 60%, transparent)",
-                  }}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-white/60"
                 >
                   <Icon className="h-3.5 w-3.5" strokeWidth={2} />
                 </span>
@@ -156,12 +160,7 @@ function TemplateCard({
             })}
             {template.tasks.length > 8 && (
               <span
-                className="inline-flex h-8 items-center justify-center rounded-lg border px-2 font-mono text-[11px] tabular-nums text-[color:var(--text-muted)]"
-                style={{
-                  borderColor: "var(--hud-border)",
-                  background:
-                    "color-mix(in srgb, var(--surface) 60%, transparent)",
-                }}
+                className="inline-flex h-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 font-mono text-[11px] tabular-nums text-white/60"
               >
                 +{template.tasks.length - 8}
               </span>
@@ -169,12 +168,8 @@ function TemplateCard({
           </div>
         ) : (
           <div
-            className="rounded-lg border px-3 py-2 text-xs text-[color:var(--text-muted)]"
-            style={{
-              borderColor: "var(--hud-border)",
-              background:
-                "color-mix(in srgb, var(--surface) 60%, transparent)",
-            }}
+            className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-xs text-white/60"
+            style={{ fontFamily: interFont }}
           >
             Blank slate — build your own.
           </div>
@@ -183,36 +178,41 @@ function TemplateCard({
         {/* Task preview list */}
         {template.tasks.length > 0 && (
           <div
-            className="rounded-lg border px-3 py-2.5"
-            style={{
-              borderColor: "var(--hud-border)",
-              background:
-                "color-mix(in srgb, var(--surface) 40%, transparent)",
-            }}
+            className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-3.5 py-3"
           >
-            <div className="mb-2 text-[11px] font-semibold text-[color:var(--text-muted)]">
+            <div
+              className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-white/50"
+              style={{ fontFamily: interFont }}
+            >
               Daily tasks · {template.tasks.length}
             </div>
-            <ul className="space-y-1">
+            <ul className="space-y-1.5">
               {template.tasks.slice(0, 4).map((t, i) => {
                 const Icon = getIcon(t.icon);
                 return (
                   <li
                     key={i}
-                    className="flex items-center gap-2 text-[12px] text-[color:var(--text)]"
+                    className="flex items-center gap-2 text-[13px] text-white/85"
+                    style={{ fontFamily: interFont }}
                   >
                     <Icon
-                      className="h-3 w-3 text-[color:var(--text-muted)] flex-shrink-0"
+                      className="h-3 w-3 flex-shrink-0 text-white/50"
                       strokeWidth={2}
                     />
                     <span className="flex-1 truncate">{t.title}</span>
                     {t.kind === "journal" && (
-                      <span className="text-[10px] font-semibold text-[color:var(--accent)]">
+                      <span
+                        className="text-[10px] font-semibold"
+                        style={{ color: "#a5b4fc" }}
+                      >
                         log
                       </span>
                     )}
                     {t.kind === "photo" && (
-                      <span className="text-[10px] font-semibold text-[color:var(--accent)]">
+                      <span
+                        className="text-[10px] font-semibold"
+                        style={{ color: "#a5b4fc" }}
+                      >
                         proof
                       </span>
                     )}
@@ -220,7 +220,10 @@ function TemplateCard({
                 );
               })}
               {template.tasks.length > 4 && (
-                <li className="pt-0.5 text-[11px] text-[color:var(--text-muted)]">
+                <li
+                  className="pt-0.5 text-[11px] text-white/50"
+                  style={{ fontFamily: interFont }}
+                >
                   + {template.tasks.length - 4} more
                 </li>
               )}
@@ -229,23 +232,32 @@ function TemplateCard({
         )}
 
         {/* CTA */}
-        <div className="mt-auto pt-2">
-          <HudButton
+        <div className="mt-auto flex justify-center pt-2 [&>span]:w-full">
+          <MagneticButton
             variant="primary"
             onClick={onBegin}
-            loading={pending}
-            disabled={anyPending && !pending}
+            disabled={anyPending}
+            aria-busy={pending}
             className="w-full"
           >
             {pending ? (
-              "Setting up…"
+              <span
+                className="inline-flex items-center gap-2"
+                style={{ fontFamily: interFont }}
+              >
+                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} />
+                Setting up…
+              </span>
             ) : (
-              <>
-                Start
-                <ArrowRight className="ml-1 inline h-3.5 w-3.5" strokeWidth={2.5} />
-              </>
+              <span
+                className="inline-flex items-center gap-2"
+                style={{ fontFamily: interFont }}
+              >
+                Begin
+                <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+              </span>
             )}
-          </HudButton>
+          </MagneticButton>
         </div>
       </HudPanel>
     </motion.div>

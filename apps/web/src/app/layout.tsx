@@ -10,6 +10,7 @@ import { getCharacterProfile } from "@/lib/db";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { LevelUpWatcher } from "@/components/character/level-up-context";
 import { BackgroundFx } from "@/components/hud/background-fx";
+import { AppCursorSpotlight } from "@/components/hud/app-cursor-spotlight";
 import { PersistentHUD } from "@/components/hud/persistent-hud";
 import { DEFAULT_THEME } from "@program/shared/themes";
 import { tierForLevel } from "@program/shared/gamification";
@@ -123,6 +124,7 @@ export default async function RootLayout({
         <BackgroundFx />
         <TrpcProvider>
           <ThemeProvider theme={theme}>
+            <AppCursorSpotlight />
             {level !== null ? <LevelUpWatcher level={level} /> : null}
             {heroProfile ? (
               <PersistentHUD

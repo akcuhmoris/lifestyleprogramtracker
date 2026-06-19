@@ -14,9 +14,9 @@ import {
 } from "@program/shared/date";
 import { StatsBoard } from "@/components/stats-board";
 import { findJournalTaskId, findPhotoTaskId } from "@program/shared/tasks";
-import { HudHeader } from "@/components/hud/hud-header";
 import { HudPanel } from "@/components/hud/hud-panel";
 import { StatBlock } from "@/components/hud/stat-block";
+import { AnimatedHeading } from "@/components/landing/animated-heading";
 
 export const dynamic = "force-dynamic";
 
@@ -119,13 +119,18 @@ export default async function StatsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10 lg:py-14">
-      <HudHeader
-        subtitle={`Through day ${elapsed} · started ${formatPretty(startDate)}`}
-        className="mb-8"
-      >
-        Stats
-      </HudHeader>
+    <main className="mx-auto max-w-6xl px-6 py-12 lg:py-16">
+      <header className="mb-10 flex flex-col gap-3">
+        <AnimatedHeading
+          as="h1"
+          className="text-balance font-sans text-4xl font-extrabold tracking-tight text-[color:var(--text)] sm:text-5xl"
+        >
+          Stats
+        </AnimatedHeading>
+        <p className="text-base font-normal text-white/60">
+          {`Through day ${elapsed} · started ${formatPretty(startDate)}`}
+        </p>
+      </header>
 
       {/* Top stat readout row */}
       <HudPanel className="mb-8 p-5 md:p-6">

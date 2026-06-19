@@ -1,5 +1,6 @@
 import { TodayView } from "@/components/today-view";
 import { CompletionScreen } from "@/components/completion-screen";
+import { AnimatedHeading } from "@/components/landing/animated-heading";
 import {
   findMostRecentUnhandledMiss,
   getActiveChallenge,
@@ -140,21 +141,24 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen">
-      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:pt-10">
+      <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:pt-12">
         {/* ------------------------------------------------------------- */}
-        {/* Warm header                                                    */}
+        {/* Warm header — landing-grade typography                         */}
         {/* ------------------------------------------------------------- */}
-        <header className="flex flex-col gap-3">
-          <h1 className="font-sans text-3xl font-bold tracking-tight text-[color:var(--text)] md:text-4xl">
-            {greeting}, {address}
-          </h1>
+        <header className="flex flex-col gap-4">
+          <AnimatedHeading
+            as="h1"
+            className="text-balance font-sans text-3xl font-extrabold tracking-tight text-[color:var(--text)] sm:text-4xl md:text-5xl"
+          >
+            {`${greeting}, ${address}`}
+          </AnimatedHeading>
 
           <div className="flex flex-wrap items-center gap-3">
             <span
-              className="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
+              className="inline-flex items-center rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em]"
               style={{
-                borderColor: "rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.03)",
+                borderColor: "rgba(255,255,255,0.1)",
+                background: "rgba(255,255,255,0.04)",
                 color: "var(--text-muted)",
               }}
             >
@@ -162,7 +166,7 @@ export default async function Home() {
             </span>
           </div>
 
-          <p className="text-sm italic text-[color:var(--text-muted)]">
+          <p className="text-sm font-normal text-white/60">
             {MOTIVATION_LINE}
           </p>
         </header>

@@ -9,8 +9,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getCharacterProfile } from "@/lib/db";
 import { CharacterAvatar } from "@/components/character/avatar";
 import { HudPanel } from "@/components/hud/hud-panel";
-import { HudHeader } from "@/components/hud/hud-header";
 import { StatBlock } from "@/components/hud/stat-block";
+import { AnimatedHeading } from "@/components/landing/animated-heading";
 import { ArchetypePicker } from "./archetype-picker";
 
 export const dynamic = "force-dynamic";
@@ -36,15 +36,20 @@ export default async function CharacterPage() {
     ARCHETYPES.find((a) => a.id === archetype) ?? ARCHETYPES[0];
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10 lg:py-14">
-      <HudHeader
-        subtitle={archetypeMeta.tagline}
-        className="mb-8"
-      >
-        {archetypeMeta.name}
-      </HudHeader>
+    <main className="mx-auto max-w-5xl px-6 py-12 lg:py-16">
+      <header className="mb-10 flex flex-col gap-3">
+        <AnimatedHeading
+          as="h1"
+          className="text-balance font-sans text-4xl font-extrabold tracking-tight text-[color:var(--text)] sm:text-5xl"
+        >
+          {archetypeMeta.name}
+        </AnimatedHeading>
+        <p className="max-w-2xl text-base font-normal text-white/60">
+          {archetypeMeta.tagline}
+        </p>
+      </header>
 
-      <HudPanel tone="accent" className="mb-12 overflow-hidden">
+      <HudPanel tone="accent" className="mb-14 overflow-hidden">
         <div className="flex flex-col gap-10 px-6 py-10 md:flex-row md:items-stretch md:gap-12 md:px-10 md:py-12">
           {/* LEFT — Character sheet */}
           <div className="relative flex flex-1 flex-col items-center justify-center gap-6">
@@ -104,12 +109,18 @@ export default async function CharacterPage() {
       </HudPanel>
 
       <section>
-        <HudHeader
-          subtitle="Pick the archetype that fits the version of you you're building. You can switch any time."
-          className="mb-6"
-        >
-          Switch your path
-        </HudHeader>
+        <header className="mb-8 flex flex-col gap-3">
+          <AnimatedHeading
+            as="h2"
+            className="text-balance font-sans text-3xl font-extrabold tracking-tight text-[color:var(--text)] sm:text-4xl"
+          >
+            Switch your path
+          </AnimatedHeading>
+          <p className="max-w-2xl text-base font-normal text-white/60">
+            Pick the archetype that fits the version of you you&apos;re
+            building. You can switch any time.
+          </p>
+        </header>
 
         <ArchetypePicker current={archetype} />
       </section>

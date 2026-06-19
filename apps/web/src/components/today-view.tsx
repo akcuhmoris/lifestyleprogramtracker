@@ -216,10 +216,13 @@ export function TodayView({
       {/* ----------------------------------------------------------------- */}
       {/* Today's tasks                                                      */}
       {/* ----------------------------------------------------------------- */}
-      <section className="mt-8">
-        <h2 className="text-xl font-bold tracking-tight text-[color:var(--text)]">
+      <section className="mt-10">
+        <h2 className="font-sans text-2xl font-extrabold tracking-tight text-[color:var(--text)] sm:text-3xl">
           Today
         </h2>
+        <p className="mt-1 text-sm font-normal text-white/60">
+          Check off each requirement as you finish it.
+        </p>
 
         {total === 0 ? (
           <EmptyTasksState />

@@ -107,7 +107,7 @@ export const THEMES: ReadonlyArray<Theme> = [
 
 export const THEME_IDS: ReadonlyArray<ThemeId> = THEMES.map((t) => t.id);
 
-export const DEFAULT_THEME: ThemeId = "electric";
+export const DEFAULT_THEME: ThemeId = "midnight";
 
 export function isThemeId(value: string): value is ThemeId {
   return (THEME_IDS as ReadonlyArray<string>).includes(value);

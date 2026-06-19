@@ -5,8 +5,8 @@ import { AccountSection } from "@/components/account/account-section";
 import { DangerZone } from "@/components/account/danger-zone";
 import { ThemePicker } from "@/components/theme/theme-picker";
 import { createClient } from "@/lib/supabase/server";
-import { HudHeader } from "@/components/hud/hud-header";
 import { HudPanel } from "@/components/hud/hud-panel";
+import { AnimatedHeading } from "@/components/landing/animated-heading";
 
 export const dynamic = "force-dynamic";
 
@@ -22,14 +22,21 @@ export default async function SettingsPage() {
   ]);
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10 lg:py-14">
-      <HudHeader
-        subtitle="Tune your program length, daily requirements, theme, and account. Changes apply immediately."
-      >
-        Settings
-      </HudHeader>
+    <main className="mx-auto max-w-4xl px-6 py-12 lg:py-16">
+      <header className="flex flex-col gap-3">
+        <AnimatedHeading
+          as="h1"
+          className="text-balance font-sans text-4xl font-extrabold tracking-tight text-[color:var(--text)] sm:text-5xl"
+        >
+          Settings
+        </AnimatedHeading>
+        <p className="max-w-2xl text-base font-normal text-white/60">
+          Tune your program length, daily requirements, theme, and account.
+          Changes apply immediately.
+        </p>
+      </header>
 
-      <div className="mt-10 space-y-8">
+      <div className="mt-12 space-y-8">
         {/* TASKS — templates + length + daily requirements */}
         <SectionPanel title="Program">
           <p className="text-sm text-[color:var(--text-muted)]">

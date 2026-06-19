@@ -1,17 +1,20 @@
 "use client";
 
 /**
- * Login page — Forge HUD treatment.
+ * Login page — Midnight cinematic treatment, unified with the landing.
  *
- * Centered HudPanel with bracket corners + HUD typography. Preserves every
- * existing server action, field name, and query-param wiring exactly:
+ * Forces the Midnight palette via `data-theme="midnight"` on the wrapper so the
+ * auth flow always feels cinematic regardless of the user's saved theme cookie.
+ * Reuses landing primitives (AnimatedHeading, MagneticButton) so this page
+ * belongs to the same product universe as `/`.
+ *
+ * Preserves every existing server action, field name, and query-param wiring
+ * exactly:
  *
  *   - signInWithPasswordAction (email, password, next)
  *   - signInWithMagicLinkAction (email, next)
  *   - sendPasswordResetAction is reached via the /forgot-password link
  *   - OAuth (Google, Apple) via supabase client + /auth/callback redirect
- *
- * Visual-only rewrite of the previous /login page; no auth wiring touched.
  */
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -23,9 +26,9 @@ import {
   signInWithMagicLinkAction,
   signInWithPasswordAction,
 } from "@/app/auth/actions";
+import { AnimatedHeading } from "@/components/landing/animated-heading";
+import { MagneticButton } from "@/components/landing/magnetic-button";
 import { BackgroundFx } from "@/components/hud/background-fx";
-import { HudButton } from "@/components/hud/hud-button";
-import { HudHeader } from "@/components/hud/hud-header";
 import { HudInput } from "@/components/hud/hud-input";
 import { HudPanel } from "@/components/hud/hud-panel";
 import { createClient } from "@/lib/supabase/client";
@@ -47,141 +50,170 @@ export default function LoginPage({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center px-6 py-12">
-      <BackgroundFx />
+    <div
+      data-theme="midnight"
+      className="relative min-h-screen bg-[#14141d] text-[#f5f5f7]"
+    >
+      <main className="relative min-h-screen flex flex-col items-center px-6 py-12">
+        <BackgroundFx />
 
-      <Link
-        href="/"
-        className="mt-2 flex items-center gap-2.5 text-sm font-semibold tracking-tight text-[color:var(--text)]"
-      >
-        <span
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl"
-          style={{
-            background: "var(--accent)",
-            color: "var(--bg)",
-          }}
+        <Link
+          href="/"
+          className="mt-2 flex items-center gap-2.5 text-sm font-semibold tracking-tight text-[color:var(--text)]"
         >
-          <Target className="h-5 w-5" strokeWidth={2.5} />
-        </span>
-        <span>Lifestyle Program Tracker</span>
-      </Link>
-
-      <div className="mx-auto mt-16 w-full max-w-md">
-        <HudPanel className="p-7 sm:p-8">
-          <HudHeader subtitle="Sign in to pick up where you left off.">
-            Welcome back
-          </HudHeader>
-
-          {/* Flash banners surfaced from query params. */}
-          <div className="mt-6 space-y-3">
-            {params.deleted === "1" && (
-              <FlashBanner
-                tone="info"
-                title="Account deleted."
-                body="Your account and all associated data have been removed."
-              />
-            )}
-            {params.reset === "1" && (
-              <FlashBanner
-                tone="success"
-                title="Password updated."
-                body="Sign in with your new password."
-              />
-            )}
-            {params.error && <ErrorBanner message={params.error} />}
-          </div>
-
-          <div className="mt-6">
-            <ModeSwitch mode={mode} onChange={setMode} />
-          </div>
-
-          {mode === "password" ? (
-            <form
-              action={(fd) => startTransition(() => signInWithPasswordAction(fd))}
-              className="mt-6 space-y-4"
-            >
-              {params.next && (
-                <input type="hidden" name="next" value={params.next} />
-              )}
-              <HudInput
-                label="Email"
-                type="email"
-                name="email"
-                autoComplete="email"
-                placeholder="you@example.com"
-                required
-              />
-              <HudInput
-                label="Password"
-                type="password"
-                name="password"
-                autoComplete="current-password"
-                placeholder="********"
-                required
-              />
-              <div className="flex justify-end">
-                <Link
-                  href="/forgot-password"
-                  className="text-sm font-medium text-[color:var(--text-muted)] hover:text-[color:var(--accent)] transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-
-              <HudButton
-                type="submit"
-                variant="primary"
-                loading={isPending}
-                className="w-full"
-              >
-                Sign in
-              </HudButton>
-            </form>
-          ) : (
-            <form
-              action={(fd) => startTransition(() => signInWithMagicLinkAction(fd))}
-              className="mt-6 space-y-4"
-            >
-              {params.next && (
-                <input type="hidden" name="next" value={params.next} />
-              )}
-              <HudInput
-                label="Email"
-                type="email"
-                name="email"
-                autoComplete="email"
-                placeholder="you@example.com"
-                required
-              />
-              <HudButton
-                type="submit"
-                variant="primary"
-                loading={isPending}
-                className="w-full"
-              >
-                Email me a sign-in link
-              </HudButton>
-            </form>
-          )}
-
-          <OrDivider />
-
-          <OAuthRow next={params.next} />
-        </HudPanel>
-
-        <p className="mt-8 text-center text-sm font-medium text-[color:var(--text-muted)]">
-          New here?{" "}
-          <Link
-            href={`/signup${
-              params.next ? `?next=${encodeURIComponent(params.next)}` : ""
-            }`}
-            className="text-[color:var(--accent)] hover:underline"
+          <span
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl"
+            style={{
+              background: "var(--accent)",
+              color: "var(--bg)",
+            }}
           >
-            Create an account
-          </Link>
-        </p>
-      </div>
-    </main>
+            <Target className="h-5 w-5" strokeWidth={2.5} />
+          </span>
+          <span>Lifestyle Program Tracker</span>
+        </Link>
+
+        <div className="mx-auto mt-14 w-full max-w-md">
+          <div className="mb-8 text-center">
+            <AnimatedHeading
+              as="h1"
+              className="font-sans text-4xl sm:text-5xl font-extrabold tracking-tight text-balance text-white"
+            >
+              Welcome back
+            </AnimatedHeading>
+            <p className="mt-3 font-sans text-base font-normal text-white/60">
+              Sign in to pick up where you left off.
+            </p>
+          </div>
+
+          <HudPanel className="p-7 sm:p-8">
+            {/* Flash banners surfaced from query params. */}
+            <div className="space-y-3">
+              {params.deleted === "1" && (
+                <FlashBanner
+                  tone="info"
+                  title="Account deleted."
+                  body="Your account and all associated data have been removed."
+                />
+              )}
+              {params.reset === "1" && (
+                <FlashBanner
+                  tone="success"
+                  title="Password updated."
+                  body="Sign in with your new password."
+                />
+              )}
+              {params.error && <ErrorBanner message={params.error} />}
+            </div>
+
+            <div
+              className={cn(
+                params.deleted === "1" ||
+                  params.reset === "1" ||
+                  params.error
+                  ? "mt-6"
+                  : "",
+              )}
+            >
+              <ModeSwitch mode={mode} onChange={setMode} />
+            </div>
+
+            {mode === "password" ? (
+              <form
+                action={(fd) =>
+                  startTransition(() => signInWithPasswordAction(fd))
+                }
+                className="mt-6 space-y-4"
+              >
+                {params.next && (
+                  <input type="hidden" name="next" value={params.next} />
+                )}
+                <HudInput
+                  label="Email"
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  required
+                />
+                <HudInput
+                  label="Password"
+                  type="password"
+                  name="password"
+                  autoComplete="current-password"
+                  placeholder="********"
+                  required
+                />
+                <div className="flex justify-end">
+                  <Link
+                    href="/forgot-password"
+                    className="font-sans text-sm font-medium text-white/60 hover:text-[color:var(--accent)] transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+
+                <div className="flex justify-center pt-1">
+                  <MagneticButton
+                    variant="primary"
+                    type="submit"
+                    disabled={isPending}
+                    className="w-full text-sm"
+                  >
+                    {isPending ? "Signing in…" : "Sign in"}
+                  </MagneticButton>
+                </div>
+              </form>
+            ) : (
+              <form
+                action={(fd) =>
+                  startTransition(() => signInWithMagicLinkAction(fd))
+                }
+                className="mt-6 space-y-4"
+              >
+                {params.next && (
+                  <input type="hidden" name="next" value={params.next} />
+                )}
+                <HudInput
+                  label="Email"
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  required
+                />
+                <div className="flex justify-center pt-1">
+                  <MagneticButton
+                    variant="primary"
+                    type="submit"
+                    disabled={isPending}
+                    className="w-full text-sm"
+                  >
+                    {isPending ? "Sending…" : "Email me a sign-in link"}
+                  </MagneticButton>
+                </div>
+              </form>
+            )}
+
+            <OrDivider />
+
+            <OAuthRow next={params.next} />
+          </HudPanel>
+
+          <p className="mt-8 text-center font-sans text-sm font-medium text-white/60">
+            New here?{" "}
+            <Link
+              href={`/signup${
+                params.next ? `?next=${encodeURIComponent(params.next)}` : ""
+              }`}
+              className="text-[color:var(--accent)] hover:underline"
+            >
+              Create an account
+            </Link>
+          </p>
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -213,7 +245,7 @@ function ModeSwitch({
             "relative rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
             mode === m
               ? "text-[color:var(--bg)]"
-              : "text-[color:var(--text-muted)] hover:text-[color:var(--text)]",
+              : "text-white/60 hover:text-white",
           )}
         >
           {mode === m && (
@@ -243,11 +275,17 @@ function ModeSwitch({
 function OrDivider() {
   return (
     <div className="relative my-6 flex items-center gap-3">
-      <span className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
-      <span className="text-xs font-medium text-[color:var(--text-muted)]">
+      <span
+        className="h-px flex-1"
+        style={{ background: "rgba(255,255,255,0.08)" }}
+      />
+      <span className="text-xs font-medium text-white/50">
         or continue with
       </span>
-      <span className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
+      <span
+        className="h-px flex-1"
+        style={{ background: "rgba(255,255,255,0.08)" }}
+      />
     </div>
   );
 }
@@ -280,28 +318,30 @@ function OAuthRow({ next }: { next?: string }) {
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <HudButton
+      <MagneticButton
         variant="ghost"
         type="button"
         onClick={() => signInWith("google")}
         disabled={busy !== null}
-        loading={busy === "google"}
-        className="w-full"
+        className="w-full gap-2 text-sm"
       >
         <GoogleIcon />
-        <span>Continue with Google</span>
-      </HudButton>
-      <HudButton
+        <span>
+          {busy === "google" ? "Connecting…" : "Continue with Google"}
+        </span>
+      </MagneticButton>
+      <MagneticButton
         variant="ghost"
         type="button"
         onClick={() => signInWith("apple")}
         disabled={busy !== null}
-        loading={busy === "apple"}
-        className="w-full"
+        className="w-full gap-2 text-sm"
       >
         <AppleIcon />
-        <span>Continue with Apple</span>
-      </HudButton>
+        <span>
+          {busy === "apple" ? "Connecting…" : "Continue with Apple"}
+        </span>
+      </MagneticButton>
     </div>
   );
 }
@@ -343,7 +383,7 @@ function AppleIcon() {
 }
 
 // ---------------------------------------------------------------------------
-// Flash + error banners (HUD-skinned)
+// Flash + error banners
 // ---------------------------------------------------------------------------
 
 function FlashBanner({
@@ -373,12 +413,8 @@ function FlashBanner({
         strokeWidth={2.5}
       />
       <div>
-        <div className="text-sm font-semibold text-[color:var(--text)]">
-          {title}
-        </div>
-        <div className="mt-1 text-[13px] text-[color:var(--text-muted)]">
-          {body}
-        </div>
+        <div className="text-sm font-semibold text-white">{title}</div>
+        <div className="mt-1 text-[13px] text-white/60">{body}</div>
       </div>
     </div>
   );
@@ -406,4 +442,3 @@ function ErrorBanner({ message }: { message: string }) {
     </AnimatePresence>
   );
 }
-
