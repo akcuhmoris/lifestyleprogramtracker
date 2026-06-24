@@ -699,6 +699,11 @@ export async function upsertCharacterProfile(
  * Increment a user's XP by `amount` and recompute level. Returns the new
  * totals plus whether they leveled up. `amount` may be 0 (no-op) but never
  * negative — callers shouldn't take XP away.
+ *
+ * Uses the `award_character_xp` Postgres RPC so the increment is atomic under
+ * concurrent task toggles. If the RPC is missing (e.g. the migration hasn't
+ * been applied yet in some environment), we fall back to the previous
+ * read-modify-write so the app stays functional during rollout.
  */
 export async function awardCharacterXp(
   amount: number
@@ -707,9 +712,39 @@ export async function awardCharacterXp(
     const cur = await getCharacterProfile();
     return { xp: cur.xp, level: cur.level, leveledUp: false };
   }
+
+  const supabase = await createClient();
+  const safeAmount = Math.floor(amount);
+  const { data, error } = await supabase.rpc("award_character_xp", {
+    p_amount: safeAmount,
+  });
+
+  if (!error && data) {
+    // Postgres `returns table(...)` surfaces as an array of rows in PostgREST.
+    const row = Array.isArray(data) ? data[0] : data;
+    if (row) {
+      const xpRaw =
+        typeof row.xp === "number" ? row.xp : Number(row.xp ?? 0);
+      const levelRaw =
+        typeof row.level === "number" ? row.level : Number(row.level ?? 1);
+      const leveledUp = Boolean(row.leveled_up ?? row.leveledUp);
+      const xp = Number.isFinite(xpRaw) && xpRaw >= 0 ? Math.floor(xpRaw) : 0;
+      const level =
+        Number.isFinite(levelRaw) && levelRaw >= 1 ? Math.floor(levelRaw) : 1;
+      return { xp, level, leveledUp };
+    }
+  }
+
+  if (error) {
+    console.warn(
+      "awardCharacterXp: RPC unavailable, falling back to read-modify-write",
+      error
+    );
+  }
+
   const current = await getCharacterProfile();
   const prevLevel = current.level;
-  const xp = current.xp + Math.floor(amount);
+  const xp = current.xp + safeAmount;
   const level = levelForXp(xp);
   await upsertCharacterProfile({ xp, level });
   return { xp, level, leveledUp: level > prevLevel };

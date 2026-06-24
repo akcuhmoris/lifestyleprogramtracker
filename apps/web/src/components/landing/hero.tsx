@@ -186,6 +186,7 @@ export function Hero({ archetype }: HeroProps) {
           <FloatingOrbs count={10} className="-z-10" />
 
           <motion.div
+            aria-hidden="true"
             className="relative"
             style={{
               rotateX: reduceMotion ? 0 : rotateX,

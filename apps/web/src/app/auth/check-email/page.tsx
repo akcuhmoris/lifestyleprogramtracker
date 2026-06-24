@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Mail, Target } from "lucide-react";
 
 import { AnimatedHeading } from "@/components/landing/animated-heading";
-import { BackgroundFx } from "@/components/hud/background-fx";
 import { HudPanel } from "@/components/hud/hud-panel";
 
 export const dynamic = "force-dynamic";
@@ -25,8 +24,6 @@ export default function CheckEmailPage({
       data-theme="midnight"
       className="relative min-h-screen overflow-hidden bg-[#14141d] text-[#f5f5f7]"
     >
-      <BackgroundFx />
-
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-12">
         <Link
           href="/"

@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { Target } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AnimatedHeading } from "@/components/landing/animated-heading";
-import { BackgroundFx } from "@/components/hud/background-fx";
 import { OnboardingPicker } from "./onboarding-picker";
 
 export const metadata = {
@@ -23,8 +22,6 @@ export default async function OnboardingPage() {
       data-theme="midnight"
       className="relative min-h-screen bg-[#14141d] text-[#f5f5f7]"
     >
-      <BackgroundFx />
-
       <main className="relative z-10 flex min-h-screen flex-col items-center px-6 py-12 sm:py-16">
         <Link
           href="/"
@@ -34,7 +31,7 @@ export default async function OnboardingPage() {
           <span
             className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#14141d]"
             style={{
-              background: "#a5b4fc",
+              background: "var(--accent)",
             }}
           >
             <Target className="h-5 w-5" strokeWidth={2.5} />

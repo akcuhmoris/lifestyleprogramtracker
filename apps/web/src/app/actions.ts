@@ -17,17 +17,20 @@ import {
   reorderTasks as dbReorderTasks,
   getDay as dbGetDay,
   getTasks as dbGetTasks,
+  getActiveChallenge as dbGetActiveChallenge,
+  getAllDayStatuses as dbGetAllDayStatuses,
   upsertCharacterProfile as dbUpsertCharacterProfile,
   awardCharacterXp as dbAwardCharacterXp,
   type DayRow,
   type TaskInput,
 } from "@/lib/db";
 import { createClient } from "@/lib/supabase/server";
-import { isFuture, todayLocal } from "@program/shared/date";
+import { dayNumber, isFuture, todayLocal } from "@program/shared/date";
 import { findPhotoTaskId } from "@program/shared/tasks";
 import { findTemplate } from "@program/shared/templates";
 import {
   XP_RULES,
+  computeXpAward,
   isArchetype,
   type Archetype,
 } from "@program/shared/gamification";
@@ -67,16 +70,84 @@ export async function toggleTaskAction(
   const day = await dbToggleTask(date, taskId, completed);
 
   // Hero Mode: award XP per task completion (toggle ON only — un-toggling
-  // doesn't refund XP). Keep this simple for now: just the per-task amount.
-  // TODO(hero): also award FULL_DAY_BONUS when every task is checked.
-  // TODO(hero): also award streak bonus (min(streak, STREAK_CAP)) on full day.
-  // TODO(hero): also award MILESTONE_BONUS on milestone day numbers.
+  // doesn't refund XP). Full-day bonus, streak bonus, and milestone bonus all
+  // computed via the shared `computeXpAward` helper. Wrapped in try/catch so
+  // any failure here never breaks the task toggle itself.
   if (completed) {
     try {
-      await dbAwardCharacterXp(XP_RULES.TASK);
+      // Defaults give us the per-task XP even if everything else fails.
+      let xp: number = XP_RULES.TASK;
+
+      const [tasks, ch] = await Promise.all([
+        dbGetTasks(),
+        dbGetActiveChallenge(),
+      ]);
+      const totalTasks = tasks.length;
+      const completedCount = day.completedTaskIds.length;
+      const allTasksDoneForDay =
+        totalTasks > 0 && completedCount >= totalTasks;
+
+      // Streak: count consecutive fully-complete days ending on `date` (if
+      // the day is now complete) or on the day before (if not). We use
+      // `getAllDayStatuses` so we get one query for the whole challenge
+      // window keyed by date. A "complete" day has >= totalTasks completions.
+      let streakDays = 0;
+      if (totalTasks > 0) {
+        try {
+          const statuses = await dbGetAllDayStatuses();
+          const completeByDate = new Map<string, boolean>();
+          for (const s of statuses) {
+            completeByDate.set(s.date, s.completedCount >= totalTasks);
+          }
+          // The freshly-toggled `date` may not yet reflect in `statuses`
+          // depending on read timing — override with what we just computed.
+          completeByDate.set(date, allTasksDoneForDay);
+
+          // Walk backwards from `date` (inclusive if today is complete).
+          let cursorDate = date;
+          if (!allTasksDoneForDay) {
+            // Start from the previous day.
+            const prev = (() => {
+              const [y, m, d] = cursorDate.split("-").map(Number);
+              const dt = new Date(y, m - 1, d - 1);
+              return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+            })();
+            cursorDate = prev;
+          }
+          // Bounded by challenge window — statuses only contains those days.
+          while (completeByDate.get(cursorDate) === true) {
+            streakDays += 1;
+            const [y, m, d] = cursorDate.split("-").map(Number);
+            const dt = new Date(y, m - 1, d - 1);
+            cursorDate = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+          }
+        } catch (err) {
+          console.error("streak compute", err);
+          streakDays = 0;
+        }
+      }
+
+      // Day number relative to the active challenge's start. If we have no
+      // active challenge somehow, fall back to default start.
+      const dn = ch ? dayNumber(date, ch.start_date) : dayNumber(date);
+
+      xp = computeXpAward({
+        tasksJustCompleted: 1,
+        allTasksDoneForDay,
+        streakDays,
+        dayNumber: dn,
+      });
+
+      await dbAwardCharacterXp(xp);
     } catch (err) {
-      // XP is non-essential — never fail a task toggle on it.
+      // XP is non-essential — never fail a task toggle on it. Fall back to
+      // the flat per-task XP so the user still gets credit.
       console.error("awardCharacterXp", err);
+      try {
+        await dbAwardCharacterXp(XP_RULES.TASK);
+      } catch (innerErr) {
+        console.error("awardCharacterXp fallback", innerErr);
+      }
     }
   }
 

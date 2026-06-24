@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { Sparkles, Target } from "lucide-react";
+import { Target } from "lucide-react";
+
+import { AnimatedHeading } from "@/components/landing/animated-heading";
+import { HudPanel } from "@/components/hud/hud-panel";
 
 export const metadata = {
   title: "Changelog",
@@ -107,71 +110,90 @@ const entries: Entry[] = [
 
 export default function ChangelogPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12 lg:py-16">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-2 text-sm font-semibold tracking-tight"
-      >
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-bg shadow-glow">
-          <Target className="h-4 w-4" strokeWidth={2.5} />
-        </span>
-        <span className="text-text">Lifestyle Program Tracker</span>
-      </Link>
+    <div
+      data-theme="midnight"
+      className="relative min-h-screen overflow-hidden bg-[#14141d] text-[#f5f5f7]"
+    >
+      <main className="relative z-10 mx-auto max-w-3xl px-6 py-12 sm:px-8 lg:py-16">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2.5 text-sm font-semibold tracking-tight text-white"
+        >
+          <span
+            className="inline-flex h-8 w-8 items-center justify-center rounded-xl"
+            style={{
+              background: "var(--accent)",
+              color: "var(--bg)",
+              boxShadow: "0 0 24px -8px var(--accent-glow)",
+            }}
+          >
+            <Target className="h-4 w-4" strokeWidth={2.5} />
+          </span>
+          <span>Lifestyle Program Tracker</span>
+        </Link>
 
-      <header className="mt-10">
-        <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-accent-glow shadow-[0_0_18px_-4px_rgba(14,165,255,0.5)]">
-          <Sparkles className="h-3 w-3" strokeWidth={2.5} />
-          Changelog
-        </span>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-          <span className="text-gradient-accent">What&apos;s new</span>
-        </h1>
-        <p className="mt-3 text-sm text-text-muted">
-          Release notes. Most-recent first.
-        </p>
-      </header>
+        <header className="mt-10">
+          <AnimatedHeading
+            as="h1"
+            className="text-balance font-[Inter,sans-serif] text-4xl font-extrabold tracking-tight text-white sm:text-5xl"
+          >
+            Changelog
+          </AnimatedHeading>
+          <p className="mt-3 text-sm text-white/60">
+            Release notes. Most-recent first.
+          </p>
+        </header>
 
-      <ol className="mt-12 space-y-10">
-        {entries.map((e) => (
-          <li key={e.version} className="relative pl-8">
-            <span className="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-accent shadow-glow" />
-            <div className="absolute left-[5px] top-5 bottom-0 w-px bg-border-subtle" />
-            <div className="flex flex-wrap items-baseline gap-3">
-              <h2 className="text-xl font-semibold tracking-tight">
-                <span className="text-gradient-accent">{e.version}</span>{" "}
-                <span className="text-text-dim">·</span>{" "}
-                <span className="text-text">{e.headline}</span>
-              </h2>
-              <span className="text-[11px] uppercase tracking-[0.18em] text-text-dim">
-                {e.date}
-              </span>
-            </div>
-            <ul className="mt-3 space-y-1.5 list-disc list-outside ml-5 text-[13.5px] text-text-muted leading-relaxed">
-              {e.bullets.map((b, i) => (
-                <li key={i}>{b}</li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ol>
+        <HudPanel className="mt-10 p-6 sm:p-10">
+          <ol className="space-y-10">
+            {entries.map((e) => (
+              <li key={e.version} className="relative pl-8">
+                <span
+                  className="absolute left-0 top-2 h-2.5 w-2.5 rounded-full"
+                  style={{
+                    background: "var(--accent)",
+                    boxShadow: "0 0 18px -2px var(--accent-glow)",
+                  }}
+                />
+                <div className="absolute bottom-0 left-[5px] top-6 w-px bg-white/[0.08]" />
+                <div className="flex flex-wrap items-baseline gap-3">
+                  <h2 className="font-[Inter,sans-serif] text-xl font-bold tracking-tight text-white">
+                    <span style={{ color: "var(--accent)" }}>{e.version}</span>{" "}
+                    <span className="text-white/40">·</span>{" "}
+                    <span className="text-white">{e.headline}</span>
+                  </h2>
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-white/40">
+                    {e.date}
+                  </span>
+                </div>
+                <ul className="ml-5 mt-3 list-outside list-disc space-y-1.5 text-[13.5px] leading-relaxed text-white/80">
+                  {e.bullets.map((b, i) => (
+                    <li key={i}>{b}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        </HudPanel>
 
-      <footer className="mt-16 flex items-center justify-between border-t border-border-subtle pt-6 text-[12px] text-text-dim">
-        <Link href="/about" className="hover:text-accent-glow transition-colors">
-          About
-        </Link>
-        <Link href="/help" className="hover:text-accent-glow transition-colors">
-          Help
-        </Link>
-        <Link href="/privacy" className="hover:text-accent-glow transition-colors">
-          Privacy
-        </Link>
-        <Link href="/terms" className="hover:text-accent-glow transition-colors">
-          Terms
-        </Link>
-        <Link href="/" className="hover:text-accent-glow transition-colors">
-          Home
-        </Link>
-      </footer>
-    </main>
+        <footer className="mx-auto mt-16 flex max-w-3xl flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] pt-6 text-xs text-white/50">
+          <Link href="/about" className="transition-colors hover:text-white">
+            About
+          </Link>
+          <Link href="/help" className="transition-colors hover:text-white">
+            Help
+          </Link>
+          <Link href="/privacy" className="transition-colors hover:text-white">
+            Privacy
+          </Link>
+          <Link href="/terms" className="transition-colors hover:text-white">
+            Terms
+          </Link>
+          <Link href="/" className="transition-colors hover:text-white">
+            Home
+          </Link>
+        </footer>
+      </main>
+    </div>
   );
 }

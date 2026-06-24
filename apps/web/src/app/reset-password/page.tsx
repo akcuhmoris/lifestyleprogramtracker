@@ -22,7 +22,6 @@ import { useState, useTransition } from "react";
 import { setNewPasswordAction } from "@/app/auth/actions";
 import { AnimatedHeading } from "@/components/landing/animated-heading";
 import { MagneticButton } from "@/components/landing/magnetic-button";
-import { BackgroundFx } from "@/components/hud/background-fx";
 import { HudInput } from "@/components/hud/hud-input";
 import { HudPanel } from "@/components/hud/hud-panel";
 
@@ -63,8 +62,6 @@ export default function ResetPasswordPage({
       className="relative min-h-screen bg-[#14141d] text-[#f5f5f7]"
     >
       <main className="relative min-h-screen flex flex-col items-center px-6 py-12">
-        <BackgroundFx />
-
         <Link
           href="/"
           className="mt-2 flex items-center gap-2.5 text-sm font-semibold tracking-tight text-[color:var(--text)]"

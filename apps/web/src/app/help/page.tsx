@@ -15,6 +15,9 @@ import {
   Trophy,
 } from "lucide-react";
 
+import { AnimatedHeading } from "@/components/landing/animated-heading";
+import { HudPanel } from "@/components/hud/hud-panel";
+
 export const metadata = {
   title: "Help",
   description:
@@ -193,7 +196,15 @@ const items: { section: string; questions: Question[] }[] = [
             <code>auth.uid() = user_id</code>. The Storage bucket has the same
             policy keyed off the user-id folder. We do not share data with
             advertisers, data brokers, or marketing networks. Full details in
-            our <Link href="/privacy" className="text-accent-glow hover:underline">Privacy Policy</Link>.
+            our{" "}
+            <Link
+              href="/privacy"
+              className="underline transition-colors hover:text-white"
+              style={{ color: "var(--accent)" }}
+            >
+              Privacy Policy
+            </Link>
+            .
           </>
         ),
       },
@@ -203,86 +214,112 @@ const items: { section: string; questions: Question[] }[] = [
 
 export default function HelpPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12 lg:py-16">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-2 text-sm font-semibold tracking-tight"
-      >
-        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-bg shadow-glow">
-          <Target className="h-4 w-4" strokeWidth={2.5} />
-        </span>
-        <span className="text-text">Lifestyle Program Tracker</span>
-      </Link>
+    <div
+      data-theme="midnight"
+      className="relative min-h-screen overflow-hidden bg-[#14141d] text-[#f5f5f7]"
+    >
+      <main className="relative z-10 mx-auto max-w-3xl px-6 py-12 sm:px-8 lg:py-16">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2.5 text-sm font-semibold tracking-tight text-white"
+        >
+          <span
+            className="inline-flex h-8 w-8 items-center justify-center rounded-xl"
+            style={{
+              background: "var(--accent)",
+              color: "var(--bg)",
+              boxShadow: "0 0 24px -8px var(--accent-glow)",
+            }}
+          >
+            <Target className="h-4 w-4" strokeWidth={2.5} />
+          </span>
+          <span>Lifestyle Program Tracker</span>
+        </Link>
 
-      <header className="mt-10">
-        <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-accent-glow shadow-[0_0_18px_-4px_rgba(14,165,255,0.5)]">
-          <HelpCircle className="h-3 w-3" strokeWidth={2.5} />
-          Help
-        </span>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-          <span className="text-gradient-accent">Questions you&apos;ll probably ask</span>
-        </h1>
-        <p className="mt-4 text-sm text-text-muted leading-relaxed">
-          Couldn&apos;t find what you need? Email{" "}
-          <a href="mailto:support@program.app" className="text-accent-glow hover:underline">
-            support@program.app
-          </a>{" "}
-          and a human will reply within 72 hours.
-        </p>
-      </header>
+        <header className="mt-10">
+          <AnimatedHeading
+            as="h1"
+            className="text-balance font-[Inter,sans-serif] text-4xl font-extrabold tracking-tight text-white sm:text-5xl"
+          >
+            Help
+          </AnimatedHeading>
+          <p className="mt-4 text-sm leading-relaxed text-white/60">
+            Couldn&apos;t find what you need? Email{" "}
+            <a
+              href="mailto:support@program.app"
+              className="underline transition-colors hover:text-white"
+              style={{ color: "var(--accent)" }}
+            >
+              support@program.app
+            </a>{" "}
+            and a human will reply within 72 hours.
+          </p>
+        </header>
 
-      <div className="mt-12 space-y-12">
-        {items.map((group) => (
-          <section key={group.section}>
-            <h2 className="text-[11px] uppercase tracking-[0.2em] text-text-dim font-medium">
-              {group.section}
-            </h2>
-            <div className="mt-4 space-y-3">
-              {group.questions.map((qa, i) => {
-                const Icon = qa.icon;
-                return (
-                  <div
-                    key={i}
-                    className="rounded-2xl border border-border bg-bg-card p-5"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 border border-accent/30 text-accent-glow flex-shrink-0">
-                        <Icon className="h-4 w-4" strokeWidth={2.2} />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-[14px] font-semibold text-text">
-                          {qa.q}
-                        </h3>
-                        <div className="legal-prose mt-2 text-[13.5px] text-text-muted">
-                          {qa.a}
+        <HudPanel className="mt-10 p-6 sm:p-10">
+          <div className="space-y-12">
+            {items.map((group) => (
+              <section key={group.section}>
+                <h2 className="font-[Inter,sans-serif] text-lg font-bold tracking-tight text-white">
+                  {group.section}
+                </h2>
+                <div className="mt-4 space-y-3">
+                  {group.questions.map((qa, i) => {
+                    const Icon = qa.icon;
+                    return (
+                      <div
+                        key={i}
+                        className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5"
+                      >
+                        <div className="flex items-start gap-3">
+                          <span
+                            className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+                            style={{
+                              background:
+                                "color-mix(in srgb, var(--accent) 14%, transparent)",
+                              border:
+                                "1px solid color-mix(in srgb, var(--accent) 38%, transparent)",
+                              color: "var(--accent)",
+                            }}
+                          >
+                            <Icon className="h-4 w-4" strokeWidth={2.2} />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-[Inter,sans-serif] text-[14.5px] font-bold tracking-tight text-white">
+                              {qa.q}
+                            </h3>
+                            <div className="legal-prose mt-2 text-[13.5px] text-white/80">
+                              {qa.a}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        </HudPanel>
 
-      <footer className="mt-16 flex items-center justify-between border-t border-border-subtle pt-6 text-[12px] text-text-dim">
-        <Link href="/about" className="hover:text-accent-glow transition-colors">
-          About
-        </Link>
-        <Link href="/privacy" className="hover:text-accent-glow transition-colors">
-          Privacy
-        </Link>
-        <Link href="/terms" className="hover:text-accent-glow transition-colors">
-          Terms
-        </Link>
-        <Link href="/changelog" className="hover:text-accent-glow transition-colors">
-          Changelog
-        </Link>
-        <Link href="/" className="hover:text-accent-glow transition-colors">
-          Home
-        </Link>
-      </footer>
-    </main>
+        <footer className="mx-auto mt-16 flex max-w-3xl flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] pt-6 text-xs text-white/50">
+          <Link href="/about" className="transition-colors hover:text-white">
+            About
+          </Link>
+          <Link href="/privacy" className="transition-colors hover:text-white">
+            Privacy
+          </Link>
+          <Link href="/terms" className="transition-colors hover:text-white">
+            Terms
+          </Link>
+          <Link href="/changelog" className="transition-colors hover:text-white">
+            Changelog
+          </Link>
+          <Link href="/" className="transition-colors hover:text-white">
+            Home
+          </Link>
+        </footer>
+      </main>
+    </div>
   );
 }

@@ -143,10 +143,10 @@ function Header({ onClose }: { onClose: () => void }) {
         </span>
         <div>
           <Dialog.Title className="text-base font-semibold text-text">
-            Welcome to Program
+            Welcome to Lifestyle Program Tracker
           </Dialog.Title>
           <Dialog.Description className="mt-1 text-[13px] text-text-muted leading-relaxed">
-            A local-first tracker for any lifestyle program — your tasks, your length, your rules. Here&apos;s how it works.
+            A tracker for any lifestyle program — your tasks, your length, your rules. Here&apos;s how it works.
           </Dialog.Description>
         </div>
       </div>
@@ -164,8 +164,8 @@ function Header({ onClose }: { onClose: () => void }) {
 function Intro() {
   return (
     <p className="text-[14px] text-text-muted leading-relaxed">
-      You start with a 100-day default template. Customize the length and tasks any time from{" "}
-      <SettingsLink />. Every check, weigh-in, photo, and journal entry is saved locally on your laptop — nothing leaves your machine.
+      Pick a program (75 Hard, 100 Hard, or your own), tick off your tasks each day, and level up as you go. You start with a 100-day default template — customize the length, tasks, and rules any time from{" "}
+      <SettingsLink />.
     </p>
   );
 }
@@ -257,8 +257,10 @@ function Privacy() {
     <div className="rounded-xl border border-accent/30 bg-accent/5 p-3 flex items-start gap-2.5">
       <Sparkles className="h-3.5 w-3.5 text-accent-glow mt-0.5 flex-shrink-0" strokeWidth={2.5} />
       <div className="text-[12.5px] text-text-muted leading-relaxed">
-        <span className="text-accent-glow font-medium">100% local.</span>{" "}
-        Data lives in <span className="font-mono text-text">hardtracker.db</span> in your project folder; photos live in <span className="font-mono text-text">public/progress-photos/</span>. Both are gitignored. Back up by copying those files.
+        <span className="text-accent-glow font-medium">Your data, your account.</span>{" "}
+        Everything syncs to your account so it follows you across devices and the web. You can export or delete it anytime in{" "}
+        <Link href="/settings" className="text-accent-glow hover:underline">Settings &rarr; Account</Link>. We don&apos;t sell your data — see our{" "}
+        <Link href="/privacy" className="text-accent-glow hover:underline">privacy page</Link> for details.
       </div>
     </div>
   );

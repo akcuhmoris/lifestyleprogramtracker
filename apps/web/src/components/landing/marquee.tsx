@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { Fragment, useState } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
+import { Fragment, useRef, useState } from "react";
 
 type MarqueeProps = {
   items: string[];
@@ -18,6 +18,8 @@ export function Marquee({
 }: MarqueeProps) {
   const reduceMotion = useReducedMotion();
   const [paused, setPaused] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(containerRef, { margin: "0px 0px -10% 0px" });
 
   if (!items || items.length === 0) {
     return null;
@@ -50,16 +52,19 @@ export function Marquee({
   }
 
   const animateX = direction === "left" ? ["0%", "-50%"] : ["-50%", "0%"];
+  // Animation runs only when the marquee is on-screen AND not hover-paused.
+  const running = inView && !paused;
 
   return (
     <div
+      ref={containerRef}
       className={baseClasses}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
       <motion.div
         className="flex w-max items-center"
-        animate={paused ? { x: undefined } : { x: animateX }}
+        animate={running ? { x: animateX } : { x: undefined }}
         transition={{
           duration: speed,
           ease: "linear",

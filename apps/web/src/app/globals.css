@@ -162,6 +162,47 @@ body {
   font-style: italic;
 }
 
+/* Midnight-themed legal-prose — recolors to match the cinematic palette. */
+[data-theme="midnight"] .legal-prose {
+  color: rgba(245, 245, 247, 0.8);
+}
+[data-theme="midnight"] .legal-prose h2,
+[data-theme="midnight"] .legal-prose h3 {
+  color: #ffffff;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+}
+[data-theme="midnight"] .legal-prose p,
+[data-theme="midnight"] .legal-prose ul,
+[data-theme="midnight"] .legal-prose ol {
+  color: rgba(245, 245, 247, 0.8);
+}
+[data-theme="midnight"] .legal-prose strong {
+  color: #ffffff;
+}
+[data-theme="midnight"] .legal-prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+[data-theme="midnight"] .legal-prose a:hover {
+  color: #ffffff;
+  text-decoration-color: #ffffff;
+}
+[data-theme="midnight"] .legal-prose blockquote {
+  border-left: 3px solid var(--accent);
+  color: rgba(245, 245, 247, 0.6);
+}
+[data-theme="midnight"] .legal-prose code {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+[data-theme="midnight"] .legal-prose hr {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 /* ─────────────────────────────────────────────────────────────────
    Hero Mode themes
    Six palettes recolor the whole app via CSS custom properties.

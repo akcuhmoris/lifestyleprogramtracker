@@ -20,8 +20,8 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
-import type { CSSProperties } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
+import { useRef, type CSSProperties } from "react";
 
 import type { Archetype, Tier } from "@program/shared";
 
@@ -96,6 +96,12 @@ export function CharacterAvatar({
   className,
 }: CharacterAvatarProps) {
   const reduceMotion = useReducedMotion();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(containerRef, { margin: "0px 0px -10% 0px" });
+  // Freeze infinite loops when the avatar is off-screen OR the user prefers
+  // reduced motion. `animate` is undefined in either case so framer skips the
+  // RAF tick entirely.
+  const animate = !reduceMotion && inView;
 
   const Icon = ARCHETYPE_ICON[archetype];
   const accent = ARCHETYPE_ACCENT[archetype];
@@ -123,8 +129,13 @@ export function CharacterAvatar({
   // Crown size relative to container.
   const crownPx = Math.max(14, Math.round(px * 0.22));
 
+  // `freeze` mirrors the old `reduceMotion` semantics in sub-components: when
+  // true, infinite loops are skipped. It now also covers the off-screen case.
+  const freeze = !animate;
+
   return (
     <div
+      ref={containerRef}
       className={cn(
         "relative inline-flex items-center justify-center",
         className,
@@ -138,7 +149,7 @@ export function CharacterAvatar({
           accent={accent}
           accentGlow={accentGlow}
           containerPx={px}
-          reduceMotion={!!reduceMotion}
+          reduceMotion={freeze}
         />
       ) : null}
 
@@ -148,7 +159,7 @@ export function CharacterAvatar({
           accent={accent}
           accentGlow={accentGlow}
           containerPx={px}
-          reduceMotion={!!reduceMotion}
+          reduceMotion={freeze}
         />
       ) : null}
 
@@ -158,7 +169,7 @@ export function CharacterAvatar({
           accent={accent}
           accentGlow={accentGlow}
           containerPx={px}
-          reduceMotion={!!reduceMotion}
+          reduceMotion={freeze}
           full={tier >= 5}
         />
       ) : null}
@@ -169,7 +180,7 @@ export function CharacterAvatar({
           accent={accent}
           accentGlow={accentGlow}
           containerPx={px}
-          reduceMotion={!!reduceMotion}
+          reduceMotion={freeze}
         />
       ) : null}
 
@@ -181,7 +192,7 @@ export function CharacterAvatar({
           borderColor: hexToRgba(accent, 0.35),
         }}
         animate={
-          tier >= 2 && !reduceMotion
+          tier >= 2 && animate
             ? {
                 boxShadow: [
                   baseShadow,
@@ -193,7 +204,7 @@ export function CharacterAvatar({
             : undefined
         }
         transition={
-          tier >= 2 && !reduceMotion
+          tier >= 2 && animate
             ? {
                 duration: 2.5,
                 repeat: Infinity,

@@ -151,6 +151,7 @@ function TemplateCard({
               return (
                 <span
                   key={i}
+                  aria-hidden="true"
                   title={t.title}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-white/60"
                 >
@@ -160,6 +161,7 @@ function TemplateCard({
             })}
             {template.tasks.length > 8 && (
               <span
+                aria-hidden="true"
                 className="inline-flex h-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 font-mono text-[11px] tabular-nums text-white/60"
               >
                 +{template.tasks.length - 8}

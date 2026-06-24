@@ -206,7 +206,7 @@ export function TaskCard({
             disabled={disabled}
             onClick={() => setOpen((v) => !v)}
             className={cn(
-              "relative w-full flex items-center justify-between gap-2 px-5 py-2.5",
+              "relative w-full flex items-center justify-between gap-2 px-5 py-2.5 min-h-[44px]",
               "text-[11.5px] uppercase tracking-[0.16em] font-medium",
               "border-t transition-colors",
               completed
