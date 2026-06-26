@@ -237,3 +237,135 @@ describe("computeXpAward", () => {
     ).toBe(5);
   });
 });
+
+describe("computeXpAward — bonus rule coverage", () => {
+  it("single non-final task → TASK only (5)", () => {
+    expect(
+      computeXpAward({
+        tasksJustCompleted: 1,
+        allTasksDoneForDay: false,
+        streakDays: 0,
+        dayNumber: 3,
+      }),
+    ).toBe(XP_RULES.TASK);
+  });
+
+  it("final task, no streak → TASK + FULL_DAY_BONUS (30)", () => {
+    expect(
+      computeXpAward({
+        tasksJustCompleted: 1,
+        allTasksDoneForDay: true,
+        streakDays: 0,
+        dayNumber: 3,
+      }),
+    ).toBe(XP_RULES.TASK + XP_RULES.FULL_DAY_BONUS);
+  });
+
+  it("final task with streak=5 → TASK + FULL_DAY_BONUS + 5 (35)", () => {
+    expect(
+      computeXpAward({
+        tasksJustCompleted: 1,
+        allTasksDoneForDay: true,
+        streakDays: 5,
+        dayNumber: 3,
+      }),
+    ).toBe(
+      XP_RULES.TASK +
+        XP_RULES.FULL_DAY_BONUS +
+        Math.min(5, XP_RULES.STREAK_CAP),
+    );
+  });
+
+  it("final task with streak=50 → caps streak bonus at STREAK_CAP (60 total)", () => {
+    expect(
+      computeXpAward({
+        tasksJustCompleted: 1,
+        allTasksDoneForDay: true,
+        streakDays: 50,
+        dayNumber: 3,
+      }),
+    ).toBe(XP_RULES.TASK + XP_RULES.FULL_DAY_BONUS + XP_RULES.STREAK_CAP);
+  });
+
+  it("final task on milestone day 7 with no streak → TASK + FULL_DAY_BONUS + MILESTONE_BONUS (130)", () => {
+    expect(
+      computeXpAward({
+        tasksJustCompleted: 1,
+        allTasksDoneForDay: true,
+        streakDays: 0,
+        dayNumber: 7,
+      }),
+    ).toBe(
+      XP_RULES.TASK + XP_RULES.FULL_DAY_BONUS + XP_RULES.MILESTONE_BONUS,
+    );
+  });
+
+  it("non-final task on milestone day 7 → no milestone bonus (TASK only)", () => {
+    expect(
+      computeXpAward({
+        tasksJustCompleted: 1,
+        allTasksDoneForDay: false,
+        streakDays: 0,
+        dayNumber: 7,
+      }),
+    ).toBe(XP_RULES.TASK);
+  });
+
+  it.each(XP_RULES.MILESTONE_DAYS.map((d) => [d]))(
+    "milestone day %i triggers MILESTONE_BONUS on full-day completion",
+    (dayNumber) => {
+      expect(
+        computeXpAward({
+          tasksJustCompleted: 1,
+          allTasksDoneForDay: true,
+          streakDays: 0,
+          dayNumber,
+        }),
+      ).toBe(
+        XP_RULES.TASK + XP_RULES.FULL_DAY_BONUS + XP_RULES.MILESTONE_BONUS,
+      );
+    },
+  );
+});
+
+describe("level formula — boundary correctness", () => {
+  it("xp=0 → L1", () => {
+    expect(levelForXp(0)).toBe(1);
+  });
+  it("xp=99 → L1", () => {
+    expect(levelForXp(99)).toBe(1);
+  });
+  it("xp=100 → L2", () => {
+    expect(levelForXp(100)).toBe(2);
+  });
+  it("xp=299 → L2", () => {
+    expect(levelForXp(299)).toBe(2);
+  });
+  it("xp=300 → L3", () => {
+    expect(levelForXp(300)).toBe(3);
+  });
+  it("xp=599 → L3", () => {
+    expect(levelForXp(599)).toBe(3);
+  });
+  it("xp=600 → L4", () => {
+    expect(levelForXp(600)).toBe(4);
+  });
+  it("xp=999 → L4", () => {
+    expect(levelForXp(999)).toBe(4);
+  });
+  it("xp=1000 → L5", () => {
+    expect(levelForXp(1000)).toBe(5);
+  });
+
+  it("roundtrip: levelForXp(xpForLevel(n)) === n for n in [1..10]", () => {
+    for (let n = 1; n <= 10; n++) {
+      expect(levelForXp(xpForLevel(n))).toBe(n);
+    }
+  });
+
+  it("roundtrip just below boundary: levelForXp(xpForLevel(n) - 1) === n - 1 for n in [2..10]", () => {
+    for (let n = 2; n <= 10; n++) {
+      expect(levelForXp(xpForLevel(n) - 1)).toBe(n - 1);
+    }
+  });
+});

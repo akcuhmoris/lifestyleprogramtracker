@@ -6,7 +6,7 @@ A habit tracker for any lifestyle program — 75 Hard, 100 Hard, a 30-day reset,
 
 You configure the **length** (1–365 days) and the **daily requirements** (any number of tasks, each with its own icon, optional text-entry requirement, and special "Journal" / "Photo" behaviors). The app tracks completion per day, your weight over time, free-text notes, journal entries, workout / reading detail, and progress photos.
 
-> **Status:** Web app feature-complete and live against Supabase. Email + magic-link auth, account management (change email/password, delete account, download data), 6 program templates with a signup picker, calendar/heatmap with editable past-day detail, stats page with weight trend, restart-prompt flow, and a completion celebration. Mobile app is next (blocked on Expo + Apple Developer enrollment).
+> **Status:** Web app feature-complete and live against Supabase. Cinematic landing page at `/`, email + magic-link auth, account management (change email/password, delete account, download data), 6 program templates with a signup picker, calendar/heatmap with editable past-day detail, stats page with weight trend, restart-prompt flow, and a completion celebration. **Hero Mode** layers an RPG-style character (6 archetypes, 5 tiers, XP + leveling) on top of every check-in, and the whole app supports **7 themes** (Midnight is the default). Mobile app is next (Apple side ready; blocked on Expo account).
 >
 > For where this is going next, see [`plan/`](./plan/README.md) — especially [`plan/08-roadmap.md`](./plan/08-roadmap.md) (live phase status) and [`plan/USER-TODO.md`](./plan/USER-TODO.md) (what only the human-side can do).
 
@@ -16,9 +16,18 @@ You configure the **length** (1–365 days) and the **daily requirements** (any 
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
-│  SIGN UP                                                          │
-│  • /signup → email confirmation link                              │
+│  LANDING  /                                                       │
+│  • Cinematic marketing page — aurora, archetype reel, themes,     │
+│    live demo, scroll-driven story                                 │
+│  • CTAs into /signup or /login                                    │
+└───────────────────────────────────────────────────────────────────┘
+              │
+              ▼
+┌───────────────────────────────────────────────────────────────────┐
+│  SIGN UP  /signup                                                 │
+│  • Email confirmation link                                        │
 │  • Supabase trigger seeds 12 default tasks + a 100-day program    │
+│    + a Hero Mode character row                                    │
 └───────────────────────────────────────────────────────────────────┘
               │
               ▼
@@ -26,29 +35,36 @@ You configure the **length** (1–365 days) and the **daily requirements** (any 
 │  ONBOARDING  /onboarding                                          │
 │  • Pick one of 6 program templates (100 Hard, 75 Hard, 75 Soft,   │
 │    Movement Streak, Reset Week, or a blank slate)                 │
-│  • Or skip and customize from Settings                            │
+│  • Choose an archetype (Warrior / Sage / Ascetic / Athlete /      │
+│    Builder / Wanderer) — sets your XP focus                       │
 └───────────────────────────────────────────────────────────────────┘
               │
               ▼
 ┌─────────────────────────────────────────┐
-│  EACH DAY  /                            │
+│  EACH DAY  /today                       │
 │  ┌─────────────────────────────────┐    │
 │  │  Tap task cards → ripple +      │    │
-│  │  confetti + check               │    │
+│  │  confetti + XP award            │    │
 │  │  Workout cards → write what     │    │
 │  │  you did (required)             │    │
 │  │  Journal card → write modal     │    │
 │  │  Photo card → upload image      │    │
 │  │  Log weight + daily notes       │    │
 │  └─────────────────────────────────┘    │
-│         Progress bar fills              │
-│             │                           │
+│   HUD: day ring · streak · XP pill      │
 │             │                           │
 │   all done? │ yes → 🎉 celebration      │
 │             │ no                        │
 │             ▼                           │
 │       sleep, repeat tomorrow            │
 └─────────────────────────────────────────┘
+              │
+              ▼
+┌───────────────────────────────────────────────────────────────────┐
+│  HERO MODE  /character                                            │
+│  • Avatar, archetype, current tier, level + XP bar                │
+│  • Level-up toast fires when you cross a threshold                │
+└───────────────────────────────────────────────────────────────────┘
               │
               │  (if you ended yesterday short)
               ▼
@@ -76,15 +92,17 @@ You configure the **length** (1–365 days) and the **daily requirements** (any 
 ### Step-by-step
 
 1. **Clone, install, and seed your `.env.local`** (see [Quick start](#quick-start) below).
-2. **Sign up.** Visit `/signup`, enter email + password. The confirmation email lands in your inbox; clicking it logs you in and sends you to `/onboarding`.
-3. **Pick a template.** Six starter programs are available — or skip and start with the seeded 100-day default.
-4. **(Optional) customize further.** Hit **Settings** in the nav to change program length, edit the task list, change icons, mark a task as Journal/Photo, or require text on any task.
-5. **Daily check-in.** Open **Today**. Each task is a card you tap to check off. Workout cards require you to write what you did; the Journal card opens a modal; the Photo card opens a file picker. Notes and weight live below the task grid.
-6. **Watch the bars.** The progress ring shows where you are in the program; the linear bar shows where you are in today.
-7. **Calendar.** Open **Calendar** anytime. Each cell is colored by completion (dim / red / yellow / blue). Tap any past or current day to open a full editor.
-8. **Stats.** Open **Stats** for per-task completion percentages, totals (water, workouts, pages, journal, photos), and a weight trend sparkline.
-9. **Miss a day?** A banner appears on Today next time you open it: pick **Restart from Day 1** (archives the current attempt, starts a fresh program with today as Day 1) or **Keep going (modified rules)** (the miss stays in your history, counter advances).
-10. **Finish strong.** When every day in your program is `N/N`, the Today page replaces itself with a celebration screen: trophy, totals, dates, confetti, and links back to Calendar / Stats.
+2. **Land on `/`.** The cinematic landing page introduces the product, Hero Mode, and the 7-theme system. Hit **Get started**.
+3. **Sign up.** Visit `/signup`, enter email + password. The confirmation email lands in your inbox; clicking it logs you in and sends you to `/onboarding`.
+4. **Pick a template + archetype.** Six starter programs are available, plus a Hero Mode archetype that sets what your XP rewards.
+5. **(Optional) customize further.** Hit **Settings** in the nav to change program length, edit the task list, change icons, mark a task as Journal/Photo, require text on any task, or swap the theme.
+6. **Daily check-in.** Open **Today** (`/today`). Each task is a card you tap to check off; checking awards XP. Workout cards require you to write what you did; the Journal card opens a modal; the Photo card opens a file picker. Notes and weight live below the task grid.
+7. **Watch the HUD.** A persistent header shows day ring, streak, and an XP pill — tap it to jump to `/character`.
+8. **Calendar.** Open **Calendar** anytime. Each cell is colored by completion (dim / red / yellow / blue). Tap any past or current day to open a full editor.
+9. **Stats.** Open **Stats** for per-task completion percentages, totals (water, workouts, pages, journal, photos), and a weight trend sparkline.
+10. **Character.** Open `/character` for your avatar, archetype, current tier (5 total), and XP-to-next-level bar. Level-up toasts fire when you cross a threshold.
+11. **Miss a day?** A banner appears on Today next time you open it: pick **Restart from Day 1** (archives the current attempt, starts a fresh program with today as Day 1) or **Keep going (modified rules)** (the miss stays in your history, counter advances).
+12. **Finish strong.** When every day in your program is `N/N`, the Today page replaces itself with a celebration screen: trophy, totals, dates, confetti, and links back to Calendar / Stats.
 
 ---
 
@@ -139,6 +157,25 @@ Each template is editable from Settings the moment it's applied.
 
 ---
 
+## Hero Mode (RPG layer)
+
+A second layer that sits on top of the habit tracker — your day-by-day check-ins also build a character.
+
+- **6 archetypes** — Warrior, Sage, Ascetic, Athlete, Builder, Wanderer. Each tilts which kinds of tasks weight your XP gain.
+- **5 tiers** — Novice → Apprentice → Adept → Expert → Master. You unlock the next tier as your level climbs.
+- **XP + leveling** — every task completion awards XP via the `award_xp` Postgres RPC; crossing a threshold pops a level-up toast and updates `/character`.
+- **HUD chrome** — a persistent header on app pages shows day ring, streak, and an XP pill. See `apps/web/src/components/hud/`.
+
+State lives in the `characters` table (added by the Phase-4.5 gamification migration); UI lives at `/character` and in `apps/web/src/components/character/`.
+
+---
+
+## Themes
+
+The app supports **7 dark themes**: **Midnight** (default), Aurora, Forge, Solstice, Verdant, Obsidian, Carbon. Pick yours from **Settings → Theme** (component: `apps/web/src/components/theme/theme-picker.tsx`). All themes are scoped CSS variable sets — palettes live alongside the Tailwind config and the `theme-provider` resolves the active set per user.
+
+---
+
 ## Requirements
 
 | Tool       | Version          | Why                              |
@@ -187,7 +224,7 @@ It probes auth, RLS, the seed trigger, and storage in one shot.
 - **[Supabase](https://supabase.com)** — Postgres (RLS-scoped per user), Auth (email + magic link + OAuth), Storage (signed URLs for progress photos)
 - **[tRPC](https://trpc.io)** — typed API procedures in `packages/api/` (shared with the upcoming mobile client)
 - **[TanStack Query](https://tanstack.com/query)** — server-state cache on the web client
-- **[Vitest](https://vitest.dev)** — 41 unit tests across `packages/shared`
+- **[Vitest](https://vitest.dev)** — 79 unit tests across `packages/shared` plus 10 across `packages/api`
 
 ---
 
@@ -218,9 +255,15 @@ It probes auth, RLS, the seed trigger, and storage in one shot.
 │           │   ├── login, signup, forgot-password, reset-password
 │           │   ├── about, privacy, terms, help, changelog
 │           │   ├── settings, stats, calendar
+│           │   ├── today/              # signed-in daily check-in OR completion screen
+│           │   ├── character/          # Hero Mode page (avatar + XP bar)
 │           │   ├── layout.tsx
-│           │   └── page.tsx           # / route — today view OR completion screen
-│           ├── components/            # task-card, calendar-grid, etc.
+│           │   └── page.tsx            # / cinematic landing (signed-out marketing)
+│           ├── components/             # task-card, calendar-grid, etc.
+│           │   ├── landing/            # hero, aurora, archetypes, themes, live-demo
+│           │   ├── hud/                # persistent HUD, XP pill, quest card, stat blocks
+│           │   ├── character/          # avatar, level-bar, level-up toast + context
+│           │   └── theme/              # theme-picker + theme-provider (7 themes)
 │           ├── lib/
 │           │   ├── supabase/          # server, client, middleware clients
 │           │   ├── trpc/              # client provider + react hooks
@@ -257,8 +300,9 @@ Tables in your Supabase Postgres (all RLS-scoped to `auth.uid()`):
 | `task_details`     | Per-day text entry for any task (e.g. workouts)    |
 | `progress_photos`  | Storage keys for uploaded photos                   |
 | `tasks`            | Configurable daily-task definitions                |
-| `user_settings`    | Per-user knobs (e.g. `total_days`)                 |
+| `user_settings`    | Per-user knobs (e.g. `total_days`, `theme`)        |
 | `app_state`        | Misc per-user flags (dismissed prompts, etc.)      |
+| `characters`       | Hero Mode: archetype, tier, level, XP              |
 
 A `handle_new_user()` trigger fires on `auth.users INSERT` and auto-seeds the 12 default tasks + a 100-day challenge + a `user_settings` row, so a fresh signup lands on a working program from the first click.
 
@@ -332,7 +376,7 @@ When every day in your program is fully complete, the today route renders a vict
 
 ### Change the accent color
 
-Edit the `accent` palette in `apps/web/tailwind.config.ts`. The default is electric blue `#0EA5FF`.
+Each theme has its own accent. The default **Midnight** theme uses `#a5b4fc` on bg `#14141d` / surface `#1f1f2c`. Tweak palettes in `apps/web/tailwind.config.ts` (and the matching CSS variable set in `globals.css`) or add a brand-new theme alongside the existing seven.
 
 ### Use kilograms instead of pounds
 

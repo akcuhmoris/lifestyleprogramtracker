@@ -23,7 +23,6 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export const WELCOME_SEEN_KEY = "lifestyleprogram_seen_welcome_v1";
-const SEEN_KEY = WELCOME_SEEN_KEY;
 export const OPEN_WELCOME_EVENT = "welcome:open";
 
 /** Suppress the welcome modal's auto-pop on the next page load. */
@@ -65,7 +64,7 @@ export function WelcomeModal() {
   useEffect(() => {
     if (onAuthPath) return;
     try {
-      if (localStorage.getItem(SEEN_KEY) !== "1") {
+      if (localStorage.getItem(WELCOME_SEEN_KEY) !== "1") {
         setOpen(true);
       }
     } catch {
@@ -82,7 +81,7 @@ export function WelcomeModal() {
 
   function handleClose() {
     try {
-      localStorage.setItem(SEEN_KEY, "1");
+      localStorage.setItem(WELCOME_SEEN_KEY, "1");
     } catch {
       /* ignore */
     }

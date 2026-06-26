@@ -7,16 +7,17 @@
 
 ```
 Phase 1 ████████████████████  100%
-Phase 2 ████████░░░░░░░░░░░░   38%   (your accounts/decisions — Apple enrollment is in flight)
+Phase 2 ██████████████░░░░░░   70%   (Apple done, Vercel project + Expo done, OAuth dashboard config + domain remain)
 Phase 3 ████████████████████  100%
 Phase 4 ████████████████████  100%
 Phase 5 ████████████████████  100%
-Phase 6 ████████████████░░░░   80%   (signed-URL upload + read shipped in Phase 4)
-Phase 7 ░░░░░░░░░░░░░░░░░░░░    0%   ← next (blocked on Expo account + Apple/Google enrollment)
-Phase 8 ████████████░░░░░░░░   60%   (headers, logger stub, error boundary, comprehensive CI shipped)
+Phase 6 ████████████████████  100%
+Phase 6.5 ████████████████████ 100%  Hero Mode + cinematic landing + 7 themes
+Phase 7 ░░░░░░░░░░░░░░░░░░░░    0%   ← ready to start (Apple done; blocked on Expo install + first EAS build)
+Phase 8 ██████████████░░░░░░   70%   (headers, logger stub, error boundary, CI shipped; Sentry + rate-limit remain)
 Phase 9 ░░░░░░░░░░░░░░░░░░░░    0%
 
-Bonus polish (post-Phase 5, pre-mobile): templates, signup onboarding picker, FAQ, changelog, account section, magic-link, OAuth UI
+Bonus polish (post-Phase 5, pre-mobile): templates, signup onboarding picker, FAQ, changelog, account section, magic-link, OAuth UI, Hero Mode, cinematic landing, 7-theme system
 ```
 
 ## How the phases connect
@@ -28,18 +29,19 @@ flowchart TD
     P3["🗄️ Phase 3<br/>Backend wiring<br/>✅ done"]
     P4["🔌 Phase 4<br/>API rewrite<br/>✅ done"]
     P5["🔐 Phase 5<br/>Auth &amp; multi-tenancy<br/>✅ done"]
-    P6["🖼️ Phase 6<br/>Media &amp; storage<br/>🟡 mostly done"]
-    P7["📱 Phase 7<br/>Mobile app<br/>⬜ blocked on Expo + Apple"]
+    P6["🖼️ Phase 6<br/>Media &amp; storage<br/>✅ done"]
+    P65["✨ Phase 6.5<br/>Hero Mode + landing<br/>✅ done"]
+    P7["📱 Phase 7<br/>Mobile app<br/>🟢 ready to start"]
     P8["🛡️ Phase 8<br/>Production hardening<br/>🟡 in progress"]
     P9["🚀 Phase 9<br/>Beta &amp; launch<br/>⬜ blocked"]
 
-    P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8 --> P9
+    P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P65 --> P7 --> P8 --> P9
 
     classDef done fill:#0EA5FF,stroke:#0284C7,color:#0A0A0B
     classDef wip fill:#F5C518,stroke:#A07700,color:#0A0A0B
     classDef todo fill:#26262C,stroke:#3a3a42,color:#A1A1AA
-    class P1,P3,P4,P5 done
-    class P2,P6,P8 wip
+    class P1,P3,P4,P5,P6,P65 done
+    class P2,P8 wip
     class P7,P9 todo
 ```
 
@@ -212,11 +214,11 @@ Work that wasn't on the original phase list but shipped on `production` while wa
 
 ---
 
-## 🖼️ Phase 6 — Media & storage 🟡
+## 🖼️ Phase 6 — Media & storage ✅
 
 Move progress photos from the laptop filesystem to Supabase Storage so they sync across devices.
 
-**Status:** 🟡 mostly shipped during Phase 4 — only the host-allowlist remains
+**Status:** ✅ done — shipped alongside Phase 4
 
 ### What shipped
 
@@ -224,18 +226,36 @@ Move progress photos from the laptop filesystem to Supabase Storage so they sync
 - [x] Photo upload routes via signed PUT URL through `uploadProgressPhotoAction`
 - [x] Photo preview reads via signed GET URL through `getPhotoUrlAction`
 - [x] Old local `public/progress-photos/*` files migrated by `tools/import-from-sqlite.mjs`
-
-### Remaining
-
-- [ ] `next.config.mjs` `images.remotePatterns` updated to allow the Supabase storage host (currently photos render via `<img>`, not `next/image`)
+- [x] Photos render via `<img>` with signed URLs; `next/image` allowlist is a Phase 8 polish item if/when we move to it
 
 ---
 
-## 📱 Phase 7 — Mobile app ⬜
+## ✨ Phase 6.5 — Hero Mode + cinematic landing + themes ✅
+
+A gamification + brand layer that grew on top of the original phase list while waiting on mobile prereqs.
+
+**Status:** ✅ done · live on `production`
+
+### What shipped
+
+- [x] **Cinematic landing page at `/`** — hero, aurora background, archetypes reel, theme showcase, live demo, scroll progress, magnetic buttons, cta footer (see `apps/web/src/components/landing/`)
+- [x] `/today` route hosts the signed-in daily check-in (the marketing `/` redirects authed users straight there)
+- [x] **Hero Mode** — 6 archetypes (Warrior, Sage, Ascetic, Athlete, Builder, Wanderer) × 5 tiers (Novice → Master), XP + level system
+- [x] `characters` table + `award_xp` Postgres RPC (migrations `20260617000001_gamification.sql`, `20260622000001_award_xp_rpc.sql`)
+- [x] `/character` page with avatar, archetype, level bar, current tier
+- [x] Level-up toast (`level-up-context` + `level-up-toast` in `apps/web/src/components/character/`)
+- [x] Persistent in-app HUD: day ring, streak, XP pill, quest card, stat blocks (`apps/web/src/components/hud/`)
+- [x] **7 themes** — Midnight (default), Aurora, Forge, Solstice, Verdant, Obsidian, Carbon — driven by `theme-provider` + selectable from Settings via `theme-picker`
+- [x] Midnight set as the default theme (migrations `20260617000002_midnight_theme.sql`, `20260619000001_midnight_default.sql`)
+- [x] All in-app pages unified to the Midnight aesthetic; check-email + welcome modal + onboarding match the cinematic landing
+
+---
+
+## 📱 Phase 7 — Mobile app 🟢
 
 The iOS + Android client. Same data, native screens.
 
-**Status:** ⬜ blocked on Phase 6
+**Status:** 🟢 ready to start — Apple side done (App ID `com.akhilmorisetty.lifestyleprogramtracker`, Team ID `S593UGVPW3`, Sign in with Apple enabled); blocked only on the Expo account + first EAS build
 
 > [!IMPORTANT]
 > This phase needs the Apple Developer + Google Play accounts and the Expo account from Phase 2. Mobile bundle IDs must be reserved before this phase begins.
@@ -263,7 +283,7 @@ The iOS + Android client. Same data, native screens.
 
 Ship-quality monitoring, security, and policy compliance.
 
-**Status:** 🟡 in progress — foundations shipped; deploy-target work waits on Phase 2 (Vercel/Sentry accounts)
+**Status:** 🟡 in progress — foundations + Vercel project shipped; Sentry wiring, rate limiting, and the Next 15 upgrade remain
 
 ### What shipped
 
@@ -276,10 +296,11 @@ Ship-quality monitoring, security, and policy compliance.
 - [x] Terms of Service published at `/terms` (drafts — needs lawyer review before launch)
 - [x] Comprehensive CI on every push: lint + typecheck × 3 workspaces + tests + migrations sanity + audit + build with bundle-size check
 - [x] `npm audit` job (currently surfaces 14 Next 14 advisories as known/non-blocking; revisit during Next 15 upgrade for deploy)
+- [x] Vercel project linked to the `production` branch (custom domain DNS still pending)
 
 ### Remaining
 
-- [ ] Sentry web project integrated (needs Sentry account from Phase 2)
+- [ ] Sentry web project integrated (DSN swap — account exists; just needs project + DSN)
 - [ ] Sentry mobile project integrated (Phase 7)
 - [ ] PostHog opt-in analytics (optional)
 - [ ] Rate limiting on write endpoints (Upstash Redis middleware)
@@ -288,6 +309,7 @@ Ship-quality monitoring, security, and policy compliance.
 - [ ] Status page set up (Hyperping / BetterUptime / manual)
 - [ ] One-page incident runbook written
 - [ ] Next 14 → 15 upgrade to clear the 14 high-severity advisories before public deploy
+- [ ] Custom domain purchased + DNS pointed at Vercel
 
 ---
 

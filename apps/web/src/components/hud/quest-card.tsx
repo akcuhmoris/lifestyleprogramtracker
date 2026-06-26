@@ -1,3 +1,4 @@
+// UNUSED — kept as a primitive for future quest-style UI surfaces.
 /**
  * QuestCard — generic soft task-card wrapper (formerly a quest-themed wrapper).
  *

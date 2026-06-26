@@ -51,29 +51,34 @@ export const metadata: Metadata = {
     template: "%s · Lifestyle Program Tracker",
   },
   description:
-    "Track any lifestyle program — your tasks, your length, your rules. 75 Hard, 100 Hard, or your own routine.",
+    "Track 75 Hard, 100 Hard, or any program you design. Pick a hero, show up, and level up.",
   applicationName: "Lifestyle Program Tracker",
+  alternates: {
+    canonical: "/",
+  },
   keywords: [
     "habit tracker",
     "75 hard",
     "100 hard",
     "lifestyle program",
-    "accountability",
-    "fitness",
-    "journal",
+    "discipline",
+    "routine",
   ],
   openGraph: {
     type: "website",
-    title: "Lifestyle Program Tracker — your tasks, your length, your rules",
+    title: "Lifestyle Program Tracker",
     description:
-      "75 Hard, 100 Hard, or your own routine — your tasks, your length, your rules.",
+      "Track 75 Hard, 100 Hard, or any program you design. Pick a hero, show up, and level up.",
+    url: APP_URL,
     siteName: "Lifestyle Program Tracker",
+    images: ["/opengraph-image"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lifestyle Program Tracker — your tasks, your length, your rules",
+    title: "Lifestyle Program Tracker",
     description:
-      "75 Hard, 100 Hard, or your own routine — your tasks, your length, your rules.",
+      "Track 75 Hard, 100 Hard, or any program you design. Pick a hero, show up, and level up.",
+    images: ["/opengraph-image"],
   },
 };
 

@@ -68,6 +68,11 @@ export function LiveDemo() {
   // Used to avoid re-firing level-up confetti for the same threshold crossing.
   const lastLevelRef = useRef(1);
 
+  // Track pending timers so reset() can cancel them — otherwise a stale
+  // setTimeout would fire after reset and flip the toast/level-up state.
+  const bonusTimerRef = useRef<number | null>(null);
+  const levelTimerRef = useRef<number | null>(null);
+
   // Per-task button refs let us anchor a tiny confetti burst to the row that
   // was just checked. canvas-confetti expects origin in viewport coords
   // normalized to [0,1].
@@ -92,8 +97,15 @@ export function LiveDemo() {
       setBonusClaimed(true);
       setTotalXp((xp) => xp + DAY_BONUS);
       setShowBonusToast(true);
-      const t = window.setTimeout(() => setShowBonusToast(false), 2400);
-      return () => window.clearTimeout(t);
+      const t = window.setTimeout(() => {
+        setShowBonusToast(false);
+        bonusTimerRef.current = null;
+      }, 2400);
+      bonusTimerRef.current = t;
+      return () => {
+        window.clearTimeout(t);
+        if (bonusTimerRef.current === t) bonusTimerRef.current = null;
+      };
     }
   }, [allDone, bonusClaimed]);
 
@@ -125,8 +137,15 @@ export function LiveDemo() {
           });
       }
 
-      const t = window.setTimeout(() => setShowLevelUp(false), 2200);
-      return () => window.clearTimeout(t);
+      const t = window.setTimeout(() => {
+        setShowLevelUp(false);
+        levelTimerRef.current = null;
+      }, 2200);
+      levelTimerRef.current = t;
+      return () => {
+        window.clearTimeout(t);
+        if (levelTimerRef.current === t) levelTimerRef.current = null;
+      };
     }
   }, [level, reduceMotion]);
 
@@ -181,6 +200,18 @@ export function LiveDemo() {
   }
 
   function reset() {
+    // Cancel any in-flight toast/level-up timers so they don't fire after
+    // the reset and re-hide UI that the user might re-trigger immediately.
+    if (typeof window !== "undefined") {
+      if (bonusTimerRef.current !== null) {
+        window.clearTimeout(bonusTimerRef.current);
+        bonusTimerRef.current = null;
+      }
+      if (levelTimerRef.current !== null) {
+        window.clearTimeout(levelTimerRef.current);
+        levelTimerRef.current = null;
+      }
+    }
     setCompleted({});
     setTotalXp(0);
     setBonusClaimed(false);
@@ -383,7 +414,8 @@ export function LiveDemo() {
             <button
               type="button"
               onClick={reset}
-              className="inline-flex items-center gap-2 rounded-lg border border-transparent px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors duration-200 hover:border-white/[0.08] hover:bg-white/[0.04] hover:text-zinc-200"
+              aria-label="Reset demo"
+              className="inline-flex items-center gap-2 rounded-lg border border-transparent px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors duration-200 hover:border-white/[0.08] hover:bg-white/[0.04] hover:text-zinc-200 focus:outline-none focus-visible:border-indigo-400/40 focus-visible:bg-white/[0.04] focus-visible:text-zinc-100 focus-visible:ring-2 focus-visible:ring-indigo-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0e12]"
             >
               <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} />
               Reset

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Program — Track any lifestyle program";
+export const alt = "Lifestyle Program Tracker — Build the habit that builds you";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -14,113 +14,95 @@ export default async function Image() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start",
+          alignItems: "center",
           justifyContent: "center",
           padding: "80px",
           background:
-            "radial-gradient(1100px 600px at 78% -10%, rgba(14,165,255,0.45), transparent 60%), radial-gradient(900px 500px at 12% 105%, rgba(14,165,255,0.22), transparent 65%), #0A0A0B",
-          color: "#F4F4F5",
-          fontFamily: "system-ui, sans-serif",
+            "radial-gradient(900px 540px at 50% -10%, rgba(165,180,252,0.20), transparent 65%), radial-gradient(700px 420px at 50% 110%, rgba(165,180,252,0.10), transparent 70%), #14141d",
+          color: "#ffffff",
+          fontFamily: "Inter, system-ui, sans-serif",
         }}
       >
-        {/* Eyebrow */}
+        {/* Centered glyph */}
         <div
           style={{
+            width: 120,
+            height: 120,
+            borderRadius: 28,
+            background: "linear-gradient(160deg, #a5b4fc 0%, #818cf8 100%)",
             display: "flex",
             alignItems: "center",
-            padding: "10px 18px",
-            borderRadius: 9999,
-            border: "1px solid rgba(14,165,255,0.45)",
-            background: "rgba(14,165,255,0.12)",
-            color: "#3DBDFF",
-            fontSize: 20,
-            letterSpacing: 3,
-            textTransform: "uppercase",
-            fontWeight: 600,
+            justifyContent: "center",
+            color: "#14141d",
+            fontSize: 64,
+            fontWeight: 900,
+            letterSpacing: -2,
+            boxShadow:
+              "0 0 80px rgba(165,180,252,0.35), inset 0 1px 0 rgba(255,255,255,0.4)",
+            marginBottom: 48,
           }}
         >
-          <div
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 9999,
-              background: "#0EA5FF",
-              marginRight: 10,
-            }}
-          />
-          Lifestyle program tracker
+          L
         </div>
 
-        {/* Main heading */}
+        {/* Brand wordmark */}
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            marginTop: 32,
-            fontSize: 96,
-            lineHeight: 1.04,
-            letterSpacing: -2,
-            fontWeight: 700,
+            color: "#ffffff",
+            fontSize: 84,
+            lineHeight: 1.05,
+            letterSpacing: -3,
+            fontWeight: 800,
+            textAlign: "center",
           }}
         >
-          <span
-            style={{
-              backgroundImage:
-                "linear-gradient(110deg, #FFFFFF 0%, #B9E2FF 45%, #3DBDFF 100%)",
-              backgroundClip: "text",
-              color: "transparent",
-            }}
-          >
-            Track any program.
-          </span>
-          <span style={{ color: "#F4F4F5" }}>Your tasks. Your rules.</span>
+          Lifestyle Program Tracker
         </div>
 
-        {/* Tagline */}
+        {/* Value prop */}
         <div
           style={{
-            marginTop: 28,
-            color: "#A1A1AA",
-            fontSize: 28,
-            lineHeight: 1.4,
-            maxWidth: 900,
+            display: "flex",
+            marginTop: 32,
+            color: "#a5b4fc",
+            fontSize: 36,
+            lineHeight: 1.3,
+            letterSpacing: -0.5,
+            fontWeight: 500,
+            textAlign: "center",
           }}
         >
-          75 Hard, 100 Hard, or a routine you invented. The polish to make every
-          check feel earned.
+          Build the habit that builds you.
         </div>
 
         {/* Footer mark */}
         <div
           style={{
             position: "absolute",
-            bottom: 60,
-            left: 80,
+            bottom: 56,
+            left: 0,
+            right: 0,
             display: "flex",
             alignItems: "center",
-            gap: 14,
+            justifyContent: "center",
+            gap: 12,
+            color: "rgba(255,255,255,0.45)",
+            fontSize: 20,
+            letterSpacing: 4,
+            textTransform: "uppercase",
+            fontWeight: 600,
           }}
         >
           <div
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              background: "#0EA5FF",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#0A0A0B",
-              fontWeight: 800,
-              fontSize: 18,
-              boxShadow: "0 0 24px rgba(14,165,255,0.35)",
+              width: 8,
+              height: 8,
+              borderRadius: 9999,
+              background: "#a5b4fc",
             }}
-          >
-            P
-          </div>
-          <div style={{ color: "#F4F4F5", fontSize: 24, fontWeight: 700 }}>
-            Program
-          </div>
+          />
+          75 Hard · 100 Hard · Your Own Routine
         </div>
       </div>
     ),

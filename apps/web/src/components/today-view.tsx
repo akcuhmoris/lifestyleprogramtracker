@@ -221,7 +221,9 @@ export function TodayView({
           Today
         </h2>
         <p className="mt-1 text-sm font-normal text-white/60">
-          Check off each requirement as you finish it.
+          {total > 0 && completedCount === 0
+            ? `Day ${dayN} — pick a task to begin.`
+            : "Check off each requirement as you finish it."}
         </p>
 
         {total === 0 ? (

@@ -13,10 +13,11 @@ For the full picture of where we are and what's next, see [`08-roadmap.md`](./08
 | 🔑 Phase 2 — Accounts & decisions | **this is you, right now** | drafts already in | 🟡 Apple enrollment in flight |
 | 🗄️ Phase 3 — Backend wiring | (done — Supabase keys sent) | migrations applied | ✅ done |
 | 🔌 Phase 4 — API rewrite | nothing | tRPC ported, Supabase live | ✅ done |
-| 🔐 Phase 5 — Auth | enable OAuth providers when ready | UI + import script + account section | ✅ done (OAuth provider config pending) |
-| 🖼️ Phase 6 — Media & storage | nothing | bucket + signed URLs | ✅ mostly shipped in Phase 4 |
-| 📱 Phase 7 — Mobile app | install Xcode, create Expo account | build the app | 🟢 unblocked — Apple done |
-| 🛡️ Phase 8 — Production hardening | create Sentry projects, deploy to Vercel | wire it all in | 🟡 foundations done |
+| 🔐 Phase 5 — Auth | enable OAuth providers when ready | UI + import script + account section | ✅ done (OAuth dashboard config pending) |
+| 🖼️ Phase 6 — Media & storage | nothing | bucket + signed URLs | ✅ done |
+| ✨ Phase 6.5 — Hero Mode + landing | nothing | RPG layer + cinematic landing + 7 themes | ✅ done |
+| 📱 Phase 7 — Mobile app | install Xcode, finish Expo login | build the app | 🟢 ready to start |
+| 🛡️ Phase 8 — Production hardening | create Sentry projects | wire it all in | 🟡 Vercel done; Sentry remains |
 | 🚀 Phase 9 — Beta & launch | recruit testers, click "Release" | upload builds, fix bugs | ⬜ blocked on Phase 7 |
 
 ---
@@ -29,11 +30,11 @@ All of these are independent and can run in parallel. The slow ones (Apple, Goog
 
 - [x] **Apple Developer Program** — approved + App ID registered as `com.akhilmorisetty.lifestyleprogramtracker` with Sign in with Apple capability. Team ID `S593UGVPW3`.
 - [ ] **Google Play Console** — <https://play.google.com/console> · $25 one-time · ~48 h to activate
-- [ ] **Supabase** — <https://supabase.com> · free · then create a project named `program-staging`, pick a region near you, save the DB password in a password manager
-- [ ] **Vercel** — <https://vercel.com> · free · link your GitHub account
+- [x] **Supabase** — staging project live, schema + RLS + seed trigger + storage applied
+- [x] **Vercel** — project linked to `production` branch
 - [ ] **Sentry** — <https://sentry.io> · free
-- [ ] **Expo** — <https://expo.dev> · free (you'll need it before Phase 7)
-- [ ] **Domain registrar** — Cloudflare Registrar or Porkbun · ~$12/yr · lock in your brand
+- [x] **Expo** — account created (still need to finish CLI login before first EAS build)
+- [ ] **Domain registrar** — Cloudflare Registrar or Porkbun · ~$12/yr · 🟡 in progress
 
 ### Decisions to make
 
@@ -42,6 +43,12 @@ All of these are independent and can run in parallel. The slow ones (Apple, Goog
 - [ ] **US-only or worldwide** — current default Worldwide w/ GDPR-aware policies
 - [ ] **Domain name** — feeds into the App Store + Play listings
 - [x] **iOS bundle ID + Android package name** — `com.akhilmorisetty.lifestyleprogramtracker` (registered on Apple, will reuse on Play Console)
+
+### One-off chores
+
+- [ ] **Apply the latest Supabase migrations** — run `supabase db push` (or apply via dashboard) so the gamification + theme + `award_xp` RPC migrations are live on staging. Newest files: `20260617000001_gamification.sql`, `20260617000002_midnight_theme.sql`, `20260619000001_midnight_default.sql`, `20260622000001_award_xp_rpc.sql`.
+- [ ] **Smoke test the live deploy** — sign up a fresh account on the Vercel deploy, run through onboarding → today → character → calendar. Confirm XP awards and the level-up toast fire.
+- [ ] **Buy the domain** — pick a registrar (Cloudflare / Porkbun) and lock the brand. Then point DNS at the Vercel project.
 
 > [!IMPORTANT]
 > The single most important hand-off: when your **Supabase staging project** exists, send me **Project URL**, **anon public key**, and **service role key** (the last one is sensitive — share over a channel you trust). That single message unlocks Phases 3 → 6 and I can run with it for a long stretch.
@@ -102,6 +109,20 @@ These configurations live inside Supabase's dashboard. They need real OAuth app 
 
 ---
 
+## ✨ Hero Mode (live — informational)
+
+This is shipped already; nothing for you to do. Listed here so you know what's on the production app today.
+
+- **Cinematic landing at `/`** — aurora, archetypes reel, theme showcase, live demo. Authed users skip to `/today`.
+- **6 archetypes** — Warrior, Sage, Ascetic, Athlete, Builder, Wanderer. Pick one during onboarding.
+- **5 tiers** — Novice → Apprentice → Adept → Expert → Master. Unlocks as your level climbs.
+- **XP + level system** — every task completion awards XP via the `award_xp` Postgres RPC; the `characters` table stores archetype, tier, level, XP.
+- **Persistent HUD** — day ring, streak, XP pill visible on in-app pages.
+- **`/character` page** — avatar, archetype, level bar, level-up toast on threshold crossings.
+- **7 themes** — Midnight (default), Aurora, Forge, Solstice, Verdant, Obsidian, Carbon. Pick from **Settings → Theme**.
+
+---
+
 ## Status dashboard
 
 Mark as you go — gives both of us a single-glance picture of where we are.
@@ -109,12 +130,12 @@ Mark as you go — gives both of us a single-glance picture of where we are.
 ### Accounts
 - [x] Apple Developer Program enrolled (approved 2026-06-01)
 - [ ] Google Play Console enrolled
-- [ ] Supabase account
-- [ ] Vercel account
-- [ ] Expo account
+- [x] Supabase account + staging project
+- [x] Vercel account + project linked
+- [x] Expo account
 - [ ] Sentry account
 - [ ] PostHog account (optional)
-- [ ] Domain purchased
+- [ ] Domain purchased (🟡 picking registrar)
 
 ### Decisions
 - [ ] Final brand name picked
@@ -141,12 +162,17 @@ Mark as you go — gives both of us a single-glance picture of where we are.
 - [x] **Photos in Supabase Storage** via signed URLs
 - [x] **Program templates + signup onboarding picker** — pick a starter preset from `/onboarding` or `/settings`
 - [x] **FAQ + changelog pages** at `/help` and `/changelog`
+- [x] **Cinematic landing page at `/`** — hero, aurora, archetypes, themes, live demo
+- [x] **Hero Mode** — 6 archetypes × 5 tiers, XP + level system, `/character` page, level-up toast, persistent HUD
+- [x] **7 themes** — Midnight (default), Aurora, Forge, Solstice, Verdant, Obsidian, Carbon
+- [x] **Vercel project linked** to the `production` branch
 
 ### Still to come
+- [ ] Apply latest Supabase migrations (gamification + theme + `award_xp` RPC) — you-task
+- [ ] Smoke test the live Vercel deploy end-to-end — you-task
+- [ ] Buy + point a custom domain — you-task
 - [ ] Supabase OAuth providers (Google + Apple) configured in dashboard — you-task
-- [ ] Vercel project linked to GitHub — you-task
-- [ ] Custom domain — you-task
-- [ ] Mobile app scaffolded — blocked on your Expo account
+- [ ] Mobile app scaffolded — needs Expo CLI login finalized
 - [ ] Mobile feature parity with web
 - [ ] Sentry projects created + DSN swapped in — you-task
 - [ ] Rate limiting on write endpoints
