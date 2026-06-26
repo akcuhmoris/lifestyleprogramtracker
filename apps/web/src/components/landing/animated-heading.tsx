@@ -26,8 +26,9 @@ export function AnimatedHeading({
   const words = children.split(" ");
 
   return (
-    <Tag className={className}>
+    <Tag className={className} aria-label={children}>
       <motion.span
+        aria-hidden="true"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.5 }}
@@ -37,6 +38,7 @@ export function AnimatedHeading({
         {words.map((word, index) => (
           <motion.span
             key={`${word}-${index}`}
+            aria-hidden="true"
             variants={{
               hidden: { opacity: 0, y: 20, filter: "blur(8px)" },
               visible: { opacity: 1, y: 0, filter: "blur(0px)" },

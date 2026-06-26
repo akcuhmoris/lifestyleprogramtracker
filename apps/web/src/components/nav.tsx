@@ -109,6 +109,8 @@ export function Nav({ userEmail }: { userEmail: string | null }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-label={item.label}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative flex flex-col items-center justify-center gap-0.5",
                     "rounded-lg px-3 py-2 min-h-[44px] min-w-[44px] transition-colors duration-150",

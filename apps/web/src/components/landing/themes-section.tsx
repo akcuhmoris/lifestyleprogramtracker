@@ -70,7 +70,8 @@ function ThemeCard({ theme, index }: ThemeCardProps) {
     : {};
 
   return (
-    <motion.div
+    <motion.button
+      type="button"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
@@ -82,8 +83,11 @@ function ThemeCard({ theme, index }: ThemeCardProps) {
       whileHover={{ y: -6 }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      aria-label={`Preview ${theme.name} theme`}
       style={hoverStyle}
-      className="group overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur transition-colors duration-300 hover:border-white/[0.12]"
+      className="group block w-full text-left overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur transition-colors duration-300 hover:border-white/[0.12] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] focus-visible:ring-[color:var(--accent)]"
     >
       {/* Preview area */}
       <div
@@ -152,6 +156,6 @@ function ThemeCard({ theme, index }: ThemeCardProps) {
           />
         </div>
       </div>
-    </motion.div>
+    </motion.button>
   );
 }

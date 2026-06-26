@@ -115,8 +115,13 @@ export function WelcomeModal() {
                 transition={{ type: "spring", stiffness: 260, damping: 26 }}
                 className={cn(
                   "w-[94vw] max-w-2xl max-h-[90vh] overflow-y-auto",
-                  "pointer-events-auto rounded-2xl border border-border bg-bg-card shadow-card"
+                  "pointer-events-auto rounded-2xl border border-white/[0.08]"
                 )}
+                style={{
+                  background: "var(--surface)",
+                  boxShadow:
+                    "0 30px 80px -40px rgba(0,0,0,0.7), 0 0 40px -20px var(--accent-glow)",
+                }}
               >
                 <Header onClose={handleClose} />
                 <div className="px-6 py-6 space-y-5">
@@ -136,23 +141,37 @@ export function WelcomeModal() {
 
 function Header({ onClose }: { onClose: () => void }) {
   return (
-    <header className="flex items-start justify-between gap-4 px-6 py-5 border-b border-border-subtle">
+    <header className="flex items-start justify-between gap-4 px-6 py-5 border-b border-white/[0.06]">
       <div className="flex items-start gap-3">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-bg shadow-glow flex-shrink-0">
+        <span
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0"
+          style={{
+            background: "var(--accent)",
+            color: "var(--bg)",
+            boxShadow: "0 0 24px -8px var(--accent-glow)",
+          }}
+        >
           <Target className="h-5 w-5" strokeWidth={2.5} />
         </span>
         <div>
-          <Dialog.Title className="text-base font-semibold text-text">
+          <Dialog.Title
+            className="text-base font-semibold"
+            style={{ color: "var(--text)" }}
+          >
             Welcome to Lifestyle Program Tracker
           </Dialog.Title>
-          <Dialog.Description className="mt-1 text-[13px] text-text-muted leading-relaxed">
+          <Dialog.Description
+            className="mt-1 text-[13px] leading-relaxed"
+            style={{ color: "var(--text-muted)" }}
+          >
             A tracker for any lifestyle program — your tasks, your length, your rules. Here&apos;s how it works.
           </Dialog.Description>
         </div>
       </div>
       <button
         onClick={onClose}
-        className="text-text-muted hover:text-text rounded-md p-1.5 hover:bg-bg-hover transition-colors"
+        className="rounded-md p-1.5 transition-colors hover:bg-white/[0.06]"
+        style={{ color: "var(--text-muted)" }}
         aria-label="Close"
       >
         <X className="h-4 w-4" />
@@ -163,7 +182,10 @@ function Header({ onClose }: { onClose: () => void }) {
 
 function Intro() {
   return (
-    <p className="text-[14px] text-text-muted leading-relaxed">
+    <p
+      className="text-[14px] leading-relaxed"
+      style={{ color: "var(--text-muted)" }}
+    >
       Pick a program (75 Hard, 100 Hard, or your own), tick off your tasks each day, and level up as you go. You start with a 100-day default template — customize the length, tasks, and rules any time from{" "}
       <SettingsLink />.
     </p>
@@ -174,7 +196,8 @@ function SettingsLink() {
   return (
     <Link
       href="/settings"
-      className="inline-flex items-center gap-1 text-accent-glow hover:underline"
+      className="inline-flex items-center gap-1 hover:underline"
+      style={{ color: "var(--accent)" }}
     >
       Settings
       <SettingsIcon className="h-3 w-3" strokeWidth={2.5} />
@@ -237,16 +260,40 @@ function Step({
   body: string;
 }) {
   return (
-    <li className="flex items-start gap-3 rounded-xl border border-border-subtle bg-bg-elevated p-3">
-      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 border border-accent/30 text-accent-glow flex-shrink-0 font-semibold text-[13px] tabular-nums">
+    <li
+      className="flex items-start gap-3 rounded-xl border border-white/[0.06] p-3"
+      style={{ background: "rgba(255,255,255,0.02)" }}
+    >
+      <span
+        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border flex-shrink-0 font-semibold text-[13px] tabular-nums"
+        style={{
+          background: "rgba(165,180,252,0.10)",
+          borderColor: "rgba(165,180,252,0.30)",
+          color: "var(--accent)",
+        }}
+      >
         {n}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <Icon className="h-3.5 w-3.5 text-accent-glow flex-shrink-0" strokeWidth={2.5} />
-          <span className="text-[13.5px] font-semibold text-text">{title}</span>
+          <Icon
+            className="h-3.5 w-3.5 flex-shrink-0"
+            strokeWidth={2.5}
+            style={{ color: "var(--accent)" }}
+          />
+          <span
+            className="text-[13.5px] font-semibold"
+            style={{ color: "var(--text)" }}
+          >
+            {title}
+          </span>
         </div>
-        <p className="mt-1 text-[12.5px] text-text-muted leading-relaxed">{body}</p>
+        <p
+          className="mt-1 text-[12.5px] leading-relaxed"
+          style={{ color: "var(--text-muted)" }}
+        >
+          {body}
+        </p>
       </div>
     </li>
   );
@@ -254,13 +301,42 @@ function Step({
 
 function Privacy() {
   return (
-    <div className="rounded-xl border border-accent/30 bg-accent/5 p-3 flex items-start gap-2.5">
-      <Sparkles className="h-3.5 w-3.5 text-accent-glow mt-0.5 flex-shrink-0" strokeWidth={2.5} />
-      <div className="text-[12.5px] text-text-muted leading-relaxed">
-        <span className="text-accent-glow font-medium">Your data, your account.</span>{" "}
+    <div
+      className="rounded-xl border p-3 flex items-start gap-2.5"
+      style={{
+        borderColor: "rgba(165,180,252,0.25)",
+        background: "rgba(165,180,252,0.05)",
+      }}
+    >
+      <Sparkles
+        className="h-3.5 w-3.5 mt-0.5 flex-shrink-0"
+        strokeWidth={2.5}
+        style={{ color: "var(--accent)" }}
+      />
+      <div
+        className="text-[12.5px] leading-relaxed"
+        style={{ color: "var(--text-muted)" }}
+      >
+        <span className="font-medium" style={{ color: "var(--accent)" }}>
+          Your data, your account.
+        </span>{" "}
         Everything syncs to your account so it follows you across devices and the web. You can export or delete it anytime in{" "}
-        <Link href="/settings" className="text-accent-glow hover:underline">Settings &rarr; Account</Link>. We don&apos;t sell your data — see our{" "}
-        <Link href="/privacy" className="text-accent-glow hover:underline">privacy page</Link> for details.
+        <Link
+          href="/settings"
+          className="hover:underline"
+          style={{ color: "var(--accent)" }}
+        >
+          Settings &rarr; Account
+        </Link>
+        . We don&apos;t sell your data — see our{" "}
+        <Link
+          href="/privacy"
+          className="hover:underline"
+          style={{ color: "var(--accent)" }}
+        >
+          privacy page
+        </Link>{" "}
+        for details.
       </div>
     </div>
   );
@@ -268,11 +344,12 @@ function Privacy() {
 
 function Footer({ onClose }: { onClose: () => void }) {
   return (
-    <footer className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-border-subtle">
+    <footer className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-white/[0.06]">
       <Link
         href="/settings"
         onClick={onClose}
-        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-bg-card px-3.5 py-2 text-[13px] font-medium text-text hover:border-accent/40 hover:text-accent-glow transition-colors"
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/[0.08] px-3.5 py-2 text-[13px] font-medium transition-colors hover:border-white/[0.18]"
+        style={{ background: "rgba(255,255,255,0.02)", color: "var(--text)" }}
       >
         <SettingsIcon className="h-3.5 w-3.5" strokeWidth={2.5} />
         Customize first
@@ -280,7 +357,12 @@ function Footer({ onClose }: { onClose: () => void }) {
       <button
         type="button"
         onClick={onClose}
-        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-[13px] font-semibold text-bg shadow-glow hover:brightness-110 transition-all"
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-[13px] font-semibold transition-all hover:brightness-110"
+        style={{
+          background: "var(--accent)",
+          color: "var(--bg)",
+          boxShadow: "0 0 24px -8px var(--accent-glow)",
+        }}
       >
         <Check className="h-3.5 w-3.5" strokeWidth={2.8} />
         Got it — start Day 1

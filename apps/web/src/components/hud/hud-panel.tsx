@@ -62,7 +62,7 @@ function HudCorners() {
   const size = 10;
 
   return (
-    <g aria-hidden="true" style={{ opacity: 0.4 }}>
+    <span aria-hidden="true" style={{ opacity: 0.4 }} className="pointer-events-none">
       {/* top-left */}
       <svg
         aria-hidden="true"
@@ -127,6 +127,6 @@ function HudCorners() {
           strokeLinecap="round"
         />
       </svg>
-    </g>
+    </span>
   );
 }

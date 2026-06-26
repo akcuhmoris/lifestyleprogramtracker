@@ -25,6 +25,10 @@ const securityHeaders = [
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["better-sqlite3"],
+    // Tree-shake large libraries more aggressively. Both pull a lot of
+    // sub-modules that are otherwise included as one big chunk on any page
+    // that touches a single icon or motion primitive.
+    optimizePackageImports: ["lucide-react", "framer-motion"],
   },
   async headers() {
     return [

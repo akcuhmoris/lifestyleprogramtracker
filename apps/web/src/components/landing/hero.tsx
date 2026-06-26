@@ -12,7 +12,7 @@
  * Tilt + entrance both honor prefers-reduced-motion.
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   motion,
   useMotionValue,
@@ -82,21 +82,39 @@ export function Hero({ archetype }: HeroProps) {
   const rotateY = useTransform(springX, [-1, 1], [-MAX_TILT_Y, MAX_TILT_Y]);
   const rotateX = useTransform(springY, [-1, 1], [MAX_TILT_X, -MAX_TILT_X]);
 
+  // Coalesce mousemove updates to one per animation frame. Mousemove can fire
+  // 100+ times per second; the avatar tilt only ever paints once per frame, so
+  // anything more is wasted work (and on lower-end laptops it bogged down the
+  // main thread). The captured x/y in the closure tracks the most recent event.
+  const rafIdRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (reduceMotion) return;
 
     function handleMove(e: MouseEvent) {
-      const halfW = window.innerWidth / 2;
-      const halfH = window.innerHeight / 2;
-      // Clamp to [-1, 1] so wide aspect ratios don't push past the max tilt.
-      const nx = Math.max(-1, Math.min(1, (e.clientX - halfW) / halfW));
-      const ny = Math.max(-1, Math.min(1, (e.clientY - halfH) / halfH));
-      mouseX.set(nx);
-      mouseY.set(ny);
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+      if (rafIdRef.current !== null) return;
+      rafIdRef.current = requestAnimationFrame(() => {
+        const halfW = window.innerWidth / 2;
+        const halfH = window.innerHeight / 2;
+        // Clamp to [-1, 1] so wide aspect ratios don't push past the max tilt.
+        const nx = Math.max(-1, Math.min(1, (clientX - halfW) / halfW));
+        const ny = Math.max(-1, Math.min(1, (clientY - halfH) / halfH));
+        mouseX.set(nx);
+        mouseY.set(ny);
+        rafIdRef.current = null;
+      });
     }
 
     window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+    };
   }, [mouseX, mouseY, reduceMotion]);
 
   return (

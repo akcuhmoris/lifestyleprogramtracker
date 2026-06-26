@@ -83,9 +83,22 @@ export const MagneticButton = forwardRef<
     y.set(dy * strength);
   };
 
-  const handleMouseLeave = () => {
+  const resetPosition = () => {
     x.set(0);
     y.set(0);
+  };
+
+  const handleMouseLeave = () => {
+    resetPosition();
+  };
+
+  // Compose any caller-provided onBlur with our reset so the focus ring
+  // doesn't render on the offset position after the user moves the cursor
+  // away while focused.
+  const callerOnBlur = (rest as { onBlur?: (event: unknown) => void }).onBlur;
+  const handleBlur = (event: unknown) => {
+    resetPosition();
+    callerOnBlur?.(event);
   };
 
   const innerClassName = cx(baseClasses, variantClasses[variant], className);
@@ -97,6 +110,7 @@ export const MagneticButton = forwardRef<
   const sharedMotionProps = {
     whileTap: { scale: 0.95 },
     style: motionStyle,
+    onBlur: handleBlur,
   };
 
   return (

@@ -12,7 +12,11 @@
  * now the section is purely a preview surface.
  */
 
-import { useRef, type MouseEvent as ReactMouseEvent } from "react";
+import {
+  useRef,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
 import {
   motion,
   useMotionValue,
@@ -64,6 +68,41 @@ export function ArchetypesSection({
   selected,
   onHover,
 }: ArchetypesSectionProps) {
+  const cardRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  function handleRadioKeyDown(
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) {
+    const total = ARCHETYPES.length;
+    let nextIndex: number | null = null;
+    switch (event.key) {
+      case "ArrowRight":
+      case "ArrowDown":
+        nextIndex = (index + 1) % total;
+        break;
+      case "ArrowLeft":
+      case "ArrowUp":
+        nextIndex = (index - 1 + total) % total;
+        break;
+      case "Home":
+        nextIndex = 0;
+        break;
+      case "End":
+        nextIndex = total - 1;
+        break;
+      default:
+        return;
+    }
+    if (nextIndex === null) return;
+    event.preventDefault();
+    const target = cardRefs.current[nextIndex];
+    if (target) {
+      target.focus();
+      onHover(ARCHETYPES[nextIndex].id);
+    }
+  }
+
   return (
     <section className="relative mx-auto w-full max-w-6xl px-6 py-32">
       {/* Header */}
@@ -93,6 +132,8 @@ export function ArchetypesSection({
 
       {/* Grid */}
       <div
+        role="radiogroup"
+        aria-label="Choose your hero"
         className="grid grid-cols-1 gap-5 md:grid-cols-3"
         style={{ perspective: "800px" }}
       >
@@ -122,6 +163,10 @@ export function ArchetypesSection({
                 isSelected={isSelected}
                 onMouseEnter={() => onHover(archetype.id)}
                 onMouseLeave={() => onHover(null)}
+                onKeyDown={(event) => handleRadioKeyDown(event, index)}
+                buttonRef={(node) => {
+                  cardRefs.current[index] = node;
+                }}
               />
             </motion.div>
           );
@@ -147,6 +192,8 @@ type ArchetypeCardProps = {
   isSelected: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  onKeyDown?: (event: ReactKeyboardEvent<HTMLButtonElement>) => void;
+  buttonRef?: (node: HTMLButtonElement | null) => void;
 };
 
 function ArchetypeCard({
@@ -158,6 +205,8 @@ function ArchetypeCard({
   isSelected,
   onMouseEnter,
   onMouseLeave,
+  onKeyDown,
+  buttonRef,
 }: ArchetypeCardProps) {
   const reduceMotion = useReducedMotion();
   const cardRef = useRef<HTMLButtonElement | null>(null);
@@ -194,15 +243,21 @@ function ArchetypeCard({
 
   return (
     <motion.button
-      ref={cardRef}
+      ref={(node) => {
+        cardRef.current = node;
+        buttonRef?.(node);
+      }}
       type="button"
+      role="radio"
+      aria-checked={isSelected}
+      tabIndex={isSelected ? 0 : -1}
       onMouseEnter={onMouseEnter}
       onMouseLeave={handlePointerLeave}
       onMouseMove={handlePointerMove}
       onFocus={onMouseEnter}
       onBlur={onMouseLeave}
       onClick={onMouseEnter}
-      aria-pressed={isSelected}
+      onKeyDown={onKeyDown}
       aria-label={`Pick ${displayName}, ${tagline}`}
       whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 320, damping: 26 }}

@@ -114,7 +114,7 @@ export function TaskCard({
       transition={{ type: "spring", stiffness: 380, damping: 26 }}
       className={cn(
         "group relative overflow-hidden rounded-2xl border transition-colors",
-        "focus-within:ring-2 focus-within:ring-accent/60",
+        "focus-within:ring-2 focus-within:ring-accent focus-within:ring-offset-2 focus-within:ring-offset-bg",
         disabled && "opacity-40",
         completed
           ? "bg-gradient-to-br from-accent/20 via-accent/8 to-transparent border-accent/50 shadow-glow"
