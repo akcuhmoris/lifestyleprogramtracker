@@ -1,0 +1,20 @@
+node_modules/
+.expo/
+dist/
+web-build/
+
+# Native build artifacts (managed workflow regenerates these)
+ios/
+android/
+
+# Credentials — never commit
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Env
+.env
+.env.local

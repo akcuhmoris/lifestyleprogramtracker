@@ -78,6 +78,9 @@ These configurations live inside Supabase's dashboard. They need real OAuth app 
 ## 🛡️ Phase 8 — what to do when we get there
 
 - [ ] Create a **Sentry project for `web`** and one for `mobile`
+  - Wiring is already in: `sentry.{client,server,edge}.config.ts`, `next.config.mjs` `withSentryConfig` wrap, and `lib/logger.ts` calls `Sentry.captureException` / `captureMessage` on warn + error.
+  - To turn it on: `npm install @sentry/nextjs` inside `apps/web`, then drop the DSN into `apps/web/.env.local` as `NEXT_PUBLIC_SENTRY_DSN=...` (see `sentry.env.example` for the full schema, including `SENTRY_ORG` + `SENTRY_AUTH_TOKEN` for source map uploads).
+  - Without the DSN + package install, everything stays a no-op — builds keep working.
 - [ ] (Optional) Create a **PostHog** account if you want analytics
 - [ ] Pick a **support / privacy contact email** (e.g. `support@yourdomain.app`)
 - [ ] Review the **Privacy Policy + Terms** drafts in `plan/legal/`, fill in the `[BRACKETED]` placeholders, ideally have a lawyer review

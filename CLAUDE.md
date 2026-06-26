@@ -13,9 +13,9 @@ The repo holds **two production targets**: the web app (live) and a mobile app (
 ## Current state
 
 - **`main` branch**: original local-only prototype using better-sqlite3 (preserved for reference).
-- **`production` branch**: current work — Supabase-backed multi-user web app at parity with the original prototype, plus auth, account management, marketing surface, legal pages.
-- Phase 4 (API rewrite to Supabase + tRPC) is complete and verified.
-- Phase 5 (auth + multi-tenancy) is almost done — account menu, delete-account, data-export, OAuth UI, forgot-password all shipped.
+- **`production` branch**: current work — Supabase-backed multi-user web app, full auth + account management, marketing surface, legal pages, **cinematic landing page**, **Hero Mode** (6 archetypes, 5 tiers, XP/level system), and **7 themes** (Midnight default).
+- Phase 4 (API rewrite to Supabase + tRPC) and Phase 5 (auth + multi-tenancy) are both done. Phase 6 (media/storage) is effectively complete.
+- **Gamification + cinematic landing** shipped on top of the original phase plan: `/` is the Midnight-aesthetic landing, `/today` hosts the daily check-in, `/character` shows the avatar / level / XP bar, level-up toasts fire on threshold crossings, and a persistent HUD frames the in-app pages.
 - Mobile app (Phase 7) hasn't started. Apple side is ready (App ID `com.akhilmorisetty.lifestyleprogramtracker`, Team ID `S593UGVPW3`, Sign in with Apple enabled). Still blocked on the user's Expo account before EAS builds can run.
 
 See `plan/08-roadmap.md` for the live phase status.
@@ -78,6 +78,8 @@ See `plan/08-roadmap.md` for the live phase status.
 | Schema migrations | `apps/web/supabase/migrations/*.sql` |
 | RLS policies | `apps/web/supabase/migrations/20260528000001_rls_policies.sql` |
 | Auto-seed trigger | `apps/web/supabase/migrations/20260528000002_seed_defaults_trigger.sql` |
+| Gamification schema | `apps/web/supabase/migrations/20260617000001_gamification.sql` (+ `20260622000001_award_xp_rpc.sql`) |
+| Theme migrations | `apps/web/supabase/migrations/20260617000002_midnight_theme.sql`, `20260619000001_midnight_default.sql` |
 | Task type | `packages/shared/src/tasks.ts` |
 | Date math | `packages/shared/src/date.ts` |
 | Icon registry | `packages/shared/src/icons.ts` |
@@ -85,10 +87,14 @@ See `plan/08-roadmap.md` for the live phase status.
 | Server Actions | `apps/web/src/app/actions.ts`, `auth/actions.ts`, `account/actions.ts` |
 | Supabase clients | `apps/web/src/lib/supabase/{server,client,middleware}.ts` |
 | Auth UI | `apps/web/src/components/auth/*` |
+| Landing page | `apps/web/src/app/page.tsx` + `apps/web/src/components/landing/*` (hero, aurora, archetypes, themes, live-demo, cta-footer) |
+| HUD primitives | `apps/web/src/components/hud/*` (persistent-hud, xp-pill, quest-card, stat-block, hud-header/button/input/panel, background-fx) |
+| Character / Hero Mode | `apps/web/src/app/character/`, `apps/web/src/components/character/*` (avatar, level-bar, level-up-toast, level-up-context) |
+| Theme system | `apps/web/src/components/theme/{theme-picker,theme-provider}.tsx` (7 themes; Midnight default) |
 | tRPC routers | `packages/api/src/routers/{tasks,entries,settings,challenges,media,stats}.ts` |
 | tRPC root | `packages/api/src/router.ts` |
 | Plan docs | `plan/` (00-overview, 08-roadmap, USER-TODO, etc.) |
-| Tests | `packages/shared/src/*.test.ts` |
+| Tests | `packages/shared/src/*.test.ts` (79), `packages/api/src/**/*.test.ts` (10) |
 
 ## Conventions
 
@@ -146,10 +152,10 @@ See `plan/08-roadmap.md` for the live phase status.
 ## What's NOT done
 
 - Mobile app (`apps/mobile/`) — not scaffolded. Apple side ready (see above). Blocked on user's Expo account before EAS Build can run.
-- Vercel deployment — needs user to connect GitHub.
-- Sentry capture — DSN required; logger stub is ready to swap.
-- Apple + Google OAuth provider config in Supabase dashboard — UI is ready.
+- Sentry capture — integration is wired (`sentry.{client,server,edge}.config.ts`, `withSentryConfig` wrap in `next.config.mjs`, `lib/logger.ts` calls `captureException`/`captureMessage`); only needs `npm install @sentry/nextjs` in `apps/web` and a DSN in `.env.local`.
+- Apple + Google OAuth provider config in the Supabase dashboard — UI buttons + redirect are wired; only the dashboard side remains.
 - Production-ready legal — `/privacy` and `/terms` are real drafts; need lawyer review before public launch.
+- Custom domain — purchase + DNS pointed at Vercel.
 
 ## Working norms
 

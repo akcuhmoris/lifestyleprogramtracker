@@ -44,6 +44,8 @@ const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL ??
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
@@ -118,6 +120,16 @@ export default async function RootLayout({
       className={cn("dark", display.variable, mono.variable, sans.variable)}
       data-theme={theme}
     >
+      <head>
+        {/* Warm up DNS + TLS for Supabase so the first auth/data request
+            doesn't pay the full handshake cost. */}
+        {SUPABASE_URL ? (
+          <>
+            <link rel="preconnect" href={SUPABASE_URL} crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href={SUPABASE_URL} />
+          </>
+        ) : null}
+      </head>
       <body
         className={cn(
           sans.variable,
@@ -126,6 +138,15 @@ export default async function RootLayout({
           "min-h-screen bg-bg text-text font-sans antialiased"
         )}
       >
+        {/* Skip-to-main link — visible only when keyboard-focused.
+            Helps screen-reader and keyboard users bypass the persistent
+            nav + HUD chrome on every page. */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-[color:var(--accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-black focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] focus:ring-offset-2 focus:ring-offset-[color:var(--bg)]"
+        >
+          Skip to main content
+        </a>
         <BackgroundFx />
         <TrpcProvider>
           <ThemeProvider theme={theme}>
@@ -140,7 +161,9 @@ export default async function RootLayout({
               />
             ) : null}
             <Nav userEmail={userEmail} />
-            {children}
+            <div id="main-content" tabIndex={-1} className="outline-none">
+              {children}
+            </div>
             <WelcomeModal />
           </ThemeProvider>
         </TrpcProvider>

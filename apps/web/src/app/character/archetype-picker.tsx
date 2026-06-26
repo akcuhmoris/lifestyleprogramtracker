@@ -32,11 +32,19 @@ export function ArchetypePicker({ current }: Props) {
   const [isPending, startTransition] = useTransition();
   const [optimisticPick, setOptimisticPick] = useState<Archetype | null>(null);
   const [pendingPick, setPendingPick] = useState<Archetype | null>(null);
+  const [confirmingPick, setConfirmingPick] = useState<Archetype | null>(null);
 
   const selected = optimisticPick ?? current;
 
-  const handleSelect = (id: Archetype) => {
+  const handleCardClick = (id: Archetype) => {
     if (id === selected || isPending) return;
+    // Open a confirmation step instead of switching immediately.
+    setConfirmingPick(id);
+  };
+
+  const handleConfirm = (id: Archetype) => {
+    if (id === selected || isPending) return;
+    setConfirmingPick(null);
     setOptimisticPick(id);
     setPendingPick(id);
     startTransition(async () => {
@@ -50,23 +58,30 @@ export function ArchetypePicker({ current }: Props) {
     });
   };
 
+  const handleCancel = () => {
+    setConfirmingPick(null);
+  };
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {ARCHETYPES.map((a) => {
         const Icon = ICONS[a.icon] ?? Sword;
         const isSelected = selected === a.id;
         const isLoading = pendingPick === a.id;
+        const isConfirming = confirmingPick === a.id;
 
         return (
           <button
             key={a.id}
             type="button"
-            onClick={() => handleSelect(a.id)}
-            disabled={isPending}
+            onClick={() => handleCardClick(a.id)}
+            disabled={isPending || isSelected}
             aria-pressed={isSelected}
+            aria-haspopup={!isSelected ? "dialog" : undefined}
+            aria-expanded={isConfirming}
             className={cn(
               "group relative block w-full text-left transition-transform",
-              "hover:-translate-y-0.5",
+              !isSelected && "hover:-translate-y-0.5",
               "focus-visible:outline-none",
               isPending && !isLoading && "opacity-60",
             )}
@@ -83,6 +98,8 @@ export function ArchetypePicker({ current }: Props) {
                 isSelected
                   ? "ring-2 ring-[var(--ring-color)] shadow-[0_0_24px_-10px_var(--ring-color)]"
                   : "group-hover:border-[var(--ring-color)]",
+                isConfirming &&
+                  "ring-2 ring-[var(--ring-color)] shadow-[0_0_24px_-10px_var(--ring-color)]",
                 "group-focus-visible:ring-2 group-focus-visible:ring-[var(--ring-color)]",
               )}
             >
@@ -91,7 +108,9 @@ export function ArchetypePicker({ current }: Props) {
                 aria-hidden
                 className={cn(
                   "pointer-events-none absolute inset-0 -z-0 opacity-0 transition-opacity duration-300",
-                  isSelected ? "opacity-100" : "group-hover:opacity-60",
+                  isSelected || isConfirming
+                    ? "opacity-100"
+                    : "group-hover:opacity-60",
                 )}
                 style={{
                   background: `radial-gradient(circle at 30% 0%, ${a.accent}33 0%, transparent 65%)`,
@@ -128,7 +147,7 @@ export function ArchetypePicker({ current }: Props) {
                 </div>
 
                 {/* Status row */}
-                <div className="mt-1 flex h-5 items-center justify-center">
+                <div className="mt-1 flex min-h-5 items-center justify-center">
                   {isLoading ? (
                     <span className="text-xs text-[color:var(--text-muted)]">
                       Switching…
@@ -144,12 +163,80 @@ export function ArchetypePicker({ current }: Props) {
                     >
                       Active
                     </span>
-                  ) : (
+                  ) : isConfirming ? null : (
                     <span className="text-xs text-[color:var(--text-muted)]/70">
                       Tap to switch
                     </span>
                   )}
                 </div>
+
+                {/* Inline confirmation pill */}
+                {isConfirming && (
+                  <div
+                    role="dialog"
+                    aria-label={`Confirm switching to ${a.name}`}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      // Don't let space/enter bubble to the parent button.
+                      e.stopPropagation();
+                    }}
+                    className="relative z-20 mt-1 w-full rounded-xl border border-white/10 bg-black/40 p-3 text-left backdrop-blur"
+                    style={{
+                      boxShadow: `inset 0 0 0 1px ${a.accent}33`,
+                    }}
+                  >
+                    <p className="text-xs text-[color:var(--text)]">
+                      Switch to{" "}
+                      <span className="font-semibold" style={{ color: a.accent }}>
+                        {a.name}
+                      </span>
+                      ? Your XP and level stay the same — only the look changes.
+                    </p>
+                    <div className="mt-2.5 flex items-center justify-end gap-2">
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCancel();
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleCancel();
+                          }
+                        }}
+                        className="cursor-pointer rounded-full border border-white/10 px-3 py-1 text-[11px] font-medium text-[color:var(--text-muted)] hover:bg-white/5 hover:text-[color:var(--text)]"
+                      >
+                        Cancel
+                      </span>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleConfirm(a.id);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleConfirm(a.id);
+                          }
+                        }}
+                        className="cursor-pointer rounded-full px-3 py-1 text-[11px] font-semibold"
+                        style={{
+                          background: `${a.accent}26`,
+                          color: a.accent,
+                          boxShadow: `inset 0 0 0 1px ${a.accent}55`,
+                        }}
+                      >
+                        Yes, switch
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </HudPanel>
           </button>

@@ -358,14 +358,38 @@ export function TodayView({
 
 function EmptyTasksState() {
   return (
-    <div className="mt-6 rounded-2xl border border-dashed border-border bg-bg-card p-10 text-center">
-      <p className="text-text-muted">
-        No tasks configured.{" "}
-        <a href="/settings" className="text-accent-glow hover:underline">
-          Add some in Settings
-        </a>
-        .
+    <HudPanel tone="soft" className="mt-6 p-8 text-center sm:p-10">
+      <div
+        aria-hidden
+        className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/10"
+        style={{
+          background: "color-mix(in srgb, var(--accent) 14%, transparent)",
+          boxShadow:
+            "0 0 18px -6px color-mix(in srgb, var(--accent) 60%, transparent)",
+        }}
+      >
+        <span className="text-2xl">✨</span>
+      </div>
+      <h3 className="text-lg font-semibold tracking-tight text-[color:var(--text)]">
+        No tasks yet
+      </h3>
+      <p className="mx-auto mt-1.5 max-w-md text-sm text-[color:var(--text-muted)]">
+        Visit Settings to add your first task and start shaping your program.
       </p>
-    </div>
+      <div className="mt-5">
+        <a
+          href="/settings"
+          className="inline-flex items-center justify-center rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-[color:var(--text)] transition-colors"
+          style={{
+            background:
+              "color-mix(in srgb, var(--accent) 18%, transparent)",
+            boxShadow:
+              "inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent)",
+          }}
+        >
+          Add your first task
+        </a>
+      </div>
+    </HudPanel>
   );
 }

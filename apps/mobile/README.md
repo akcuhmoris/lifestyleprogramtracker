@@ -1,59 +1,67 @@
 # apps/mobile
 
-> 🚧 **Not yet scaffolded.** The Expo project lands here in Phase 7. See [`plan/03-mobile.md`](../../plan/03-mobile.md) for the full architecture and [`plan/08-roadmap.md`](../../plan/08-roadmap.md) for the schedule.
+Expo (managed workflow) + EAS Build app for **Lifestyle Program Tracker**.
 
-## When to start
+## Run locally
 
-Phase 7 unblocks when you have:
+```bash
+cd apps/mobile
+npm install
+npx expo start
+```
 
-- [ ] **Apple Developer Program** enrolled and active (~24–72 h activation)
-- [ ] **Google Play Console** enrolled and active (~48 h)
-- [ ] **Expo account** (free) at <https://expo.dev>
-- [ ] **Xcode** installed (Mac App Store) for the iOS simulator
-- [ ] **Bundle ID + Android package name** reserved (e.g. `com.yourname.program`)
+Press `i` for iOS simulator (requires Xcode), `a` for Android emulator, or scan the QR code with Expo Go on a physical device.
 
-Once those are in place, the AI will scaffold the Expo project here. The plan in `plan/03-mobile.md` covers exactly what gets built and in what order.
+### Environment variables
 
-## What it will contain
+Create `apps/mobile/.env` with:
+
+```
+EXPO_PUBLIC_SUPABASE_URL=...
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+```
+
+Use the same values as `apps/web/.env.local` (anon / publishable key — never the service-role key on the client).
+
+## Production builds (EAS)
+
+```bash
+npm install -g eas-cli
+eas login                 # one-time, requires an Expo account
+eas build:configure       # fills in the projectId in app.json on first run
+eas build --platform ios
+eas build --platform android
+```
+
+The `production` profile in `eas.json` auto-increments the build number.
+
+## Apple identifiers
+
+- Bundle ID: `com.akhilmorisetty.lifestyleprogramtracker`
+- Team ID: `S593UGVPW3`
+- Sign in with Apple: enabled on the App ID
+
+## Android identifiers
+
+- Package: `com.akhilmorisetty.lifestyleprogramtracker`
+
+## Project structure
 
 ```
 apps/mobile/
-├── App.tsx                # Root, with React Navigation tab bar
-├── app.json               # Expo config (scheme, bundle ID, splash)
-├── eas.json               # EAS Build profiles (preview, production)
+├── app.json                # Expo config
+├── eas.json                # EAS Build profiles
 ├── babel.config.js
-├── metro.config.js
 ├── tsconfig.json
-├── package.json           # Expo SDK + RN + Reanimated + NativeWind + TanStack Query
-└── src/
-    ├── screens/
-    │   ├── TodayScreen.tsx
-    │   ├── CalendarScreen.tsx
-    │   ├── StatsScreen.tsx
-    │   ├── SettingsScreen.tsx
-    │   ├── SignInScreen.tsx
-    │   └── SignUpScreen.tsx
-    ├── components/         # Native equivalents of web components
-    ├── lib/
-    │   ├── supabase.ts     # mobile Supabase client (Expo SecureStore for tokens)
-    │   ├── trpc.ts         # tRPC client wired to the same routers as web
-    │   └── theme.ts        # NativeWind tokens sharing apps/web's palette
-    └── navigation/
+├── package.json
+├── app/                    # expo-router file-based routes
+│   ├── _layout.tsx         # Root Stack + SafeAreaProvider
+│   ├── index.tsx           # Landing / welcome
+│   └── signin.tsx          # Sign-in (stub — wires to Supabase next)
+└── lib/
+    └── supabase.ts         # Supabase client w/ AsyncStorage persistence
 ```
 
-## What it will share with the web
+## Shared code
 
-| From | Path | Why |
-| --- | --- | --- |
-| Shared types | `packages/shared/src/{date,tasks,icons}.ts` | Day math, Task type, icon names |
-| tRPC API | `packages/api` (type import only) | End-to-end type safety against the same backend |
-| Design tokens | `apps/web/tailwind.config.ts` (re-export) | Single source of palette + spacing |
-
-## What it will NOT share
-
-- React components — web uses HTML/CSS, mobile uses RN primitives. They're different render targets.
-- Routing — web uses Next.js App Router, mobile uses React Navigation.
-
-## Until then
-
-The web app at `apps/web` handles every feature. Nothing about mobile preparation has to happen before you start your Expo account.
+Imports from `@program/shared` (workspace) for date math, task types, and icon registry — the same source the web app uses.

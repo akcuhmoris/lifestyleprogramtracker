@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 
+import { createRequire } from "node:module";
+
 // Security headers applied to every response.
 // CSP is intentionally left out until we add third-party origins (Supabase,
 // Sentry, etc.). Once we do, add it here with specific allowlists.
@@ -40,4 +42,25 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// Wrap with Sentry's Next.js plugin if the package is installed. The plugin
+// uploads source maps at build time and injects the SDK initialization. We
+// require it lazily so the build still works before the user runs
+// `npm install @sentry/nextjs`.
+let exportedConfig = nextConfig;
+try {
+  const require = createRequire(import.meta.url);
+  const { withSentryConfig } = require("@sentry/nextjs");
+  exportedConfig = withSentryConfig(nextConfig, {
+    silent: true,
+    org: process.env.SENTRY_ORG,
+    project: "lifestyleprogramtracker-web",
+    widenClientFileUpload: true,
+    hideSourceMaps: true,
+    disableLogger: true,
+    automaticVercelMonitors: true,
+  });
+} catch {
+  // @sentry/nextjs not installed yet — ship the plain config.
+}
+
+export default exportedConfig;
