@@ -50,7 +50,7 @@ export async function signUpAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -63,9 +63,15 @@ export async function signUpAction(formData: FormData) {
     redirect(`/signup?error=${encodeURIComponent(error.message)}&next=${encodeURIComponent(next)}`);
   }
 
-  // If email confirmation is disabled in Supabase settings, the user is now
-  // signed in. Otherwise they need to click the confirmation email.
   revalidatePath("/", "layout");
+
+  // If email confirmation is disabled in Supabase settings, signUp returns a
+  // live session and the user is already signed in — send them straight into
+  // onboarding instead of a dead-end "check your email" page. When
+  // confirmation is enabled, `session` is null and they must click the email.
+  if (data.session) {
+    redirect(next);
+  }
   redirect(`/auth/check-email?email=${encodeURIComponent(email)}`);
 }
 
